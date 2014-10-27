@@ -1,0 +1,13 @@
+*
+
+!.gitignore
+
+!*/
+!/app/AppKernel.php
+!/app/config/config.yml
+!/app/config/parameters.yml
+!/app/Resources/views/base.html.twig
+
+!/src/Marton/*
+
+!/web/bundles/martontopcars/*
