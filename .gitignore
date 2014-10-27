@@ -8,6 +8,22 @@
 !/app/config/parameters.yml
 !/app/Resources/views/base.html.twig
 
-!/src/Marton/*
+!/src/Marton/TopCarsBundle/Classes/*
+!/src/Marton/TopCarsBundle/Controller/*
+!/src/Marton/TopCarsBundle/Entity/*
+!/src/Marton/TopCarsBundle/Form/Model/*
+!/src/Marton/TopCarsBundle/Form/Type/*
+!/src/Marton/TopCarsBundle/Repository/*
+!/src/Marton/TopCarsBundle/Resources/config/routing.yml
+!/src/Marton/TopCarsBundle/Resources/views/Default/*
+!/src/Marton/TopCarsBundle/Resources/views/Default/Pages/*
+!/src/Marton/TopCarsBundle/Resources/views/Default/Pages/Subpages/*
 
-!/web/bundles/martontopcars/*
+!/web/bundles/martontopcars/css/*
+!/web/bundles/martontopcars/js/*
+!/web/bundles/martontopcars/images/avatar/*
+!/web/bundles/martontopcars/images/background/*
+!/web/bundles/martontopcars/images/card_game/*
+!/web/bundles/martontopcars/images/src/*
+!/web/app.php
+!/web/app_dev.php

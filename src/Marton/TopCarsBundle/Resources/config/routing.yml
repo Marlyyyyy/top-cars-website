@@ -1,0 +1,3 @@
+marton_top_cars_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: MartonTopCarsBundle:Default:index }
