@@ -1,1 +1,91 @@
-Hello {{ name }}!
+{% extends '::base.html.twig' %}
+
+{% block title %}Top Cars{% endblock %}
+
+{% block body %}
+
+    <div class="main_container">
+
+        <div class="top_header">
+
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+
+                <div class="user_info" >
+                    <p></p>
+                </div>
+
+                <ul>
+                    <li class="red">
+                        <a class="top_tabs" href="">
+                            logout
+                        </a>
+                    </li><li>
+                        <a class="top_tabs{% block active_tab_account %}{% endblock %}" href="">
+                            account
+                        </a>
+                    </li>
+                </ul>
+
+            {% else %}
+
+                <ul>
+                    <li>
+                        <a class="top_tabs{% block active_tab_login %}{% endblock %}" href="">
+                            login
+                        </a>
+                    </li><li>
+                        <a class="top_tabs{% block active_tab_register %}{% endblock %}" href="" >
+                            register
+                        </a>
+                    </li>
+                </ul>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Menu -->
+        <div class="menu">
+            <div class='dashboard'>
+
+                <ul>
+                    <li>
+                        <a class="dashboard_tabs{% block active_tab_game %}{% endblock %}" href="">
+                            game
+                        </a>
+                    </li><li>
+                        <a class="dashboard_tabs{% block active_tab_highscores %}{% endblock %}" href="">
+                            leaderboard
+                        </a>
+                    </li><li>
+                        <a class="dashboard_tabs{% block active_tab_cars %}{% endblock %}" href="" >
+                            cars
+                        </a>
+                    </li><li>
+                        <a class="dashboard_tabs{% block active_about %}{% endblock %}" href="" >
+                            about
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Optional Decoration -->
+            {% block dash_line %}{% endblock %}
+
+        </div>
+
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+
+
+        <div class="copyright noselect">
+            <p>Copyright 2014 - Márton Széles</p>
+        </div>
+
+    </div>
+
+    <!-- Optional Background -->
+    {% block background %}{% endblock %}
+
+{% endblock %}

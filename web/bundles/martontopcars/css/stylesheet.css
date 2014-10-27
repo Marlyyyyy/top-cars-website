@@ -1,0 +1,229 @@
+body{
+    margin: 0px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+a{
+    color:#333;
+    text-decoration: none;
+}
+
+a:visited{
+    color:#333;
+    text-decoration: none;
+}
+
+p{
+    font-family: sans-serif;
+}
+
+h1{
+    font-size: 18px;
+    text-align: left;
+    color: rgba(0, 0, 0, 0.65);
+    margin-bottom:15px;
+    margin-top: 15px;
+    border-bottom: 1px solid rgb(230, 230, 230);
+}
+h2{
+    text-align: left;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.65);
+    margin: 10px 20px;
+}
+h4{
+    font-size: 12px;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.65);
+    margin-bottom:5px;
+}
+
+hr{
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid rgb(230, 230, 230);
+    margin-left:20px;
+    margin-right:20px;
+}
+
+.top_header{
+    text-align: center;
+    line-height:50px;
+    height:50px;
+    font-size:20px;
+}
+
+.top_header a{
+    color: white !important;
+}
+
+.top_header ul li{
+    display: inline-block;
+    list-style: none;
+    width: 120px;
+    float: right;
+    margin: 0px;
+    padding: 0px;
+
+    white-space: nowrap;
+    border-right: 1px solid black;
+    /*border-left: 1px solid rgba(255,255,255,0.2);*/
+    text-align: center;
+    color: #FFF;
+    font-size: inherit;
+    position: relative;
+
+    background: rgba(85, 85, 85, 0.44);
+}
+
+.top_header ul li a{
+    text-shadow: 1px 1px 2px black;
+    display: block;
+    font-size: inherit;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.top_header ul li a:hover{
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.top_header_active{
+    background: rgba(0, 173, 255, 0.3) !important;
+}
+
+.red{
+    background: rgba(255, 0, 0, 0.3) !important;
+}
+.red:hover{
+    background: rgba(255, 0, 0, 0.6) !important;
+}
+
+.user_info{
+    white-space: normal;
+    display:inline-block;
+    float:left;
+}
+
+.user_info p{
+    padding:0px 10px 0px 10px;
+    line-height: 50px;
+    font-size: 15px;
+    color:rgb(107, 107, 107);
+}
+
+.menu{
+    position: relative;
+    z-index: 1;
+    box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard{
+    background: grey;
+    min-height: 70px;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+    background: url(../images/src/dashboard.png) repeat-x;
+    overflow-x: hidden;
+    /*border-top: 1px solid rgb(207, 207, 207);
+    border-bottom: 1px solid rgb(207, 207, 207);*/
+    color: #333;
+    text-shadow: 0px 0px 1px rgb(216, 216, 216);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard ul{
+    margin: 0px auto 0px auto;
+    width:1024px;
+}
+.dashboard ul:after{
+    content: "";
+    position: absolute;
+    display: block;
+    z-index: 1;
+    width: 1px;
+    height: 70px;
+    background-color: rgb(207, 207, 207);
+    margin: 0 0 0 1023px;
+}
+
+.dashboard ul li{
+    display: inline-block;
+    list-style: none;
+    width:25%;
+    float: left;
+    margin: 0px;
+    padding: 0px;
+}
+.dashboard ul li .dashboard_tabs:before{
+    content: "";
+    position: absolute;
+    display: block;
+    z-index: 1;
+    width: 1px;
+    height: 70px;
+    background: rgb(207, 207, 207);
+}
+
+.dashboard ul li .dashboard_tabs{
+    line-height: 70px;
+    font-size: 22px;
+    min-height: 70px;
+    display: block;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    width: auto;
+    color:#444;
+    transition: color .25s ease;
+}
+.dashboard ul li:hover > .dashboard_tabs{
+    background: url(../images/src/dashboard_active.png) repeat-x;
+    color:white !important;
+}
+
+.dashboard ul li:hover > .dashboard_tabs:before{
+    background: none;
+}
+
+.dashboard ul li .active{
+    background: url(../images/src/dashboard_active.png) repeat-x;
+    color:white !important;
+}
+
+.dashboard ul li .active:before{
+    background: none;
+}
+
+.dash_line{
+    height: 8px;
+    background: rgb(60, 60, 60);
+}
+
+.shadow{
+    box-shadow: 0px 2px 12px rgba(14, 14, 14, 0.5);
+}
+
+.copyright{
+    font-size:11px;
+    color:rgba(70, 70, 70, 0.6);
+    margin:10px auto;
+    padding-right:10px;
+    text-align: right;
+    width:1024px;
+}
