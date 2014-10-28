@@ -1,3 +1,12 @@
 marton_top_cars_homepage:
     path:     /hello/{name}
     defaults: { _controller: MartonTopCarsBundle:Default:index }
+
+
+# trailing slash should always be removed from the end of the URL
+remove_trailing_slash:
+    path: /{url}
+    defaults: { _controller: MartonTopCarsBundle:Redirect:removeTrailingSlash }
+    requirements:
+        url: .*/$
+    methods: [GET]
