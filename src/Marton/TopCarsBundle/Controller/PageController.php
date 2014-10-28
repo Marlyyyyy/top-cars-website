@@ -12,4 +12,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class PageController extends Controller {
 
+    // Home page
+    public function homeAction(){
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
+    }
+
 } 
