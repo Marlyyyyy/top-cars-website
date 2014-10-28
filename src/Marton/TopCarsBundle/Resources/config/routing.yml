@@ -2,6 +2,15 @@ marton_topcars_default:
     pattern:  /
     defaults: { _controller: MartonTopCarsBundle:Page:home }
 
+# Account
+
+marton_topcars_register:
+    path:     /register
+    defaults: { _controller: MartonTopCarsBundle:Account:register }
+
+marton_topcars_create_account:
+    path:     /register/create
+    defaults: { _controller: MartonTopCarsBundle:Account:create }
 
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:

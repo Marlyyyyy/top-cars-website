@@ -1,0 +1,59 @@
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_register %} top_header_active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content right">
+
+        <div class="container shadow">
+
+            <div class="div_form">
+
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+
+                    <div class="success">
+                        <h4>You've already registered :)</h4>
+                    </div>
+
+                {% else %}
+
+                    <h1>Registration:</h1>
+
+                    {{ form_start(form) }}
+
+                    {{ form_errors(form.user.username) }}
+                    {{ form_label(form.user.username) }}
+                    {{ form_widget(form.user.username) }}
+
+                    {{ form_errors(form.user.email) }}
+                    {{ form_label(form.user.email) }}
+                    {{ form_widget(form.user.email) }}
+
+                    {{ form_errors(form.user.password) }}
+                    {{ form_widget(form.user.password) }}
+
+                    <div>
+
+                        {{ form_widget(form.terms) }}<a href="">Terms and Conditions</a>
+
+                    </div>
+
+                    {{ form_row(form.register) }}
+                    {{ form_end(form) }}
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
