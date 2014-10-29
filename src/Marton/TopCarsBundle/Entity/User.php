@@ -57,7 +57,14 @@ class User implements UserInterface, \Serializable{
     private $username;
 
 
-    // TODO: add many-to-many relationship with user roles
+    /**
+     * @ORM\ManyToMany(targetEntity="Role", inversedBy="users")
+     * @ORM\JoinTable(name="user_role",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
+     * )
+     *
+     */
     private $roles;
 
     public function __construct()
@@ -110,6 +117,19 @@ class User implements UserInterface, \Serializable{
     public function getRoles()
     {
         return $this->roles->toArray();
+    }
+
+    /**
+     * Add roles
+     *
+     * @param \Marton\TopCarsBundle\Entity\Role $role
+     * @return User
+     */
+    public function addRole(\Marton\TopCarsBundle\Entity\Role $role) {
+        $this->roles[] = $role;
+        $role->addUser($this);
+
+        return $this;
     }
 
     /**

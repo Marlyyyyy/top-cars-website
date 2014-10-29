@@ -36,7 +36,10 @@ class Role implements RoleInterface {
      */
     private $role;
 
-    // TODO: add many-to-many relationship with users
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="roles", cascade={"persist"})
+     *
+     */
     private $users;
 
     public function __construct()
@@ -80,6 +83,24 @@ class Role implements RoleInterface {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Marton\TopCarsBundle\Entity\User $users
+     * @return Role
+     */
+    public function addUser(\Marton\TopCarsBundle\Entity\User $users)
+    {
+        $this->users[] = $users;
+
+        return $this;
+    }
+
+    public function getUsers()
+    {
+        return $this->users->toArray();
     }
 
 
