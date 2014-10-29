@@ -11,6 +11,7 @@ namespace Marton\TopCarsBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Entity
  * @ORM\Table(name="tbl_user_progress")
  */
 
@@ -57,6 +58,11 @@ class UserProgress {
      * @ORM\Column(type="integer")
      */
     protected $roundLose = 0;
+
+    /**
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
 
     public function getId()
     {
@@ -131,5 +137,15 @@ class UserProgress {
     public function getStreak()
     {
         return $this->streak;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
     }
 } 

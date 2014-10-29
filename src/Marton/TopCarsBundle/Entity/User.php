@@ -56,6 +56,10 @@ class User implements UserInterface, \Serializable{
      */
     private $username;
 
+    /**
+     * @ORM\OneToOne(targetEntity="UserProgress")
+     */
+    private $progress;
 
     /**
      * @ORM\ManyToMany(targetEntity="Role", inversedBy="users")
@@ -96,6 +100,16 @@ class User implements UserInterface, \Serializable{
     public function setUsername($username)
     {
         $this->username = $username;
+    }
+
+    public function setProgress($progress)
+    {
+        $this->progress = $progress;
+    }
+
+    public function getProgress()
+    {
+        return $this->progress;
     }
 
     /**
