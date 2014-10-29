@@ -12,6 +12,14 @@ marton_topcars_create_account:
     path:     /register/create
     defaults: { _controller: MartonTopCarsBundle:Account:create }
 
+# Users should be automatically redirected when they have to login
+marton_topcars_login:
+    path:     /login
+    defaults: { _controller: MartonTopCarsBundle:Account:login }
+
+marton_topcars_login_check:
+    path: /login_check
+
 marton_topcars_logout:
     path: /logout
 

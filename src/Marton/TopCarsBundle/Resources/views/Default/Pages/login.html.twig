@@ -1,0 +1,58 @@
+
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_login %} top_header_active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content right">
+
+        <div class="container shadow">
+
+            <div class="div_form login">
+
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+
+                    <div class="success">
+                        <h4>You're already logged in :)</h4>
+                    </div>
+
+                {% else %}
+
+                    <h1>Login:</h1>
+
+                    {% if error %}
+                        <div class="error">{{ error.message }}</div>
+                    {% endif %}
+
+                    <form action="{{ path('marton_topcars_login_check') }}" method="post">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="_username" value="{{ last_username }}" />
+
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="_password" />
+
+                        {#
+                            If you want to control the URL the user
+                            is redirected to on success (more details below)
+                            <input type="hidden" name="_target_path" value="/account" />
+                        #}
+
+                        <button type="submit">login</button>
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}

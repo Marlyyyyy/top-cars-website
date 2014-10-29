@@ -36,6 +36,8 @@ security:
             pattern:   ^/
             anonymous: ~
             form_login:
+                login_path: marton_topcars_login
+                check_path: marton_topcars_login_check
 
             logout:
                 path:   /logout
