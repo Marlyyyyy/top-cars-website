@@ -12,6 +12,9 @@ marton_topcars_create_account:
     path:     /register/create
     defaults: { _controller: MartonTopCarsBundle:Account:create }
 
+marton_topcars_logout:
+    path: /logout
+
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:
     path: /{url}

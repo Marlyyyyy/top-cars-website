@@ -37,7 +37,11 @@ security:
         secured_area:
             pattern:   ^/
             anonymous: ~
+            form_login:
 
+            logout:
+                path:   /logout
+                target: /
 
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
