@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Controller;
 
 
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Form\Model\Registration;
 use Marton\TopCarsBundle\Form\Type\RegistrationType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -43,6 +44,7 @@ class AccountController extends Controller{
         if ($form->isValid()) {
 
             $role = $em->getRepository('MartonTopCarsBundle:Role')->findOneBy(array('role' => 'ROLE_USER'));
+            $user_progress = new UserProgress();
 
             $registration = $form->getData();
 
@@ -58,7 +60,9 @@ class AccountController extends Controller{
             $user->setPassword($encodedPassword);
 
             $user->addRole($role);
+            $user->setProgress($user_progress);
 
+            $em->persist($user_progress);
             $em->persist($user);
             $em->flush();
 
