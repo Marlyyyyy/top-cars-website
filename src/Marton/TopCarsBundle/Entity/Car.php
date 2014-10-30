@@ -8,6 +8,7 @@
 
 namespace Marton\TopCarsBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -63,6 +64,17 @@ class Car {
      * @ORM\Column(type="integer")
      */
     private $price = 0;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="cars", cascade={"persist"})
+     *
+     */
+    private $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -147,5 +159,23 @@ class Car {
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Marton\TopCarsBundle\Entity\User $users
+     * @return Car
+     */
+    public function addUser(\Marton\TopCarsBundle\Entity\User $users)
+    {
+        $this->users[] = $users;
+
+        return $this;
+    }
+
+    public function getUsers()
+    {
+        return $this->users->toArray();
     }
 } 

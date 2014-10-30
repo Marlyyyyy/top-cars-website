@@ -71,9 +71,20 @@ class User implements UserInterface, \Serializable{
      */
     private $roles;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="Car", inversedBy="users")
+     * @ORM\JoinTable(name="user_car",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="car_id", referencedColumnName="id")}
+     * )
+     *
+     */
+    private $cars;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
+        $this->cars  = new ArrayCollection();
         $this->salt  = md5(uniqid(null, true));
     }
 
@@ -110,6 +121,28 @@ class User implements UserInterface, \Serializable{
     public function getProgress()
     {
         return $this->progress;
+    }
+
+    /**
+     * Returns the cars owned by the user.
+     * @return Car[]
+     */
+    public function getCars()
+    {
+        return $this->cars->toArray();
+    }
+
+    /**
+     * Add cars
+     *
+     * @param \Marton\TopCarsBundle\Entity\Car $car
+     * @return User
+     */
+    public function addCar(\Marton\TopCarsBundle\Entity\Car $car) {
+        $this->cars[] = $car;
+        $car->addUser($this);
+
+        return $this;
     }
 
     /**
