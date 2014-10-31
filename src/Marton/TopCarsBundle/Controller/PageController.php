@@ -8,6 +8,7 @@
 
 namespace Marton\TopCarsBundle\Controller;
 
+use Marton\TopCarsBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class PageController extends Controller {
@@ -27,6 +28,13 @@ class PageController extends Controller {
     // Cars -> Garage page
     public function garageAction(){
 
-        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig');
+        /* @var $user User */
+        $user = $this->get('security.context')->getToken()->getUser();
+        $cars =  $user->getCars();
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig', array(
+            "cars" => $cars,
+            "user" => $user
+        ));
     }
 } 
