@@ -23,6 +23,10 @@ marton_topcars_login_check:
 marton_topcars_logout:
     path: /logout
 
+marton_topcars_admin_execute:
+    path: /admin/execute
+    defaults: { _controller: MartonTopCarsBundle:Data:addPricesToCars }
+
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:
     path: /{url}
