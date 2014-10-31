@@ -6,7 +6,66 @@
 {% block subpage %}
 
 
+    <div class="submenu">
+        <a class="option{{ available_active }}" href="{{ path('marton_topcars_dealership', {'option':'available'}) }}" >Available</a>
+        <a class="option{{ all_active }}" href="{{ path('marton_topcars_dealership', {'option':'all'}) }}">All</a>
+    </div>
 
+    {% if empty %}
+        <div class="info_dialog">There's nothing to buy :(</div>
+    {% endif %}
+
+    <div class="cars">
+
+        {% for car in cars %}
+
+            <div class="card_frame">
+                <div class="frame_model">{{ car.model }}</div>
+                <div class="frame_content">
+                    <img width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}.png"/>
+                    <div class="frame_fade">
+                        <div class="frame_price">
+
+                            <div class="frame_buy">
+                                <button class="purchase" id="{{ car.id }}" name="{{ car.price }}">Purchase</button>
+
+                                <div>
+                                    <span>Pic</span><span>{{ car.price }}</span>
+                                </div>
+                            </div>
+
+                            <div class="frame_buy">
+                                <p>Purchase this car for {{ car.price }}?</p>
+
+                                <div>
+                                    <button class="bt_yes" id="{{ car.id }}" name="{{ car.price }}">Yes</button>
+                                    <button class="bt_no" id="{{ car.id }}">No</button>
+                                </div>
+                            </div>
+
+                            <div class="frame_buy">
+                                <p class="sold">SOLD!</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="frame_details">
+                    Speed: {{ car.speed }} km/h | Power: {{ car.power }} hp | Torque: {{ car.torque }} Nm <br> Acceleration: {{ car.acceleration }} s | Weight: {{ car.weight }} kg
+                </div>
+            </div>
+
+
+        {% endfor %}
+
+    </div>
+
+    <div class="user_footer">
+        <div class="user_level">
+            <p class="p_level">Level</p><p class="p_level_val">{{ user.progress.level }}</p>
+            <p class="p_level">Cr.</p><div id="user_gold"><p class="p_level_val" id="p_gold">{{ user.progress.gold }}</p></div>
+        </div>
+    </div>
 
 {% endblock %}
 

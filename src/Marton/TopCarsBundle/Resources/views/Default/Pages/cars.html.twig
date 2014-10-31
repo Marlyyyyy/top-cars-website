@@ -20,7 +20,7 @@
                         <p>My Garage</p>
                     </a>
 
-                    <a {% block active_dealership %}{% endblock %} href="{{ path('marton_topcars_dealership') }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/dealership.png') }})">
+                    <a {% block active_dealership %}{% endblock %} href="{{ path('marton_topcars_dealership', {'option': 'available'}) }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/dealership.png') }})">
                         <p>Dealership</p>
                     </a>
 

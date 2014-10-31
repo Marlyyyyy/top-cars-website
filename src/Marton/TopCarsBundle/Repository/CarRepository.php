@@ -40,4 +40,42 @@ class CarRepository extends EntityRepository {
         $query = $qb->getQuery();
         $query->execute();
     }
+
+    public function findAllNotUserCars($cars){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('c')
+            ->from('MartonTopCarsBundle:Car', 'c')
+            ->orderBy('c.model');
+
+        foreach ($cars as $car){
+            $qb->andWhere('NOT c.id ='.$car->getId());
+        }
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
+    public function findAllNotUserCarsWherePriceLessThan($price, $cars){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('c')
+            ->from('MartonTopCarsBundle:Car', 'c')
+            ->where('c.price <= :price')
+            ->setParameter('price', $price)
+            ->orderBy('c.price');
+
+        foreach ($cars as $car){
+            $qb->andWhere('NOT c.id ='.$car->getId());
+        }
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
 } 

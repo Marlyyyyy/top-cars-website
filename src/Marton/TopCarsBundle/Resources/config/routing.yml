@@ -7,8 +7,10 @@ marton_topcars_garage:
     defaults: {_controller: MartonTopCarsBundle:Page:garage }
 
 marton_topcars_dealership:
-    path: /dealership
-    defaults: {_controller: MartonTopCarsBundle:Page:dealership }
+    path: /dealership/{option}
+    defaults: {_controller: MartonTopCarsBundle:Page:dealership, option: "available" }
+    requirements:
+        option:  available|all
 
 # Account
 
