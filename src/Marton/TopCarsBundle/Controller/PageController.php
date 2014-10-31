@@ -18,4 +18,15 @@ class PageController extends Controller {
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
     }
 
+    // Cars -> Dealership page
+    public function dealershipAction(){
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/dealership.html.twig');
+    }
+
+    // Cars -> Garage page
+    public function garageAction(){
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig');
+    }
 } 

@@ -1,0 +1,42 @@
+
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_cars %} active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content shadow">
+        <div class="container" id="card_game">
+
+
+            <div class="header_content cars_header">
+
+                <div class="car_lots">
+                    <a {% block active_garage %}{% endblock %} href="{{ path('marton_topcars_garage') }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/garage.png') }})">
+                        <p>My Garage</p>
+                    </a>
+
+                    <a {% block active_dealership %}{% endblock %} href="{{ path('marton_topcars_dealership') }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/dealership.png') }})">
+                        <p>Dealership</p>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Unique page content -->
+            {% block subpage %}
+            {% endblock %}
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}

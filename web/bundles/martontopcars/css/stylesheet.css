@@ -347,3 +347,57 @@ hr{
 .success p{
     font-weight: normal;
 }
+
+/* Cars Page */
+.header_content{
+    height: 110px;
+    position: relative;
+    margin-top: -18px;
+}
+
+.header_content .car_lots{
+    line-height: 44px;
+    display: inline-block;
+    width: 100%;
+}
+
+.header_content .car_lots a{
+    color: rgba(255, 255, 255, 1);
+    display: inline-block;
+    width: 40%;
+    height: 53px;
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.3);
+    background-repeat: no-repeat;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6), 1px 1px 15px rgba(0, 0, 0, 0.7);
+    opacity: 0.5;
+    margin-top: 30px;
+    margin-right: 25px;
+    margin-left: 25px;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.5);
+    vertical-align:top;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    filter: grayscale(100%);
+    transition: 0.15s all ease-out;
+}
+
+.header_content .car_lots a:hover, .header_content .car_lots .active{
+    opacity:1;
+    text-shadow: none;
+    color: black;
+    -webkit-filter: grayscale(0%);
+    -moz-filter: grayscale(0%);
+    filter: grayscale(0%);
+}
+.header_content .car_lots .active{
+    font-size: 24px;
+}
+.header_content .car_lots a p{
+    margin-left: 12px;
+    margin-top: -40px;
+}
