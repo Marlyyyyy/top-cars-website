@@ -9,8 +9,10 @@
 namespace Marton\TopCarsBundle\Controller;
 
 use Marton\TopCarsBundle\Classes\PriceCalculator;
+use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Repository\CarRepository;
+use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class PageController extends Controller {
@@ -19,6 +21,24 @@ class PageController extends Controller {
     public function homeAction(){
 
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
+    }
+
+    public function leaderboardAction(){
+
+        // Get all highscores
+        /* @var $repository UserProgressRepository */
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:UserProgress');
+        $users = $repository-> findHighscores();
+
+        foreach ($users as $user){
+            $statisticsCalculator = new StatisticsCalculator($user);
+            /* @var $user User */
+            $user->setStatistics($statisticsCalculator->getStatistics());
+        }
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/leaderboard.html.twig', array(
+            'users' => $users
+        ));
     }
 
     // Cars -> Dealership page

@@ -356,6 +356,68 @@ hr{
     font-weight: normal;
 }
 
+/* Leaderboard Page*/
+.card_table{
+    border-radius: 2px;
+    margin: auto;
+    width: 90%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.card_table .avatar{
+    display: inline-block;
+    height:100%;
+    vertical-align: middle;
+}
+.card_table .avatar a{
+    display: block;
+}
+.card_table img{
+    display: block;
+}
+.card_table .avatar{
+    opacity:0.8;
+}
+.card_table tr:hover .avatar{
+    opacity: 1;
+}
+.card_table tr:hover{
+    background: rgba(0, 136, 250, 0.05);
+}
+
+.card_table a{
+    color: rgba(0, 0, 0, 0.75) !important;
+    font-weight: bold;
+    display:inline-block;
+}
+
+.card_table a:hover{
+    color: rgba(0, 0, 0, 1) !important;
+}
+
+.card_table .tr_header{
+    background:transparent !important;
+}
+.card_table tbody, tr{
+    width:100%;
+    line-height: 100%;
+}
+
+.card_table th{
+    text-align: center;
+    font-size: 14px;
+    color: grey;
+    padding:5px;
+}
+
+.card_table td{
+    text-align: center;
+    padding:5px;
+    border-right: 1px solid #f2f2f2;
+    border-top: 1px solid #f2f2f2;
+}
+
 /* Cars Page */
 .header_content{
     height: 110px;

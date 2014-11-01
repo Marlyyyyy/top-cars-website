@@ -1,0 +1,56 @@
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_highscores %} active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content shadow">
+        <div class="container" id="card_game">
+
+            <table class="card_table">
+                <tr class="tr_header">
+                    <th class="left">Player</th>
+                    <th>Level</th>
+                    <th>Score</th>
+                    <th>Win</th>
+                    <th>W/L ratio</th>
+                    <th>Streak</th>
+                </tr>
+                {% for user in users %}
+
+                    <tr>
+                        <td class="left">
+                            <div class="avatar">
+                                <a href="">
+                                    <img src="{{ asset('bundles/martontopcars/images/avatar/default_tn.jpg') }}" width="40px" height="40px"/>
+                                </a>
+                            </div>
+                            <a href="">{{ user.username }}</a>
+                        </td>
+
+                        <td>{{ user.progress.level }}</td>
+                        <td>{{ user.progress.score }}</td>
+                        <td>{{ user.progress.roundWin }}</td>
+                        <td>{{ user.statistics.wLRatio }}</td>
+                        <td>{{ user.progress.streak }}</td>
+                    </tr>
+
+
+
+                {% endfor %}
+
+            </table>
+
+
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
