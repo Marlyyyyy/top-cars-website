@@ -2,6 +2,10 @@ marton_topcars_default:
     pattern:  /
     defaults: { _controller: MartonTopCarsBundle:Page:home }
 
+marton_topcars_game:
+    path:     /game
+    defaults: { _controller: MartonTopCarsBundle:Page:game }
+
 marton_topcars_leaderboard:
     path:     /leaderboard
     defaults: { _controller: MartonTopCarsBundle:Page:leaderboard }

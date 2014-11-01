@@ -356,7 +356,256 @@ hr{
     font-weight: normal;
 }
 
+/* Game Page */
+
+.game_header{
+    z-index: 1;
+    position: relative;
+}
+
+.settings{
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display:none;
+}
+.settings_content{
+    color: rgba(0, 0, 0, 0.8);
+    background: white;
+    display: block;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.75);
+    padding: 30px;
+    text-align: left;
+    position: relative;
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px;
+}
+
+.settings h2{
+    margin:0 !important;
+}
+
+.settings hr{
+    margin: 0 !important;
+}
+
+.settings .setting_label{
+    display:inline-block;
+    width: 40%;
+}
+
+.settings .setting_input{
+    display:inline-block;
+    width: 40%;
+}
+
+.settings button{
+    border: none;
+    background: grey;
+    color:white;
+    padding:5px;
+    cursor:pointer;
+}
+
+.settings button:hover{
+    background: rgba(128, 128, 128, 0.80);
+}
+
+.battlefield{
+    background: rgba(224, 224, 224, 0.2);
+}
+
+.top_panel{
+    margin: 40px auto 10px auto;
+    width: 80%;
+    height: 50px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+    background: white;
+}
+.level_bar{
+    line-height: 50px;
+}
+.level_score{
+    display: inline-block;
+    z-index: 5;
+    line-height: 20px;
+    vertical-align: top;
+}
+.text_left{
+    text-align: left;
+}
+
+.text_right{
+    text-align: right;
+}
+
+.score_bar{
+    height:20px;
+    width:600px;
+    text-align: left;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 15px;
+    margin-left:auto;
+    margin-right:auto;
+    background: rgba(160, 160, 160, 0.21);
+}
+.score_bar .fill{
+    height: 100%;
+    background: rgba(0, 86, 196, 0.48);
+    width: 0;
+    border-radius: 2px;
+    display: inline-block;
+    vertical-align: top;
+}
+.card_block{
+    display:inline-block;
+    vertical-align: top;
+    width: 252px;
+    height: 372px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid rgb(221, 221, 221);
+}
+.player_controls{
+    display: inline-block;
+    width: 75px;
+    height: 354px;
+    padding-top: 20px;
+    vertical-align: top;
+}
+.streak_container{
+    width: 75px;
+    height: 75px;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 2px;
+    background:white;
+}
+.streak_container p {
+    color: grey;
+    line-height: 75px;
+    font-size: 25px;
+    font-weight: bold;
+}
+.card_fragment{
+    display: inline-block;
+    min-width: 260px;
+    width: 30%;
+    margin-top: 20px;
+}
+.player_card{
+    width: 240px;
+    padding: 10px 5px 10px 5px;
+    margin:auto;
+    display: none;
+}
+.card_name{
+    text-align:center;
+    padding: 5px 0px 5px 0px;
+    font-size: 14px;
+    height:14px;
+    text-overflow: clip;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    color: black;
+}
+.card_image{
+    padding: 5px 0px 5px 0px;
+    height:167px;
+}
+.card_row{
+    padding: 2px;
+    margin-top: 8px;
+    border-radius: 2px;
+    cursor:pointer;
+    transition: all 0.1s ease-out;
+    position: relative;
+}
+.card_row:hover{
+    background: rgba(0, 0, 0, 0.08);
+}
+.card_row span{
+    display:inline-block;
+    width:30%;
+    text-align: center;
+}
+
+.card_row_subscore{
+    height: 16px;
+    width: 40px;
+    padding: 5px;
+    position: absolute;
+    right: 10%;
+    opacity: 0.8;
+    border-radius: 2px;
+    display:none;
+}
+
+.score_red{
+    background: rgba(255, 19, 0, 0.40);
+    color: rgb(216, 0, 29);
+}
+.row_red{
+    background: rgba(255, 19, 0, 0.7) !important;
+    color: rgb(255, 255, 255);
+}
+.score_green{
+    background: rgba(102, 255, 0, 0.4);
+    color: rgb(5, 124, 0);
+}
+.row_green{
+    background: rgba(12, 150, 0, 0.7) !important;
+    color: rgb(255, 255, 255);
+}
+.row_draw{
+    background: rgba(255, 173, 0, 0.7) !important;
+    color: rgb(255, 255, 255);
+}
+.row_label{
+    width: 38% !important;
+    text-align: left !important;
+}
+.row_unit{
+    width: 25% !important;
+    text-align: right !important;
+}
+
+.battlefield .bt{
+    background: rgb(188,188,188); /* Old browsers */
+    background: -moz-linear-gradient(left,  rgba(228, 228, 228, 1) 0%, rgba(243, 243, 243, 1) 35%, rgba(243, 243, 243, 1) 59%, rgba(228, 228, 228, 1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(228, 228, 228, 1)), color-stop(35%,rgba(228, 228, 228, 1)), color-stop(59%,rgba(228, 228, 228, 1)), color-stop(100%,rgba(228, 228, 228, 1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left,  rgba(228, 228, 228, 1) 0%,rgba(243, 243, 243, 1) 35%,rgba(243, 243, 243, 1) 59%,rgba(228, 228, 228, 1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left,  rgba(228, 228, 228, 1) 0%,rgba(243, 243, 243, 1) 35%,rgba(243, 243, 243, 1) 59%,rgba(228, 228, 228, 1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left,  rgba(228, 228, 228, 1) 0%,rgba(243, 243, 243, 1) 35%,rgba(243, 243, 243, 1) 59%,rgba(228, 228, 228, 1) 100%); /* IE10+ */
+    background: linear-gradient(to right, rgba(228, 228, 228, 1) 0%,rgba(243, 243, 243, 1) 35%,rgba(243, 243, 243, 1) 59%,rgba(228, 228, 228, 1) 100%);
+
+
+    padding: 5px;
+    display: none;
+    width: 65px;
+    color: rgb(129, 129, 129);
+    box-shadow: 0px 1px 5px rgb(165, 165, 165);
+    text-shadow: 1px 0px 12px white;
+    line-height: 30px;
+    height: 35px;
+    cursor: pointer;
+}
+.battlefield .bt:hover{
+    box-shadow: 0px 1px 5px rgba(165, 165, 165, 0.31);
+}
+
 /* Leaderboard Page*/
+
 .card_table{
     border-radius: 2px;
     margin: auto;

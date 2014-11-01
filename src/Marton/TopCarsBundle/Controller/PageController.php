@@ -23,6 +23,11 @@ class PageController extends Controller {
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
     }
 
+    public function gameAction(){
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig');
+    }
+
     public function leaderboardAction(){
 
         // Get all highscores

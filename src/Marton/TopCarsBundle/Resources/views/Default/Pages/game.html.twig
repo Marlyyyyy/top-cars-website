@@ -1,0 +1,109 @@
+
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_game %} active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content shadow">
+        <div class="container noselect" id="card_game">
+
+            <div class="game_header">
+                <button id="bt_settings">Settings</button>
+            </div>
+
+            <div class="settings">
+                <div class="settings_content">
+                    <h2>Settings</h2>
+                    <hr>
+                    <div class="setting_label">Number of players:</div>
+                    <div class="setting_input">
+                        <input type="text" min="2" max="10"/>
+                    </div>
+                    <div class="setting_action">
+                        <button id="save">Save</button>
+                        <button id="cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user_header">
+
+            </div>
+
+
+            <!-- Top Panel-->
+            <div class="top_panel" id="top_panel">
+                <div class="level_bar">
+
+                    <div class="score_bar">
+                        <div class="fill" id="s_fill"></div>
+                        <div class="level_score" id="s_score">0</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Battlefield -->
+            <div class="battlefield" id="battlefield">
+
+
+                {#<div class="card_fragment" id="c_fragment">
+
+                    <div class="card_block" id="c_block">
+
+                        <div class="player_card" id="c_card">
+
+                            <div class="card_name" id="c_name"></div>
+                            <div class="card_image" id="c_image">
+                                <img id="v_image" width="230px" height="153px" src="{{ asset('bundles/martontopcars/images/card_game/alfaromeo8c.png') }}"/>
+                            </div>
+
+                            <div class="card_row" id="c_speed" name="speed">
+                                <span class="row_label">Speed:</span>
+                                <span id="v_speed">345</span>
+                                <span class="row_unit">Km/h</span>
+                            </div>
+
+                            <div class="card_row" id="c_power" name="power">
+                                <span class="row_label">Power:</span>
+                                <span id="v_power">345</span>
+                                <span class="row_unit">Hp</span>
+                            </div>
+
+                            <div class="card_row" id="c_torque" name="torque">
+                                <span class="row_label">Torque:</span>
+                                <span id="v_torque">345</span>
+                                <span class="row_unit">Nm</span>
+                            </div>
+
+                            <div class="card_row" id="c_acceleration" name="acceleration">
+                                <span class="row_label">Acceleration:</span>
+                                <span id="v_acceleration">345</span>
+                                <span class="row_unit">s</span>
+                            </div>
+
+                            <div class="card_row" id="c_weight" name="weight">
+                                <span class="row_label">Weight:</span>
+                                <span id="v_weight">345</span>
+                                <span class="row_unit">kg</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>#}
+
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
