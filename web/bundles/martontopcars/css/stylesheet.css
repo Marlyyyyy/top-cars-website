@@ -228,6 +228,28 @@ hr{
     width:1024px;
 }
 
+
+/* Loading Circle */
+
+.loading_container{
+    position: fixed;
+    z-index: -1;
+    width: 108px;
+    height: 100px;
+    margin-left:-108px;
+    margin-top:-100px;
+    top: 50%;
+    left: 50%;
+    background:url(../images/src/loading.gif);
+}
+
+.progress_p{
+    line-height: 100px;
+    text-align: center;
+    font-weight: bold;
+    color: grey;
+}
+
 /* Pages */
 
 .content{
