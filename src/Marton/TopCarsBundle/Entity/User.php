@@ -81,6 +81,19 @@ class User implements UserInterface, \Serializable{
      */
     private $cars;
 
+    // Array to store calculated statistics
+    private $statistics;
+
+    public function setStatistics($statistics)
+    {
+        $this->statistics = $statistics;
+    }
+
+    public function getStatistics()
+    {
+        return $this->statistics;
+    }
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
