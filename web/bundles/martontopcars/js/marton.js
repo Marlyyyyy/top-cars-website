@@ -201,6 +201,83 @@ function Game(){
 
     function Card(){
 
+        this.create = function(){
+
+            var field_holder = {};
+            var view_holder = {};
+
+            var card_fragment = document.createElement("div");
+            card_fragment.className = "card_fragment";
+
+            // Card
+            var card_block = document.createElement("div");
+            card_block.className = "card_block";
+            card_fragment.appendChild(card_block);
+
+            var player_card = document.createElement("div");
+            player_card.className = "player_card";
+            card_block.appendChild(player_card);
+            view_holder.card = player_card;
+
+            // Card Name
+            var card_name = document.createElement("div");
+            card_name.className = "card_name";
+            player_card.appendChild(card_name);
+
+            field_holder.model = card_name;
+            view_holder.model = card_name;
+
+            // Card Image
+            var card_image = document.createElement("div");
+            card_image.className = "card_image";
+            player_card.appendChild(card_image);
+
+            var img = document.createElement("img");
+            card_image.appendChild(img);
+
+            field_holder.image = img;
+            view_holder.image = card_image;
+
+
+            // Rest
+            var card_row, row_label, t;
+
+            for(key in default_field){
+                if(default_field.hasOwnProperty(key)){
+                    card_row = document.createElement("div");
+                    card_row.className = "card_row";
+                    card_row.setAttribute("name",key);
+                    card_row.addEventListener("click",select_field);
+                    player_card.appendChild(card_row);
+                    view_holder[key] = card_row;
+
+                    row_label = document.createElement("span");
+                    row_label.className = "row_label";
+                    card_row.appendChild(row_label);
+
+                    t = document.createTextNode(default_field[key].label);
+                    row_label.appendChild(t);
+
+                    // Changing field
+                    row_label = document.createElement("span");
+                    card_row.appendChild(row_label);
+                    field_holder[key] = row_label;
+
+                    row_label = document.createElement("span");
+                    row_label.className = "row_unit";
+                    card_row.appendChild(row_label);
+
+                    t = document.createTextNode(default_field[key].unit);
+                    row_label.appendChild(t);
+                }
+            }
+
+            return {
+                field_holder: field_holder,
+                view_holder: view_holder,
+                card_fragment: card_fragment
+            };
+        };
     }
 
     function Battlefield(){
