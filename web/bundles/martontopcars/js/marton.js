@@ -61,3 +61,150 @@ function preload_images(array, el){
         }
     }
 }
+
+function Game(){
+
+    // Default settings
+    var setting = {
+        "players" : 4,
+        "img_folder": "",
+        "img_format":".png",
+        "ajax_post_score":"",
+        "game_container": document.getElementById("card_game")
+    };
+
+    this.setPlayers = function(number){
+        setting.players = number;
+        return this;
+    };
+    this.setImgFolder = function(path){
+        setting.img_folder = path;
+        return this;
+    };
+    this.setImgFormat = function(format){
+        setting.img_format = format;
+        return this;
+    };
+    this.setAjaxPostScore = function(path){
+        setting.ajax_post_score = path;
+        return this;
+    };
+
+    var anim_setting = {
+        "fade_speed":150
+    };
+
+    // Stores progress details about the logged in user
+    var user_info;
+    this.setUserInfo = function(info){
+        user_info = info;
+    };
+
+    // Whole deck of cards
+    var cards = {};
+    this.setCards = function (deck){
+    };
+
+    // Returns a random card from the deck
+    function get_random_card(){
+    }
+
+    this.preload_images = function(callback){
+    };
+
+    var default_field =  {
+        speed:{
+            label:"Speed:",
+            unit:"km/h",
+            column_name:"speed"
+        },
+        power:{
+            label:"Power:",
+            unit:"hp",
+            column_name:"power"
+        },
+        torque:{
+            label:"Torque:",
+            unit:"Nm",
+            column_name:"torque"
+        },
+        acceleration:{
+            label:"Acceleration:",
+            unit:"s",
+            column_name:"acceleration"
+        },
+        weight:{
+            label:"Weight:",
+            unit:"kg",
+            column_name:"weight"
+        }
+    };
+
+    var ui_container = {};
+    var previous_active_rows;
+
+    var top_panel;
+    function get_top_panel(){
+        return top_panel;
+    }
+
+    // Containing agents of the game
+    var entity = {
+        player:{
+            host:null,
+            opponent:[]
+        }
+    };
+
+    // States of the game
+    var isPaused        = false;
+    var hasRoundEnded   = false;
+    var isEnded         = true;
+
+    // Actions made in the game
+    function start(){
+    }
+
+    function restart(){
+    }
+
+    function next_round(){
+    }
+
+    function new_round(){
+    }
+
+    function select_field(){
+
+    }
+
+    function create_UI(){
+    }
+
+    function removeUI(){
+
+    }
+
+    // Module responsible for re-appearing buttons after each round.
+    var roundControls = (function(){
+    })();
+
+    // Classes
+
+    function Player(){
+
+    }
+
+    function TopPanel(){
+
+    }
+
+    function Card(){
+
+    }
+
+    function Battlefield(){
+
+    }
+
+}
