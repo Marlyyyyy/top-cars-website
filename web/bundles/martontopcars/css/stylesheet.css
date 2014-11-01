@@ -356,6 +356,221 @@ hr{
     font-weight: normal;
 }
 
+/* Leaderboard Page*/
+.card_table{
+    border-radius: 2px;
+    margin: auto;
+    width: 90%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.card_table .avatar{
+    display: inline-block;
+    height:100%;
+    vertical-align: middle;
+}
+.card_table .avatar a{
+    display: block;
+}
+.card_table img{
+    display: block;
+}
+.card_table .avatar{
+    opacity:0.8;
+}
+.card_table tr:hover .avatar{
+    opacity: 1;
+}
+.card_table tr:hover{
+    background: rgba(0, 136, 250, 0.05);
+}
+
+.card_table a{
+    color: rgba(0, 0, 0, 0.75) !important;
+    font-weight: bold;
+    display:inline-block;
+}
+
+.card_table a:hover{
+    color: rgba(0, 0, 0, 1) !important;
+}
+
+.card_table .tr_header{
+    background:transparent !important;
+}
+.card_table tbody, tr{
+    width:100%;
+    line-height: 100%;
+}
+
+.card_table th{
+    text-align: center;
+    font-size: 14px;
+    color: grey;
+    padding:5px;
+}
+
+.card_table td{
+    text-align: center;
+    padding:5px;
+    border-right: 1px solid #f2f2f2;
+    border-top: 1px solid #f2f2f2;
+}
+
+/* User Page */
+.user{
+    background: #f4f4f4;
+    padding: 14px;
+}
+
+.user_header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    height: 60px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: inline-block;
+}
+
+.profile_header{
+    line-height:45px;
+    height:60px;
+}
+.user_name{
+    display:inline-block;
+}
+
+.stats_block{
+    background: white;
+    padding: 12px;
+    width: 94%;
+    border: 1px solid #e8e8e8;
+    margin: auto;
+}
+.user_profile{
+    z-index:1;
+    position:relative;
+}
+.user_column{
+    display: inline-block;
+}
+
+.user_left{
+    width: 24%;
+    float: left;
+}
+.user_left img{
+    box-shadow: 0 0 10px black;
+    display:block;
+    margin:auto;
+    margin-bottom: 10px;
+}
+
+.user_roles{
+    display:block;
+    font-size:11px;
+    font-weight:bold;
+    line-height:11px;
+    background: rgba(15,44,158,0);
+    background: -moz-linear-gradient(left, rgba(15,44,158,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(15,44,158,0)), color-stop(50%, rgba(255,255,255,1)), color-stop(100%, rgba(255,255,255,0)));
+    background: -webkit-linear-gradient(left, rgba(15,44,158,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+    background: -o-linear-gradient(left, rgba(15,44,158,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+    background: -ms-linear-gradient(left, rgba(15,44,158,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(to right, rgba(15,44,158,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+}
+
+.user_right{
+    width: 75%;
+    text-align: left;
+}
+
+.user_profile h3{
+    color:white;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+/**/
+
+.stats_general{
+    display:inline-block;
+    vertical-align: top;
+    width: 49%;
+}
+.stats_general table p{
+    color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 5px;
+}
+.stats_general table h4{
+    color: rgba(0, 0, 0, 1) !important;
+    margin-left: 35px;
+}
+.stats_general table td{
+    margin-bottom: 5px;
+}
+.stats_right{
+    display:inline-block;
+    vertical-align:top;
+    width: 49%;
+}
+.stats_right .stat_box{
+    width: 100px;
+    display:inline-block;
+    vertical-align: top;
+}
+.stat_box p{
+    text-align:center;
+    font-size:12px;
+    color:grey;
+}
+.stat_val_big{
+    font-size: 30px !important;
+    font-weight: bold !important;
+}
+.stats_graphics{
+    display: table;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.meter_frame{
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    height: 100%;
+    position:relative;
+}
+.stats_meter{
+    width: 100%;
+    height: 70%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    position:relative;
+    background: rgba(252,252,252,1);
+    background: -moz-linear-gradient(left, rgba(252,252,252,1) 0%, rgba(38,115,176,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(252,252,252,1)), color-stop(100%, rgba(38,115,176,1)));
+    background: -webkit-linear-gradient(left, rgba(252,252,252,1) 0%, rgba(38,115,176,1) 100%);
+    background: -o-linear-gradient(left, rgba(252,252,252,1) 0%, rgba(38,115,176,1) 100%);
+    background: -ms-linear-gradient(left, rgba(252,252,252,1) 0%, rgba(38,115,176,1) 100%);
+    background: linear-gradient(to right, rgba(252,252,252,1) 0%, rgba(38,115,176,1) 100%);
+}
+.stats_lever{
+    width:1px;
+    height: 100%;
+    background: black;
+    position:absolute;
+    border-left: 1px solid rgb(189, 189, 189);
+    border-right: 1px solid rgb(189, 189, 189);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.75);
+    top:0;
+}
+
 /* Cars Page */
 .header_content{
     height: 110px;

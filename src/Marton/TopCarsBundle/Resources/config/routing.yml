@@ -2,6 +2,14 @@ marton_topcars_default:
     pattern:  /
     defaults: { _controller: MartonTopCarsBundle:Page:home }
 
+marton_topcars_leaderboard:
+    path:     /leaderboard
+    defaults: { _controller: MartonTopCarsBundle:Page:leaderboard }
+
+marton_topcars_user:
+    path: /user/{user}
+    defaults: {_controller: MartonTopCarsBundle:Page:user }
+
 marton_topcars_garage:
     path: /garage
     defaults: {_controller: MartonTopCarsBundle:Page:garage }

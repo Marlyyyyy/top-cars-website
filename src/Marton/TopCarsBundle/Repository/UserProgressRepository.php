@@ -28,4 +28,21 @@ class UserProgressRepository extends EntityRepository{
         return $result;
     }
 
+    public function findDetailsOfUser($username){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('uprog, partial u.{id, username}')
+            ->from('MartonTopCarsBundle:User', 'u')
+            ->where('u.username = :username')
+            ->innerJoin('u.progress', 'uprog')
+            ->setParameter('username', $username);
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
 } 

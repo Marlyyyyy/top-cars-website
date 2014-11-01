@@ -1,0 +1,124 @@
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content shadow">
+        <div class="container user" id="card_game">
+
+            <div class="user_header">
+
+            </div>
+
+            <div class="user_profile">
+
+                <!-- Left Column -->
+                <div class="user_column user_left">
+                    <img src="{{ asset('bundles/martontopcars/images/avatar/default.jpg') }}"/>
+                    <hr>
+                    <div class="user_roles">
+                        {% for role in user.roles %}
+                            {{ role.name }}
+                        {% endfor %}
+                    </div>
+                    <hr>
+                    <h2>Achievements</h2>
+                </div>
+
+                <!-- Right Column -->
+                <div class="user_column user_right">
+
+                    <div class="profile_header">
+                        <div class="user_name">
+                            <h3>{{ user.username }}</h3>
+                        </div>
+                        <div class="user_level">
+                            <p class="p_level">Cars owned</p><p class="p_level_val">{{ user.cars | length }}</p>
+                        </div>
+                        <div class="user_level">
+                            <p class="p_level">Level</p><p class="p_level_val">{{ user.progress.level }}</p>
+                        </div>
+                    </div>
+
+                    <h1>Statistics</h1>
+
+                    <div class="stats_block">
+                        <div class="stats_general">
+
+                            <table>
+                                <tr>
+                                    <td><p>Score:</p></td>
+                                    <td><h4>{{ user.progress.score }}</h4></td>
+                                </tr>
+                                <tr>
+                                    <td><p>Win:</p></td>
+                                    <td><h4>{{ user.progress.roundWin }}</h4></td>
+                                </tr>
+                                <tr>
+                                    <td><p>Lose:</p></td>
+                                    <td><h4>{{ user.progress.roundLose }}</h4></td>
+                                </tr>
+                                <tr>
+                                    <td><p>Draw:</p></td>
+                                    <td><h4>{{ user.statistics.draw }}</h4></td>
+                                </tr>
+
+                            </table>
+
+                        </div>
+                        <div class="stats_right">
+
+                            <div class="stats_spr stat_box">
+                                <h4>Best Streak</h4>
+                                <p class="stat_val_big">{{ user.progress.streak }}</p>
+                            </div>
+
+                            <div class="stats_wl stat_box">
+                                <h4>W/L Ratio</h4>
+                                <div class="stats_graphics">
+                                    <div class="meter_frame">
+                                        <div class="stats_meter"></div>
+                                        <div class="stats_lever" style="margin-left:{{ 100 * user.statistics.wLRatio }}%"></div>
+                                    </div>
+                                </div>
+                                <p>{{ user.statistics.wLRatio }}</p>
+                            </div>
+
+                            <div class="stats_spr stat_box">
+                                <h4>Score / Round</h4>
+                                <div class="stats_graphics">
+                                    <div class="meter_frame">
+                                        <div class="stats_meter"></div>
+                                        <div class="stats_lever" style="margin-left:{{ 100 * user.statistics.wLRatio }}%"></div>
+                                    </div>
+                                </div>
+                                <p>{{ user.statistics.scorePerRound }}</p>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <h1>Garage ({{ cars|length }})</h1>
+
+                    <div class="stats_block">
+                        {% for car in cars %}
+                            <img src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}.png"/>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
