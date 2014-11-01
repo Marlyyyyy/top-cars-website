@@ -26,6 +26,19 @@ class CarRepository extends EntityRepository {
         return $result;
     }
 
+    public function findAllCarsAsArray(){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('c')
+            ->from('MartonTopCarsBundle:Car', 'c');
+
+        $query = $qb->getQuery();
+        $result = $query->getArrayResult();
+
+        return $result;
+    }
+
     public function updatePriceWhereId($id, $price){
 
         $em = $this->getEntityManager();

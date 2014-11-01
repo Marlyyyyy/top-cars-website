@@ -8,9 +8,11 @@
 
 namespace Marton\TopCarsBundle\Controller;
 
+use Marton\TopCarsBundle\Classes\AchievementCalculator;
 use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -25,7 +27,33 @@ class PageController extends Controller {
 
     public function gameAction(){
 
-        return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig');
+        // Get the user
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        // Get the progress
+        /* @var $user User */
+        /* @var $progress UserProgress */
+        $progress = $user->getProgress();
+        $user_score = $progress->getScore();
+
+        // Get all cars
+        /* @var $repository CarRepository */
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+        $cars = $repository-> findAllCarsAsArray();
+
+        // To calculate score initially
+        $achievemetCalculator = new AchievementCalculator();
+        $user_level_info = $achievemetCalculator->calculateLevel($user_score);
+        $user_level_info["score"] = $user_score;
+
+        // Test
+        //$achievemetCalculator->printAllLevelScore();
+        //$achievemetCalculator->printLevel();
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig', array(
+            "deck" => json_encode($cars),
+            "user_level_info" => json_encode($user_level_info)
+        ));
     }
 
     public function leaderboardAction(){
