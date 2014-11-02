@@ -237,6 +237,183 @@ function Game(){
 
     function select_field(){
         console.log("Field selected");
+
+        // Helper function to show floating value animations
+        function create_floating_score(el, value, class_name){
+
+            var row_label = document.createElement("div");
+            row_label.className = "card_row_subscore";
+            row_label.className += class_name;
+            el.appendChild(row_label);
+
+            var t = document.createTextNode(value);
+            row_label.appendChild(t);
+
+            $(row_label).fadeIn(150, function(){
+                $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
+                    el.removeChild(row_label);
+                });
+            });
+
+            return row_label;
+        }
+
+        // Helper function to update Streak counter
+        function animateStreakCount(el, result, count){
+            switch (result){
+                case "win":
+                    el.innerText = count;
+                    $(el).css({"color":"rgba(0, 128, 0, 0.8)"});
+                    $(el).animate({"font-size":"80px"}, 200, function(){
+                        $(this).animate({"font-size":"25px"}, 200);
+                    });
+                    break;
+                case "lose":
+                    $(el).css({"color":"rgb(223, 79, 79)"});
+                    break;
+                default:
+                    $(el).css({"color":"grey"});
+                    el.innerText = count;
+                    break;
+            }
+        }
+
+        // Helper function to calculate the score of players
+        function calculate_subscore(p1val, p2val){
+            if (property === default_field.acceleration.column_name){
+
+                return Math.round(500*(p1val - p2val));
+
+            } else if (property === default_field.weight.column_name){
+
+                return p1val - p2val;
+
+            }else{
+
+                return p2val - p1val ;
+            }
+        }
+
+        // Helper function to sort player objects
+        function compare(p1,p2){
+            if (p1.roundScore < p2.roundScore)
+                return 1;
+            if (p1.roundScore > p2.roundScore)
+                return -1;
+            return 0;
+        }
+
+        if (!hasRoundEnded){
+
+            // Prevent player from selecting multiple times in one round
+            hasRoundEnded = true;
+
+            // Detect clicked property
+            var property = this.getAttribute("name");
+
+            var player_queue = Object.create(entity.player.opponent);
+
+            // Assign cards to the opponents
+            for (var i=0;i<player_queue.length;i++){
+                player_queue[i].setCard(get_random_card()).showCard();
+            }
+
+            player_queue.push(entity.player.host);
+
+            // Make a copy of the players array
+            var new_player_queue = player_queue.slice();
+
+            // Compare each player with everyone once
+            for (var i=0;i<player_queue.length;i++){
+
+                var current_player = new_player_queue.shift();
+
+                for (key in new_player_queue){
+                    if (new_player_queue.hasOwnProperty(key)){
+                        var subscore = calculate_subscore(current_player.getCard(property), new_player_queue[key].getCard(property));
+
+                        current_player.roundScore -= subscore;
+                        new_player_queue[key].roundScore += subscore;
+                    }
+                }
+            }
+
+            // Sort players in terms of score
+            player_queue.sort(compare);
+
+            // Count draws on the first place
+            var drawCounter = 0;
+
+            for (var i=0;i<player_queue.length;i++){
+                if (typeof player_queue[i+1] !== 'undefined'){
+                    if (player_queue[i].roundScore === player_queue[i+1].roundScore){
+                        drawCounter++;
+                    }else{
+                        if (drawCounter > 0) drawCounter++;
+                        break;
+                    }
+                }
+            }
+
+            var foundWinner = false;
+            previous_active_rows = [];
+
+            // Add the round score to the players' overall score
+            for (var i=0;i<player_queue.length;i++){
+
+                // Avoid negative score
+                if (player_queue[i].roundScore > 0) player_queue[i].addScore(player_queue[i].roundScore);
+                var class_name = (player_queue[i].roundScore > 0 ? " score_green" : " score_red");
+                create_floating_score(player_queue[i].getView(property), player_queue[i].roundScore, class_name);
+                previous_active_rows.push(player_queue[i].getView(property));
+
+                if (foundWinner){
+                    // Lose
+                    player_queue[i].getView(property).className = "card_row row_red";
+                    player_queue[i].roundResult = "lose";
+                    player_queue[i].resetStreak();
+                }else if (drawCounter > 0){
+                    // Draw
+                    drawCounter--;
+                    player_queue[i].getView(property).className = "card_row row_draw";
+                    player_queue[i].roundResult = "draw";
+                    if (drawCounter === 0) foundWinner = true;
+                }else{
+                    // Win
+                    player_queue[i].getView(property).className = "card_row row_green";
+                    player_queue[i].roundResult = "win";
+                    foundWinner = true;
+                    player_queue[i].addStreak(setting.players-1);
+                }
+
+                player_queue[i].roundScore = 0;
+            }
+
+            console.log("streakText: " + ui_container.streakText);
+            animateStreakCount(ui_container.streakText, entity.player.host.roundResult, entity.player.host.getStreak());
+
+            // Deciding game state: WIN/DRAW or LOSE and Create control buttons
+            if (entity.player.host.roundResult === "lose"){
+                isEnded = true;
+                roundControls.newGame();
+            }else{
+                roundControls.nextRound();
+            }
+
+            // Data to post to the server
+            var data = {
+                score:       entity.player.host.getScore(),
+                streak:      entity.player.host.getStreak(),
+                roundResult: entity.player.host.roundResult
+            };
+
+            var success = function(data){
+                var level_change    = data.levelChange;
+                var user_level_info = data.userLevelInfo;
+
+                top_panel.update(level_change, user_level_info);
+            };
+        }
     }
 
     function create_UI(){
