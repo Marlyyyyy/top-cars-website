@@ -163,19 +163,59 @@ function Game(){
 
     // Actions made in the game
     function start(){
+
+        isPaused      = false;
+        isEnded       = false;
+        hasRoundEnded = false;
+
+        entity.player.host.setCard(get_random_card()).showCard();
+
+        return this;
     }
 
     function restart(){
+
+        if (isEnded && hasRoundEnded){
+
+            isEnded = false;
+            hasRoundEnded = false;
+
+            animateStreakCount(ui_container.streakText, "new", "0");
+
+            new_round();
+        }
     }
 
     function next_round(){
+
+        if (hasRoundEnded){
+
+            hasRoundEnded = false;
+
+            new_round();
+        }
     }
 
     function new_round(){
+
+        // Hide Cards and Generate new card for host
+        entity.player.host.hideCard(function(){
+            entity.player.host.setCard(get_random_card()).showCard();
+        });
+
+        for (var i=0;i<entity.player.opponent.length;i++){
+            entity.player.opponent[i].hideCard();
+        }
+
+        for (var i=0;i<previous_active_rows.length;i++){
+            previous_active_rows[i].className = "card_row";
+        }
+
+        roundControls.reset();
     }
 
     function select_field(){
-
+        console.log("Field selected");
     }
 
     function create_UI(){
@@ -190,7 +230,7 @@ function Game(){
 
         // Create elements that don't belong to anyone
         var battlefield = new Battlefield();
-        battlefield.create();
+        ui_container.battlefield = battlefield.create();
 
         // Main player
         var host = new Player();
