@@ -116,7 +116,8 @@
         var card_game = new Game();
         card_game.setPlayers(2)
                 .setImgFolder(IMG_PREFIX)
-                .setImgFormat(IMG_FORMAT);
+                .setImgFormat(IMG_FORMAT)
+                .setAjaxPostScore("{{ path('marton_topcars_post_score') }}");
 
         card_game.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
 

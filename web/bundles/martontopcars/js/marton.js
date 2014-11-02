@@ -411,8 +411,12 @@ function Game(){
                 var level_change    = data.levelChange;
                 var user_level_info = data.userLevelInfo;
 
+                console.log(data);
                 top_panel.update(level_change, user_level_info);
             };
+
+            // Ajax call
+            post_to_server(setting.ajax_post_score, data, success);
         }
     }
 
@@ -873,4 +877,19 @@ function Game(){
         get_top_panel().update("default", user_info);
         entity.player.host.addScore(user_info.score);
     };
+}
+
+function post_to_server(url, data, success){
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: success,
+
+        error: function(XMLHttpRequest, textStatus, errorThrown)
+        {
+            console.log('Error : ' + errorThrown);
+        }
+    });
 }
