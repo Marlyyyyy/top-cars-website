@@ -179,14 +179,137 @@ function Game(){
     }
 
     function create_UI(){
+
+        // Start by allocating the container of the game
+        ui_container.container = setting.game_container;
+
+        // Create top panel
+        top_panel = new TopPanel();
+        top_panel.setContainer(ui_container);
+        top_panel.create_UI();
+
+        // Create elements that don't belong to anyone
+        var battlefield = new Battlefield();
+        battlefield.create();
+
+        // Main player
+        var host = new Player();
+        var card = new Card();
+        var elements = card.create();
+        ui_container.battlefield.appendChild(elements.card_fragment);
+
+        console.log(elements);
+
+        // Control Panel
+        roundControls.init(ui_container.battlefield);
+        ui_container.streakText = roundControls.getStreakText();
+        console.log("streakText: " + ui_container.streakText);
+
+        host.setViewField(elements.field_holder);
+        host.setViewHolder(elements.view_holder);
+        entity.player.host = host;
+
+        // Opponents
+        for (var i=0;i<setting.players-1;i++){
+
+            var opponent = new Player();
+            card = new Card();
+            elements = card.create();
+            opponent.setViewField(elements.field_holder);
+            opponent.setViewHolder(elements.view_holder);
+            ui_container.battlefield.appendChild(elements.card_fragment);
+            entity.player.opponent.push(opponent);
+        }
+
+        return this;
     }
 
     function removeUI(){
 
+        while (setting.game_container.firstChild) {
+            setting.game_container.removeChild(setting.game_container.firstChild);
+        }
     }
 
     // Module responsible for re-appearing buttons after each round.
     var roundControls = (function(){
+
+        var container;
+        var streakContainer;
+        var streakText;
+        var buttonContainer;
+
+        // Constructor
+        var init = function(view){
+            container = makeContainer(view);
+            return this;
+        };
+
+        function makeContainer(view){
+
+            var control_panel = document.createElement("div");
+            control_panel.className = "player_controls";
+            control_panel.id = "control_panel";
+            view.appendChild(control_panel);
+
+            streakContainer = document.createElement("div");
+            streakContainer.className = "streak_container";
+            streakText = document.createElement("p");
+            streakText.innerText  = "0";
+            streakContainer.appendChild(streakText);
+            control_panel.appendChild(streakContainer);
+
+            buttonContainer = document.createElement("div");
+            buttonContainer.className = "button_container";
+            control_panel.appendChild(buttonContainer);
+
+            return control_panel;
+        }
+
+        function makeNextButton(){
+
+            var button = document.createElement("div");
+            button.className = "bt_next_round bt";
+            button.addEventListener("click",next_round);
+            buttonContainer.appendChild(button);
+            var t = document.createTextNode("Next");
+            button.appendChild(t);
+            return button;
+        }
+
+        function makeNewGameButton(){
+
+            var button = document.createElement("div");
+            button.className = "bt_new_game bt";
+            button.addEventListener("click",restart);
+            buttonContainer.appendChild(button);
+            var t = document.createTextNode("Restart");
+            button.appendChild(t);
+            return button;
+        }
+
+        function removeAllButtons(){
+            while (buttonContainer.firstChild) {
+                buttonContainer.removeChild(buttonContainer.firstChild);
+            }
+        }
+
+        return {
+            init: init,
+            nextRound: function(){
+                $(makeNextButton()).fadeIn(100);
+            },
+
+            newGame: function(){
+                $(makeNewGameButton()).fadeIn(100);
+            },
+            reset: function(){
+                removeAllButtons();
+            },
+            getStreakText: function(){
+                return streakText;
+            }
+        }
     })();
 
     // Classes
