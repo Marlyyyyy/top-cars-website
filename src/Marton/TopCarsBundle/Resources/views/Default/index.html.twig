@@ -34,7 +34,7 @@
                             login
                         </a>
                     </li><li>
-                        <a class="top_tabs{% block active_tab_register %}{% endblock %}" href="" >
+                        <a class="top_tabs{% block active_tab_register %}{% endblock %}" href="{{ path('marton_topcars_register') }}" >
                             register
                         </a>
                     </li>
@@ -50,15 +50,15 @@
 
                 <ul>
                     <li>
-                        <a class="dashboard_tabs{% block active_tab_game %}{% endblock %}" href="">
+                        <a class="dashboard_tabs{% block active_tab_game %}{% endblock %}" href="{{ path('marton_topcars_game') }}">
                             game
                         </a>
                     </li><li>
-                        <a class="dashboard_tabs{% block active_tab_highscores %}{% endblock %}" href="">
+                        <a class="dashboard_tabs{% block active_tab_highscores %}{% endblock %}" href="{{ path('marton_topcars_leaderboard') }}">
                             leaderboard
                         </a>
                     </li><li>
-                        <a class="dashboard_tabs{% block active_tab_cars %}{% endblock %}" href="" >
+                        <a class="dashboard_tabs{% block active_tab_cars %}{% endblock %}" href="{{ path('marton_topcars_garage') }}" >
                             cars
                         </a>
                     </li><li>
