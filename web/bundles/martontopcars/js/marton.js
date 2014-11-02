@@ -268,6 +268,152 @@ function Game(){
 
     function TopPanel(){
 
+        var container;
+        this.setContainer = function(c){
+            container = c;
+        };
+
+        var attribute = {
+            score: 0,
+            low_score_limit: 0,
+            high_score_limit: 0
+        };
+
+        var ui = {};
+
+        this.create_UI = function(){
+
+            container.top_panel = document.getElementById("top_panel");
+
+            var fill = document.getElementById("s_fill");
+            ui.fill = fill;
+
+            // Text middle
+            var level_score = document.getElementById("s_score");
+            ui.score = level_score;
+        };
+
+        this.update = function(level_change, user_level_info){
+            // user_level_info is an object with attributes: "low_score_limit", "high_score_limit", "level", "score"
+
+            var previous_score = attribute.score;
+
+            switch (level_change){
+                case "up":
+
+                    // Animation till the top
+                    animate_increment(previous_score, attribute.high_score_limit, ui.score);
+                    animate_fill(previous_score, attribute.high_score_limit, function(){
+
+                        // TODO: level up graphics
+                        set_attributes(user_level_info);
+
+                        set_UI();
+
+                        // Animation till new score
+                        animate_increment(attribute.low_score_limit, attribute.score, ui.score);
+                        animate_fill(attribute.low_score_limit, attribute.score);
+
+                    });
+
+                    break;
+
+                case "down":
+
+                    // Animation till the bottom
+                    animate_increment(previous_score, attribute.low_score_limit, ui.score);
+                    animate_fill(previous_score, attribute.low_score_limit, function(){
+
+                        // TODO: level up graphics
+                        set_attributes(user_level_info);
+
+                        set_UI();
+
+                        // Animation till new score
+                        animate_increment(attribute.high_score_limit, attribute.score, ui.score);
+                        animate_fill(attribute.high_score_limit, attribute.score);
+
+                    });
+
+                    break;
+
+                default:
+
+                    set_attributes(user_level_info);
+
+                    set_UI();
+
+                    animate_increment(previous_score, attribute.score, ui.score);
+                    animate_fill(previous_score, attribute.score);
+
+                    break;
+            }
+
+
+            return this;
+
+            function set_attributes(user_level_info){
+
+                attribute.low_score_limit   = user_level_info.low_score_limit;
+                attribute.score             = user_level_info.score;
+                attribute.high_score_limit  = user_level_info.high_score_limit;
+            }
+
+            function set_UI(){
+
+                //ui.low_score_limit.innerHTML = attribute.score - attribute.low_score_limit;
+                //ui.high_score_limit.innerHTML = attribute.high_score_limit - attribute.score + " until next level";
+            }
+
+            function animate_fill (old_score, new_score, callback){
+
+                callback = typeof callback !== 'undefined' ? callback : function(){};
+
+                var old_width = Math.round(100*(old_score-attribute.low_score_limit)/(attribute.high_score_limit - attribute.low_score_limit));
+                $(ui.fill).css({"width":old_width+"%"});
+
+                var new_width = Math.round(100*(new_score-attribute.low_score_limit)/(attribute.high_score_limit - attribute.low_score_limit));
+                if (new_width>100) new_width = 100;
+
+                $(ui.fill).promise().done(function(){
+                    // 200  - 400 ms
+                    $(this).animate({"width":new_width+"%"}, 200, callback);
+                });
+            }
+
+            // Helper function to show a value increment/decrement
+            function animate_increment (old_score, new_score, el){
+
+                var PRINT_AMOUNT = 8;
+
+                var step = Math.ceil(Math.abs(old_score-new_score)/8);
+
+                if (old_score < new_score){
+                    var compare = function(s1,s2){
+                        return s1 + step >= s2;
+                    };
+                    var modify = function (){
+                        old_score += step;
+                    };
+                }else{
+                    var compare = function(s1,s2){
+                        return s1 - step <= s2;
+                    };
+                    var modify = function (){
+                        old_score -= step;
+                    };
+                }
+
+                var interval = setInterval(function() {
+                    el.innerHTML = old_score;
+                    if (compare(old_score, new_score)){
+                        clearInterval(interval);
+                        el.innerHTML = new_score;
+                    }
+                    modify();
+                }, Math.round(200/PRINT_AMOUNT));
+            }
+        }
     }
 
     function Card(){
