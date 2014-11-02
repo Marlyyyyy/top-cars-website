@@ -282,6 +282,11 @@ function Game(){
 
     function Battlefield(){
 
+        this.create = function(){
+
+            var battlefield = document.getElementById("battlefield");
+            return battlefield;
+        }
     }
 
 }
