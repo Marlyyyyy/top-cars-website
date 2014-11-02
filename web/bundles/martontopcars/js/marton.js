@@ -193,6 +193,77 @@ function Game(){
 
     function Player(){
 
+        // DOM Fields
+        var view_field = {};
+        this.setViewField = function(fields){
+            view_field = fields;
+        };
+
+        // DOM Rows and Elements
+        var view_holder = {};
+        this.setViewHolder = function(views){
+            view_holder = views;
+        };
+        this.getView = function(prop){
+            return view_holder[prop];
+        };
+
+        // Values
+        var card = {};
+        this.setCard = function(new_card){
+            card = new_card;
+
+            for(key in card){
+                if(card.hasOwnProperty(key) && key != "id" && key != "price"){
+                    if (key !== "image"){
+                        view_field[key].innerHTML = card[key];
+                    }else{
+                        view_field[key].src = setting.img_folder + card[key] + setting.img_format;
+                    }
+                }
+            }
+
+            return this;
+        };
+        this.getCard = function(property){
+            return card[property];
+        };
+
+        this.roundScore  = 0;
+        this.roundResult = 0;
+
+        // Stores the player's score
+        var score = 0;
+        this.addScore = function(subscore){
+            score = score + subscore;
+        };
+        this.getScore = function(){
+            return score;
+        };
+
+        // Stores the player's streak
+        var streak = 0;
+        this.getStreak = function(){
+            return streak;
+        };
+        this.addStreak = function(substreak){
+            streak += substreak;
+        };
+        this.resetStreak = function(){
+            streak = 0;
+        };
+
+        this.showCard = function(callback){
+            if (typeof callback === 'undefined') callback = function(){};
+            $(view_holder.card).fadeIn(anim_setting.fade_speed, callback);
+            return this;
+        };
+
+        this.hideCard = function(callback){
+            if (typeof callback === 'undefined') callback = function(){};
+            $(view_holder.card).fadeOut(anim_setting.fade_speed, callback);
+            return this;
+        }
     }
 
     function TopPanel(){
