@@ -103,10 +103,24 @@ function Game(){
     // Whole deck of cards
     var cards = {};
     this.setCards = function (deck){
+
+        cards.deck = [];
+        for (key in deck){
+            if (deck.hasOwnProperty(key)){
+                cards.deck.push(deck[key]);
+            }
+        }
+
+        cards.len   = cards.deck.length;
+
+        return this;
     };
 
     // Returns a random card from the deck
     function get_random_card(){
+
+        var random = Math.floor(Math.random() * (cards.len - 0)) + 0;
+        return cards.deck[random];
     }
 
     this.preload_images = function(callback){
