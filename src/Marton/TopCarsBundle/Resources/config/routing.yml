@@ -49,6 +49,11 @@ marton_topcars_admin_execute:
     path: /admin/execute
     defaults: { _controller: MartonTopCarsBundle:Data:addPricesToCars }
 
+# Ajax requests
+marton_topcars_post_score:
+    path:  /ajax/post_score
+    defaults: { _controller: MartonTopCarsBundle:Ajax:postUserScore }
+
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:
     path: /{url}
