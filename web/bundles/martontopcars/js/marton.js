@@ -124,6 +124,13 @@ function Game(){
     }
 
     this.preload_images = function(callback){
+
+        if (typeof callback === "undefined") callback = function(){};
+        var arr = [];
+        for (var i=0; i<cards.len;i++){
+            arr.push(setting.img_folder + cards.deck[i].image + setting.img_format);
+        }
+        preload_images(arr).done(callback);
     };
 
     var default_field =  {
