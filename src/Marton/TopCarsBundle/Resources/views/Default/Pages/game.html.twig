@@ -106,4 +106,23 @@
 
 {% endblock %}
 
-{% block background %}{% endblock %}
+{% block background %}
+
+    <script>
+        // Card Game
+        var IMG_PREFIX = "{{ asset('bundles/martontopcars/images/card_game/') }}";
+        var IMG_FORMAT = ".png";
+
+        var card_game = new Game();
+        card_game.setPlayers(2)
+                .setImgFolder(IMG_PREFIX)
+                .setImgFormat(IMG_FORMAT);
+
+        card_game.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
+
+        card_game.setCards({{ deck | raw }}).preload_images(function(){
+            card_game.test();
+        });
+    </script>
+
+{% endblock %}

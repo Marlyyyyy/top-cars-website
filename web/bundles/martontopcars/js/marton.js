@@ -690,4 +690,10 @@ function Game(){
         }
     }
 
+    this.test = function(){
+        create_UI();
+        start();
+        get_top_panel().update("default", user_info);
+        entity.player.host.addScore(user_info.score);
+    };
 }
