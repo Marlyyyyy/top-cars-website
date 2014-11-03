@@ -8,8 +8,8 @@
 
 namespace Marton\TopCarsBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Entity
@@ -69,6 +69,17 @@ class SuggestedCar {
      * @ORM\Column(type="datetime")
      */
     protected $createdAt;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="suggestedCars")
+     *
+     */
+    private $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function setId($id)
     {
@@ -171,5 +182,23 @@ class SuggestedCar {
     public function getCreatedAt()
     {
         return $this->createdAt;
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Marton\TopCarsBundle\Entity\User $users
+     * @return SuggestedCar
+     */
+    public function addUser(\Marton\TopCarsBundle\Entity\User $users)
+    {
+        $this->users[] = $users;
+
+        return $this;
+    }
+
+    public function getUsers()
+    {
+        return $this->users->toArray();
     }
 } 
