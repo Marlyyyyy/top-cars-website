@@ -24,6 +24,10 @@ marton_topcars_dealership:
     requirements:
         option:  available|all
 
+marton_topcars_suggest:
+    path: /suggest
+    defaults: {_controller: MartonTopCarsBundle:Page:suggest }
+
 # Account
 
 marton_topcars_register:

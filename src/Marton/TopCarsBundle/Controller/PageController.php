@@ -11,11 +11,13 @@ namespace Marton\TopCarsBundle\Controller;
 use Marton\TopCarsBundle\Classes\AchievementCalculator;
 use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Classes\StatisticsCalculator;
+use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class PageController extends Controller {
 
@@ -134,5 +136,52 @@ class PageController extends Controller {
             "cars" => $cars,
             "user" => $user
         ));
+    }
+
+    // Suggest page
+    public function suggestAction(Request $request){
+
+        $suggested_car = new SuggestedCar();
+        $form = $this->createFormBuilder($suggested_car)
+            ->add('model', 'text')
+            ->add('image', 'file')
+            ->add('speed', 'text')
+            ->add('power', 'text')
+            ->add('torque', 'text')
+            ->add('acceleration', 'text')
+            ->add('weight', 'text')
+            ->add('comment', 'text')
+            ->add('save', 'submit', array('label' => 'Submit'))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()){
+
+            $image_file = $suggested_car->getImage();
+
+            $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
+
+            $image_file->move($new_path, $image_file->getClientOriginalName());
+
+            $suggested_car->setImage($image_file->getClientOriginalName());
+
+            $image_file = null;
+
+            // Get the user
+            /* @var $user User */
+            $user = $this->get('security.context')->getToken()->getUser();
+
+            $user->addSuggestedCar($suggested_car);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+            return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
+        }else{
+            return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
+                'form' => $form->createView()
+            ));
+        }
     }
 } 
