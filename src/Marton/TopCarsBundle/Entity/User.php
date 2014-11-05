@@ -82,11 +82,7 @@ class User implements UserInterface, \Serializable{
     private $cars;
 
     /**
-     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="users", cascade={"persist"})
-     * @ORM\JoinTable(name="user_car_temp",
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="car_id", referencedColumnName="id")}
-     * )
+     * @ORM\OneToMany(targetEntity="SuggestedCar", mappedBy="user", cascade={"persist"})
      *
      */
     private $suggestedCars;

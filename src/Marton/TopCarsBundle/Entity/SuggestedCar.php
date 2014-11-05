@@ -71,15 +71,10 @@ class SuggestedCar {
     protected $createdAt;
 
     /**
-     * @ORM\ManyToMany(targetEntity="User", mappedBy="suggestedCars")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="suggestedCars")
      *
      */
-    private $users;
-
-    public function __construct()
-    {
-        $this->users = new ArrayCollection();
-    }
+    private $user;
 
     public function setId($id)
     {
@@ -183,6 +178,18 @@ class SuggestedCar {
     {
         return $this->createdAt;
     }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+
 
     /**
      * Add users

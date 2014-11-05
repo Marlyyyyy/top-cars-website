@@ -173,6 +173,7 @@ class PageController extends Controller {
             $user = $this->get('security.context')->getToken()->getUser();
 
             $user->addSuggestedCar($suggested_car);
+            $suggested_car->setUser($user);
 
             $em = $this->getDoctrine()->getManager();
             $em->flush();
