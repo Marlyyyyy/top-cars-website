@@ -893,3 +893,25 @@ function post_to_server(url, data, success){
         }
     });
 }
+
+$(document).ready(function(){
+
+    // Control appearance of default values within input fields.
+    $(":input").focus(function(){
+        var defaultValue = this.defaultValue;
+        var newValue     = this.value;
+        if (defaultValue === newValue){
+            this.value = "";
+            $(this).addClass("input_active");
+        }
+    }).blur(function(){
+        var defaultValue = this.defaultValue;
+        var newValue     = this.value;
+        if (newValue === ""){
+            this.value = defaultValue;
+            $(this).removeClass("input_active");
+        }
+    })
+
+
+});
