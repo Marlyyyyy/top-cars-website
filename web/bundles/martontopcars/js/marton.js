@@ -62,6 +62,45 @@ function preload_images(array, el){
     }
 }
 
+function ImagePreview(){
+
+    var sourceInput, target;
+
+    this.setSourceInput = function(id){
+        sourceInput = document.getElementById(id);
+        return this;
+    };
+
+    this.setTarget = function(id){
+        target = document.getElementById(id);
+        return this;
+    };
+
+    // Set the preview image
+    function readURL(input) {
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $(target).attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(document).ready(function(){
+        $(sourceInput).change(function(){
+            readURL(this);
+        });
+
+        $(target).click(function(){
+            $(sourceInput).click();
+        })
+    });
+}
+
 function Game(){
 
     // Default settings
