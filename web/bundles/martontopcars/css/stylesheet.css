@@ -60,6 +60,14 @@ hr{
     margin-right:20px;
 }
 
+input{
+    color: grey;
+}
+
+.input_active{
+    color:black !important;
+}
+
 .top_header{
     text-align: center;
     line-height:50px;
@@ -276,7 +284,7 @@ hr{
 }
 
 .container{
-    background:white;
+    background: #f4f4f4;
     margin-top:-20px;
     padding-top:20px;
     margin-bottom:-20px;
@@ -440,7 +448,6 @@ hr{
 }
 
 .battlefield{
-    background: rgba(224, 224, 224, 0.2);
 }
 
 .top_panel{
@@ -529,6 +536,7 @@ hr{
     padding: 10px 5px 10px 5px;
     margin:auto;
     display: none;
+    text-align: center;
 }
 .card_name{
     text-align:center;
@@ -685,8 +693,8 @@ hr{
 .card_table td{
     text-align: center;
     padding:5px;
-    border-right: 1px solid #f2f2f2;
-    border-top: 1px solid #f2f2f2;
+    border-right: 1px solid #E8E8E8;
+    border-top: 1px solid #E8E8E8;
 }
 
 /* User Page */
@@ -951,7 +959,6 @@ hr{
 }
 
 .cars{
-    background:white;
     margin-top: 40px;
 }
 .card_frame{
@@ -1095,4 +1102,30 @@ hr{
     border-radius: 50%;
     text-align: center;
     width: 35px;
+}
+
+/* Suggest Page */
+
+.img_upload{
+    display:block;
+}
+
+.visible{
+    display:inherit;
+}
+
+.card_suggest input{
+    width:100%;
+    text-align:center;
+}
+
+.card_name input{
+    width: 98%;
+}
+
+.card_image input{
+    z-index: -1;
+}
+.card_suggest .card_row{
+    cursor: default;
 }

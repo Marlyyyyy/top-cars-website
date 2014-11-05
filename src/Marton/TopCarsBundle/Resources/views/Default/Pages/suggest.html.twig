@@ -8,13 +8,67 @@
 
     <div class="content right">
 
-        <div class="small_container shadow">
+        <div class="container shadow">
 
-            <div class="div_form">
+            {{ form_start(form) }}
 
-                {{ form(form) }}
+            <div class="card_suggest">
+
+                <div class="card_fragment" id="c_fragment">
+
+                    <div class="card_block" id="c_block">
+
+                        <div class="player_card visible" id="c_card">
+
+                            <div class="card_name" id="c_name">{{ form_widget(form.model, {value : 'Maker, model'}) }}</div>
+
+                            <div class="card_image" id="c_image">
+                                <img id="v_image" width="230px" height="153px" src=""/>
+                                {{ form_widget(form.image) }}
+                            </div>
+
+                            <div class="card_row" id="c_speed" name="speed">
+                                <span class="row_label">Speed:</span>
+                                <span id="v_speed">{{ form_widget(form.speed, {value : '-'}) }}</span>
+                                <span class="row_unit">Km/h</span>
+                            </div>
+
+                            <div class="card_row" id="c_power" name="power">
+                                <span class="row_label">Power:</span>
+                                <span id="v_power">{{ form_widget(form.power, {value : '-'}) }}</span>
+                                <span class="row_unit">Hp</span>
+                            </div>
+
+                            <div class="card_row" id="c_torque" name="torque">
+                                <span class="row_label">Torque:</span>
+                                <span id="v_torque">{{ form_widget(form.torque, {value : '-'}) }}</span>
+                                <span class="row_unit">Nm</span>
+                            </div>
+
+                            <div class="card_row" id="c_acceleration" name="acceleration">
+                                <span class="row_label">Acceleration:</span>
+                                <span id="v_acceleration">{{ form_widget(form.acceleration, {value : '-'}) }}</span>
+                                <span class="row_unit">s</span>
+                            </div>
+
+                            <div class="card_row" id="c_weight" name="weight">
+                                <span class="row_label">Weight:</span>
+                                <span id="v_weight">{{ form_widget(form.weight, {value : '-'}) }}</span>
+                                <span class="row_unit">kg</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
+
+            {{ form_row(form.comment) }}
+
+            {{ form_row(form.save) }}
+            {{ form_end(form) }}
 
         </div>
 
@@ -22,4 +76,13 @@
 
 {% endblock %}
 
-{% block background %}{% endblock %}
+{% block background %}
+
+    <script>
+        var imagePreview = new ImagePreview();
+        imagePreview.setSourceInput("form_image")
+                    .setTarget("v_image")
+    </script>
+
+
+{% endblock %}
