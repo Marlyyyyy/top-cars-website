@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\SuggestedCarRepository")
  * @ORM\Table(name="tbl_car_suggest")
  * @ORM\HasLifecycleCallbacks()
  */
@@ -75,6 +75,17 @@ class SuggestedCar {
      *
      */
     private $user;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="votedSuggestedCars", cascade={"persist"})
+     *
+     */
+    private $upVotedUsers;
+
+    public function __construct()
+    {
+        $this->upVotedUsers = new ArrayCollection();
+    }
 
     public function setId($id)
     {
@@ -189,23 +200,21 @@ class SuggestedCar {
         return $this->user;
     }
 
-
-
     /**
      * Add users
      *
      * @param \Marton\TopCarsBundle\Entity\User $users
      * @return SuggestedCar
      */
-    public function addUser(\Marton\TopCarsBundle\Entity\User $users)
+    public function addUpVotedUsers(\Marton\TopCarsBundle\Entity\User $users)
     {
-        $this->users[] = $users;
+        $this->upVotedUsers[] = $users;
 
         return $this;
     }
 
-    public function getUsers()
+    public function getUpVotedUsers()
     {
-        return $this->users->toArray();
+        return $this->upVotedUsers->toArray();
     }
 } 

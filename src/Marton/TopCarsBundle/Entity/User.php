@@ -87,6 +87,16 @@ class User implements UserInterface, \Serializable{
      */
     private $suggestedCars;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="upVotedUsers")
+     * @ORM\JoinTable(name="upVotedUser_suggestedCar",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="suggestedCar_id", referencedColumnName="id")}
+     * )
+     *
+     */
+    private $votedSuggestedCars;
+
     // Array to store calculated statistics
     private $statistics;
 
@@ -105,6 +115,7 @@ class User implements UserInterface, \Serializable{
         $this->roles = new ArrayCollection();
         $this->cars  = new ArrayCollection();
         $this->suggestedCars  = new ArrayCollection();
+        $this->votedSuggestedCars = new ArrayCollection();
         $this->salt  = md5(uniqid(null, true));
     }
 
@@ -182,7 +193,29 @@ class User implements UserInterface, \Serializable{
      */
     public function addSuggestedCar(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
         $this->suggestedCars[] = $suggestedCar;
-        $suggestedCar->addUser($this);
+        $suggestedCar->addUpVotedUsers($this);
+
+        return $this;
+    }
+
+    /**
+     * Returns suggestedCars upvoted by the user.
+     * @return SuggestedCar[]
+     */
+    public function getVotedSuggestedCars()
+    {
+        return $this->votedSuggestedCars->toArray();
+    }
+
+    /**
+     * Add suggested cars
+     *
+     * @param \Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar
+     * @return User
+     */
+    public function addVotedSuggestedCars(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
+        $this->votedSuggestedCars[] = $suggestedCar;
+        $suggestedCar->addUpVotedUsers($this);
 
         return $this;
     }
