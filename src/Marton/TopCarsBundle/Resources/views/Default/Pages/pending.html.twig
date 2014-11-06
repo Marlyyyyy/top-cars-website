@@ -16,17 +16,36 @@
 
                     <div class="card_frame">
 
-                        <div class="vote">
-                            <p class="vote_count" id="count{{ car.id }}">{{ car.upVotedUsers|length }}</p>
-                            <p class="upvote" data-element="{{ car.id }}">+1</p>
-                        </div>
+                        <div class="frame_model">{{ car.model }}</div>
 
                         <div class="frame_content">
+
                             <img width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
+
                             <div class="frame_fade">
                             </div>
+
+                            <div class="vote">
+                                <p class="vote_count" id="count{{ car.id }}">{{ car.upVotedUsers | length }}</p>
+                            </div>
+
+                            <div class="card_title_background">
+                            </div>
+
+                            <div class="card_title">
+                                <span>by </span>
+                                <span>{{ car.user.username }}</span>
+                            </div>
+
+                            <div class="card_title_actions">
+                                {% if car.upvoted %}
+                                    <p class="upvote plus" data-element="{{ car.id }}">+1</p>
+                                {% else %}
+                                    <p class="upvote" data-element="{{ car.id }}">+1</p>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="frame_model">{{ car.model }}</div>
+
                     </div>
 
                 {% endfor %}
@@ -45,4 +64,9 @@
 
 {% endblock %}
 
-{% block background %}{% endblock %}
+{% block background %}
+    <script>
+        var pendingCar = new PendingCar();
+        pendingCar.setAjaxPath("{{ path('marton_topcars_pending_vote') }}");
+    </script>
+{% endblock %}
