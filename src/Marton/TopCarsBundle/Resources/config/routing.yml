@@ -62,6 +62,10 @@ marton_topcars_post_score:
     path:  /ajax/post_score
     defaults: { _controller: MartonTopCarsBundle:Ajax:postUserScore }
 
+marton_topcars_pending_vote:
+    path:  /ajax/pending_vote
+    defaults: { _controller: MartonTopCarsBundle:Ajax:pendingVote }
+
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:
     path: /{url}

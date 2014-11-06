@@ -950,7 +950,36 @@ $(document).ready(function(){
             this.value = defaultValue;
             $(this).removeClass("input_active");
         }
-    })
-
-
+    });
 });
+
+function PendingCar(){
+
+    var ajaxPath;
+    this.setAjaxPath = function(path){
+        ajaxPath = path;
+    };
+
+    $(".upvote").click(function(){
+        var button = $(this);
+
+        var id = this.dataset.element;
+        var data = {car_id: id};
+        var success = function(response){
+
+            var counter = document.getElementById("count"+id);
+
+            switch(response.result){
+                case "added":
+                    $(button).addClass("plus");
+                    counter.textContent = parseInt(counter.textContent) + 1;
+                    break;
+                case "removed":
+                    $(button).removeClass("plus");
+                    counter.textContent = parseInt(counter.textContent) - 1;
+                    break;
+            }
+        };
+        post_to_server(ajaxPath, data, success);
+    });
+}
