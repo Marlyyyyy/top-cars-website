@@ -97,16 +97,16 @@ class AjaxController extends Controller{
         // Check if user has already voted
         if ($user_voted_cars->contains($car)){
             $user->removeVotedSuggestedCars($car);
-            $response = "removed";
+            $response_msg = "removed";
         }else{
             $user->addVotedSuggestedCars($car);
-            $response = "added";
+            $response_msg = "added";
         }
 
         $em->flush();
 
         $response = new Response(json_encode(array(
-            'result' => $response)));
+            'result' => $response_msg)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
