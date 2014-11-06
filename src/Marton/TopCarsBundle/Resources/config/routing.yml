@@ -28,6 +28,10 @@ marton_topcars_suggest:
     path: /suggest
     defaults: {_controller: MartonTopCarsBundle:Page:suggest }
 
+marton_topcars_pending:
+    path: /pending
+    defaults: {_controller: MartonTopCarsBundle:Page:pending }
+
 # Account
 
 marton_topcars_register:

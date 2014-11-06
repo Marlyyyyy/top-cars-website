@@ -1129,3 +1129,31 @@ input{
 .card_suggest .card_row{
     cursor: default;
 }
+
+.vote p{
+    display: inline-block;
+    font-size: 20px;
+}
+
+.vote .vote_count{
+    padding: 10px;
+    line-height: 10px;
+    font-weight: bold;
+    color: grey;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+.vote .upvote{
+    padding: 10px;
+    line-height: 10px;
+    color: rgba(0, 0, 0, 0.50);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    cursor:pointer;
+}
+
+.vote .plus{
+    background: rgb(242, 255, 231);
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.80);
+}

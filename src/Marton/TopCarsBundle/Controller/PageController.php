@@ -15,6 +15,7 @@ use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
+use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -184,5 +185,19 @@ class PageController extends Controller {
                 'form' => $form->createView()
             ));
         }
+    }
+
+    // Pending page
+    public function pendingAction(){
+
+        // Get all suggested cars
+        /* @var $repository SuggestedCarRepository */
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:SuggestedCar');
+
+        $suggested_cars = $repository->selectAllSuggestedCars();
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/pending.html.twig', array(
+            'cars' => $suggested_cars
+        ));
     }
 } 

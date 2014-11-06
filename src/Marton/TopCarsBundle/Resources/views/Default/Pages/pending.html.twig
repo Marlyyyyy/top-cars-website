@@ -1,0 +1,48 @@
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content">
+
+        <div class="container shadow">
+
+            <div class="cars">
+
+                {% for car in cars %}
+
+                    <div class="card_frame">
+
+                        <div class="vote">
+                            <p class="vote_count" id="count{{ car.id }}">{{ car.upVotedUsers|length }}</p>
+                            <p class="upvote" data-element="{{ car.id }}">+1</p>
+                        </div>
+
+                        <div class="frame_content">
+                            <img width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
+                            <div class="frame_fade">
+                            </div>
+                        </div>
+                        <div class="frame_model">{{ car.model }}</div>
+                    </div>
+
+                {% endfor %}
+
+                {% if cars is empty %}
+
+                    <p>There's no pending car at the moment. Check back later!</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
