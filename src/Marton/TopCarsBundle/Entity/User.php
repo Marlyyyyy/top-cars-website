@@ -204,7 +204,7 @@ class User implements UserInterface, \Serializable{
      */
     public function getVotedSuggestedCars()
     {
-        return $this->votedSuggestedCars->toArray();
+        return $this->votedSuggestedCars;
     }
 
     /**
@@ -216,6 +216,18 @@ class User implements UserInterface, \Serializable{
     public function addVotedSuggestedCars(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
         $this->votedSuggestedCars[] = $suggestedCar;
         $suggestedCar->addUpVotedUsers($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove suggested car
+     *
+     * @param \Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar
+     * @return User
+     */
+    public function removeVotedSuggestedCars(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
+        $this->votedSuggestedCars->removeElement($suggestedCar);
 
         return $this;
     }
