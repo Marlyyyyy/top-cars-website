@@ -26,7 +26,7 @@
                             </div>
 
                             <div class="vote">
-                                <p class="vote_count" id="count{{ car.id }}">{{ car.upVotedUsers | length }}</p>
+                                <p class="vote_count" id="count{{ car.id }}">{{ car.upvotes }}</p>
                             </div>
 
                             <div class="card_title_background">
@@ -34,7 +34,7 @@
 
                             <div class="card_title">
                                 <span>by </span>
-                                <span>{{ car.user.username }}</span>
+                                <span>{{ car.username }}</span>
                             </div>
 
                             <div class="card_title_actions">

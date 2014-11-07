@@ -16,13 +16,38 @@ class SuggestedCarRepository extends EntityRepository{
     public function selectAllSuggestedCars(){
 
         $em = $this->getEntityManager();
+
         $qb = $em->createQueryBuilder();
 
-        $qb ->select('s')
-            ->from('MartonTopCarsBundle:SuggestedCar', 's');
+        $user_table = $em->getClassMetadata('MartonTopCarsBundle:User')->getTableName();
+        $suggestedCar_table = $em->getClassMetadata('MartonTopCarsBundle:SuggestedCar')->getTableName();
 
-        $query = $qb->getQuery();
-        $result = $query->getResult();
+        $sql =
+            'SELECT
+              sc.id AS id,
+              sc.model AS model,
+              sc.image AS image,
+              sc.speed AS speed,
+              sc.power AS power,
+              sc.torque AS torque,
+              sc.acceleration AS acceleration,
+              sc.weight AS weight,
+              sc.comment AS comment,
+              sc.createdAt AS createdAt,
+              u.id AS userId,
+              u.username AS username,
+              CASE WHEN sc_count.upvotes IS NULL THEN 0 ELSE sc_count.upvotes END AS upvotes
+            FROM
+              '.$suggestedCar_table.' sc
+              INNER JOIN '.$user_table.' u ON sc.user_id = u.id
+              LEFT JOIN (  SELECT votes.suggestedCar_id, COUNT(votes.user_id) AS upvotes
+                                                    FROM upvotedUser_suggestedCar votes
+                                                    GROUP BY votes.suggestedCar_id
+                                                    ) AS sc_count ON sc.id = sc_count.suggestedCar_id';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
 
         return $result;
     }

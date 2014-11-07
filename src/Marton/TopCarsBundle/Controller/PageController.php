@@ -194,21 +194,22 @@ class PageController extends Controller {
         /* @var $repository SuggestedCarRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:SuggestedCar');
 
+        // Get all pending suggested cars together with their likes and creators
         $suggested_cars = $repository->selectAllSuggestedCars();
 
         // Get the user
         /* @var $user User */
         $user = $this->get('security.context')->getToken()->getUser();
 
-        // Lazy load those pending cars which the logged in user has already voted up
+        // Load those pending cars' IDs which the logged in user has already voted up
         $liked_suggested_cars = $user->getVotedSuggestedCars()->toArray();
 
         // Tag suggested cars in terms of whether the logged in user has voted on it or not.
         foreach($suggested_cars as &$car){
             if (in_array($car, $liked_suggested_cars)){
-                $car->upvoted = true;
+                $car['upvoted'] = true;
             }else{
-                $car->upvoted = false;
+                $car['upvoted'] = false;
             }
         }
 
