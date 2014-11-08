@@ -14,6 +14,7 @@ use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
+use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
@@ -143,26 +144,17 @@ class PageController extends Controller {
     public function suggestAction(Request $request){
 
         $suggested_car = new SuggestedCar();
-        $form = $this->createFormBuilder($suggested_car)
-            ->add('model', 'text')
-            ->add('image', 'file')
-            ->add('speed', 'text')
-            ->add('power', 'text')
-            ->add('torque', 'text')
-            ->add('acceleration', 'text')
-            ->add('weight', 'text')
-            ->add('comment', 'text')
-            ->add('save', 'submit', array('label' => 'Submit'))
-            ->getForm();
+
+        $form = $this->createForm(new SuggestedCarType(), $suggested_car);
 
         $form->handleRequest($request);
 
         if ($form->isValid()){
 
+            // Get image file and move it to designated directory
             $image_file = $suggested_car->getImage();
 
             $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-
             $image_file->move($new_path, $image_file->getClientOriginalName());
 
             $suggested_car->setImage($image_file->getClientOriginalName());
