@@ -37,8 +37,11 @@ marton_topcars_pending:
     path: /pending
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:pending }
 
-# Account
+marton_topcars_pending_vote:
+    path:  /pending/vote
+    defaults: { _controller: MartonTopCarsBundle:SuggestedCar:vote }
 
+# Account
 marton_topcars_register:
     path:     /register
     defaults: { _controller: MartonTopCarsBundle:Account:register }
@@ -66,10 +69,6 @@ marton_topcars_admin_execute:
 marton_topcars_post_score:
     path:  /ajax/post_score
     defaults: { _controller: MartonTopCarsBundle:Ajax:postUserScore }
-
-marton_topcars_pending_vote:
-    path:  /ajax/pending_vote
-    defaults: { _controller: MartonTopCarsBundle:Ajax:pendingVote }
 
 # trailing slash should always be removed from the end of the URL
 remove_trailing_slash:

@@ -9,10 +9,13 @@
 namespace Marton\TopCarsBundle\Controller;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
+use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class SuggestedCarController extends Controller{
 
@@ -104,5 +107,39 @@ class SuggestedCarController extends Controller{
         return $this->render('MartonTopCarsBundle:Default:Pages/pending.html.twig', array(
             'cars' => $suggested_cars
         ));
+    }
+
+    public function voteAction(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+        $progress = $user->getProgress();
+
+        // Get car
+        $car_id = $request->request->get('car_id');
+        $car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        /* @var $user_voted_cars ArrayCollection */
+        $user_voted_cars = $user->getVotedSuggestedCars();
+
+        // Check if user has already voted
+        if ($user_voted_cars->contains($car)){
+            $user->removeVotedSuggestedCars($car);
+            $response_msg = "removed";
+        }else{
+            $user->addVotedSuggestedCars($car);
+            $response_msg = "added";
+        }
+
+        $em->flush();
+
+        $response = new Response(json_encode(array(
+            'result' => $response_msg)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 } 
