@@ -202,11 +202,15 @@ class PageController extends Controller {
         $user = $this->get('security.context')->getToken()->getUser();
 
         // Load those pending cars' IDs which the logged in user has already voted up
-        $liked_suggested_cars = $user->getVotedSuggestedCars()->toArray();
+        $liked_suggested_cars = $repository->selectIdOfSuggestedCarsVotedByUserId($user->getId());
+        $id_of_liked_suggested_cars = array();
+        foreach ($liked_suggested_cars as $car){
+            array_push($id_of_liked_suggested_cars, $car['id']);
+        }
 
         // Tag suggested cars in terms of whether the logged in user has voted on it or not.
         foreach($suggested_cars as &$car){
-            if (in_array($car, $liked_suggested_cars)){
+            if (in_array($car['id'], $id_of_liked_suggested_cars)){
                 $car['upvoted'] = true;
             }else{
                 $car['upvoted'] = false;

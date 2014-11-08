@@ -13,6 +13,24 @@ use Doctrine\ORM\EntityRepository;
 
 class SuggestedCarRepository extends EntityRepository{
 
+    public function selectIdOfSuggestedCarsVotedByUserId($id){
+
+        $em = $this->getEntityManager();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('sc.id')
+            ->from('MartonTopCarsBundle:SuggestedCar', 'sc')
+            ->innerJoin('sc.upVotedUsers', 'u')
+            ->where('u.id = :user_id')
+            ->setParameter('user_id', $id);
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
     public function selectAllSuggestedCars(){
 
         $em = $this->getEntityManager();
