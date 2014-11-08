@@ -24,13 +24,18 @@ marton_topcars_dealership:
     requirements:
         option:  available|all
 
+# SuggestedCar
 marton_topcars_suggest:
     path: /suggest
-    defaults: {_controller: MartonTopCarsBundle:Page:suggest }
+    defaults: {_controller: MartonTopCarsBundle:SuggestedCar:suggest }
+
+marton_topcars_create_suggestedCar:
+    path: /suggest/create
+    defaults: {_controller: MartonTopCarsBundle:SuggestedCar:create }
 
 marton_topcars_pending:
     path: /pending
-    defaults: {_controller: MartonTopCarsBundle:Page:pending }
+    defaults: {_controller: MartonTopCarsBundle:SuggestedCar:pending }
 
 # Account
 
