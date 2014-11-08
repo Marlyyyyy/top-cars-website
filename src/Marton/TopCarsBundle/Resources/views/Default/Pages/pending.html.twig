@@ -38,6 +38,7 @@
                             </div>
 
                             <div class="card_title_actions">
+                                <img class="no_display" id="l{{ car.id }}" src="{{ asset('bundles/martontopcars/images/src/loading_small.gif') }}">
                                 {% if car.upvoted %}
                                     <p class="upvote plus" data-element="{{ car.id }}">+1</p>
                                 {% else %}

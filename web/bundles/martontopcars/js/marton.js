@@ -960,23 +960,34 @@ function PendingCar(){
         ajaxPath = path;
     };
 
-    $(".upvote").click(function(){
-        var button = $(this);
+    var BUTTON_CLASSNAME = "upvote";
+
+    $("."+BUTTON_CLASSNAME).click(function(){
+        var button = this;
+        button.className = BUTTON_CLASSNAME;
 
         var id = this.dataset.element;
+        var loadingImg = document.getElementById("l"+id);
+        var loadingImgClass = loadingImg.className;
+        loadingImg.className = "vote_load";
+
         var data = {car_id: id};
         var success = function(response){
 
             var counter = document.getElementById("count"+id);
 
+            console.log(response.result);
+
             switch(response.result){
                 case "added":
-                    $(button).addClass("plus");
+                    button.className = button.className + " plus";
                     counter.textContent = parseInt(counter.textContent) + 1;
+                    loadingImg.className = loadingImgClass;
                     break;
                 case "removed":
-                    $(button).removeClass("plus");
+                    button.className = BUTTON_CLASSNAME;
                     counter.textContent = parseInt(counter.textContent) - 1;
+                    loadingImg.className = loadingImgClass;
                     break;
             }
         };
