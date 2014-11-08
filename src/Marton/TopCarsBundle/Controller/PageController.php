@@ -59,45 +59,4 @@ class PageController extends Controller {
             "user_level_info" => json_encode($user_level_info)
         ));
     }
-
-    // Cars -> Dealership page
-    public function dealershipAction($option){
-
-        // Get the user
-        /* @var $user User */
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        // Get all cars
-        /* @var $repository CarRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
-        if ($option === "all"){
-            $cars = $repository-> findAllNotUserCars($user->getCars());
-        }else{
-            $cars = $repository-> findAllNotUserCarsWherePriceLessThan($user->getProgress()->getGold(), $user->getCars());
-        }
-
-        $priceCalculator = new PriceCalculator();
-
-        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/dealership.html.twig', array(
-            "cars" => $priceCalculator->assignPrices($cars),
-            "user" => $user,
-            "empty" => count($cars) === 0 ? true : false,
-            "option" => $option,
-            "available_active" => $option === "available" ? " active" : "",
-            "all_active" => $option === "all" ? " active" : ""
-        ));
-    }
-
-    // Cars -> Garage page
-    public function garageAction(){
-
-        /* @var $user User */
-        $user = $this->get('security.context')->getToken()->getUser();
-        $cars =  $user->getCars();
-
-        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig', array(
-            "cars" => $cars,
-            "user" => $user
-        ));
-    }
 } 

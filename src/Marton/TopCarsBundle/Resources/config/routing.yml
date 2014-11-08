@@ -6,13 +6,14 @@ marton_topcars_game:
     path:     /game
     defaults: { _controller: MartonTopCarsBundle:Page:game }
 
+# Car
 marton_topcars_garage:
     path: /garage
-    defaults: {_controller: MartonTopCarsBundle:Page:garage }
+    defaults: {_controller: MartonTopCarsBundle:Car:garage }
 
 marton_topcars_dealership:
     path: /dealership/{option}
-    defaults: {_controller: MartonTopCarsBundle:Page:dealership, option: "available" }
+    defaults: {_controller: MartonTopCarsBundle:Car:dealership, option: "available" }
     requirements:
         option:  available|all
 
