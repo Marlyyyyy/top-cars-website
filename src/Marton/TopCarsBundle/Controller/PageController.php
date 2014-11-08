@@ -60,45 +60,6 @@ class PageController extends Controller {
         ));
     }
 
-    public function leaderboardAction(){
-
-        // Get all highscores
-        /* @var $repository UserProgressRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:UserProgress');
-        $users = $repository-> findHighscores();
-
-        foreach ($users as $user){
-            $statisticsCalculator = new StatisticsCalculator($user);
-            /* @var $user User */
-            $user->setStatistics($statisticsCalculator->getStatistics());
-        }
-
-        return $this->render('MartonTopCarsBundle:Default:Pages/leaderboard.html.twig', array(
-            'users' => $users
-        ));
-    }
-
-    // User page
-    public function userAction($user){
-
-        // Get details of this user
-        /* @var $repository UserProgressRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:UserProgress');
-        $user_details = $repository-> findDetailsOfUser($user);
-
-        $statisticsCalculator = new StatisticsCalculator($user_details[0]);
-        $user_details[0]->setStatistics($statisticsCalculator->getStatistics());
-
-        $garage = $user_details[0]->getCars();
-
-        $priceCalculator = new PriceCalculator();
-
-        return $this->render('MartonTopCarsBundle:Default:Pages/user.html.twig', array(
-            'user' => $user_details[0],
-            'cars' => $priceCalculator->assignPrices($garage)
-        ));
-    }
-
     // Cars -> Dealership page
     public function dealershipAction($option){
 

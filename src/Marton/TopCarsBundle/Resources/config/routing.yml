@@ -6,14 +6,6 @@ marton_topcars_game:
     path:     /game
     defaults: { _controller: MartonTopCarsBundle:Page:game }
 
-marton_topcars_leaderboard:
-    path:     /leaderboard
-    defaults: { _controller: MartonTopCarsBundle:Page:leaderboard }
-
-marton_topcars_user:
-    path: /user/{user}
-    defaults: {_controller: MartonTopCarsBundle:Page:user }
-
 marton_topcars_garage:
     path: /garage
     defaults: {_controller: MartonTopCarsBundle:Page:garage }
@@ -23,6 +15,15 @@ marton_topcars_dealership:
     defaults: {_controller: MartonTopCarsBundle:Page:dealership, option: "available" }
     requirements:
         option:  available|all
+
+# User
+marton_topcars_leaderboard:
+    path: /leaderboard
+    defaults: { _controller: MartonTopCarsBundle:User:leaderboard }
+
+marton_topcars_user:
+    path: /user/{user}
+    defaults: {_controller: MartonTopCarsBundle:User:profile }
 
 # SuggestedCar
 marton_topcars_suggest:
