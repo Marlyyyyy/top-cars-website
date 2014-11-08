@@ -61,7 +61,8 @@ class SuggestedCarRepository extends EntityRepository{
               LEFT JOIN (  SELECT votes.suggestedCar_id, COUNT(votes.user_id) AS upvotes
                                                     FROM upvotedUser_suggestedCar votes
                                                     GROUP BY votes.suggestedCar_id
-                                                    ) AS sc_count ON sc.id = sc_count.suggestedCar_id';
+                                                    ) AS sc_count ON sc.id = sc_count.suggestedCar_id
+            ORDER BY upvotes DESC';
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
