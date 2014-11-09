@@ -1,5 +1,6 @@
 body{
     margin: 0px;
+    overflow-y: scroll;
 }
 
 * {
@@ -962,8 +963,10 @@ input{
     margin-top: 40px;
 }
 .card_frame{
+    margin: 5px;
     padding: 15px;
     display: inline-block;
+    border: 1px solid rgb(230, 230, 230);
 }
 
 .frame_content{
@@ -1101,6 +1104,8 @@ input{
 
 .frame_details{
     font-size: 9px;
+    overflow: hidden;
+    margin: 2px;
 }
 
 .user_panel{
@@ -1185,25 +1190,34 @@ input{
 
 /* Pending Page */
 
-.card_title_actions .action{
-    display: inline-block;
-    padding: 6px;
-    line-height: 10px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.15s all ease-out;
-}
-
-.frame_content:hover .card_title_actions .action{
-    padding: 10px;
-    line-height: 10px;
-    font-size: 20px;
+.author{
+    margin-left: 10px;
 }
 
 .vote p{
     display: inline-block;
     font-size: 20px;
+}
+
+.frame_content:hover .action_div{
+    font-size: 20px;
+    line-height: 30px;
+    width: 40px;
+}
+
+.action_div{
+    display: inline-block;
+    position: relative;
+    font-size: 14px;
+    line-height: 18px;
+    width: 22px;
+    text-align: center;
+    transition: 0.15s all ease-out;
+}
+
+.action_div p{
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .vote .vote_count{
@@ -1222,32 +1236,6 @@ input{
 .upvote{
     color: rgba(27, 27, 27, 0.5);
     background: rgba(255, 255, 255, 0.65);
-}
-
-.admin_tasks{
-    font-size: 0;
-}
-
-.admin_tasks .accept{
-    background: rgb(106, 173, 92);
-}
-
-.admin_tasks .edit{
-    background: rgba(224, 173, 63, 0.65);
-}
-
-.admin_tasks .delete{
-    background: rgb(215, 108, 108);
-}
-
-.card_frame .admin_action{
-    font-size: 14px;
-    width: 33%;
-    display: inline-block;
-    cursor: pointer;
-    color: rgb(39, 39, 39);
-    font-weight: bold;
-    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .upvote:hover{
@@ -1270,4 +1258,72 @@ input{
 
 .no_display{
     display:none;
+}
+
+.show{
+    color: rgba(27, 27, 27, 0.5);
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.show:hover{
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.hide{
+    color: rgba(27, 27, 27, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.hide:hover{
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.admin_tasks{
+    font-size: 0;
+}
+
+.admin_tasks span{
+    transition: 0.15s all ease-out;
+}
+
+.admin_tasks span:hover{
+    color:white
+}
+
+.admin_tasks .accept{
+    background: rgb(106, 173, 92);
+}
+
+.admin_tasks .accept:hover{
+    background: rgb(46, 173, 63);
+}
+
+.admin_tasks .edit{
+    background: rgba(224, 173, 63, 0.65);
+}
+
+.admin_tasks .edit:hover{
+    background: rgba(231, 151, 15, 0.65);
+}
+
+.admin_tasks .delete{
+    background: rgb(215, 108, 108);
+}
+
+.admin_tasks .delete:hover{
+    background: rgb(203, 65, 55);
+}
+
+.card_frame .admin_action{
+    font-size: 14px;
+    width: 33%;
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(39, 39, 39);
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.card_frame .min{
+    height:0;
 }
