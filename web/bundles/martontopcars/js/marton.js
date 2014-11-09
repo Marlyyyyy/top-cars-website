@@ -953,21 +953,31 @@ $(document).ready(function(){
     });
 });
 
-function PendingCar(){
+var PendingCarModule = (function(){
 
     var ajaxPath = {upvote:"",accept:""};
-    this.setAjaxPath = function(paths){
-        ajaxPath = paths;
-    };
 
-    var UPVOTE_BUTTON_CLASS = "upvote action";
-    var ACCEPT_BUTTON_CLASS = "accept action";
+    var UPVOTE_BUTTON_CLASS = "upvote";
+    var ACCEPT_BUTTON_CLASS = "accept";
+    var SHOW_BUTTON_CLASS   = "show";
+    var HIDE_BUTTON_CLASS   = "hide";
 
-    $(".upvote").click(function(){
+    function registerEventListeners(){
+
+        $("."+UPVOTE_BUTTON_CLASS).click(upvote);
+        $("."+ACCEPT_BUTTON_CLASS).click(accept);
+        $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
+        $(".card_frame").on("click", "."+HIDE_BUTTON_CLASS, hideDetails);
+    }
+
+    function upvote(){
+
         var button = this;
         button.className = UPVOTE_BUTTON_CLASS;
 
         var id = this.dataset.element;
+
+        // Show loading image
         var loadingImg = document.getElementById("l"+id);
         var loadingImgClass = loadingImg.className;
         loadingImg.className = "vote_load";
@@ -993,9 +1003,10 @@ function PendingCar(){
             }
         };
         post_to_server(ajaxPath.upvote, data, success);
-    });
+    }
 
-    $(".accept").click(function(){
+    function accept(){
+
         var button = this;
 
         var id = this.dataset.element;
@@ -1016,5 +1027,50 @@ function PendingCar(){
             }
         };
         post_to_server(ajaxPath.accept, data, success);
-    })
-}
+    }
+
+    function showDetails(){
+
+        this.className = HIDE_BUTTON_CLASS;
+        var id = "f" + this.dataset.element;
+
+        var frame_details = document.getElementById(id);
+
+        $(frame_details).finish().animateAuto("height", 150);
+    }
+
+    function hideDetails(){
+
+        this.className = SHOW_BUTTON_CLASS;
+        var id = "f" + this.dataset.element;
+
+        var frame_details = document.getElementById(id);
+
+        $(frame_details).finish().animate({"height":0}, 150);
+    }
+
+    return {
+
+        init: function (ajaxPaths){
+
+            ajaxPath = ajaxPaths;
+            registerEventListeners();
+        }
+    }
+})();
+
+// To animate auto-property
+$.fn.animateAuto = function(prop, speed, callback){
+
+    var elem, height;
+
+    // Iterate through each element, in case selector returned multiple elements
+    return this.each(function(i, el){
+        el = $(el);
+        elem = el.clone().css({"height":"auto"}).appendTo("body");
+        height = elem.css("height");
+        elem.remove();
+
+        if(prop === "height") el.animate({"height":height}, speed, callback);
+    });
+};
