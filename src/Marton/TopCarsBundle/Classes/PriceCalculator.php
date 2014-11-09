@@ -29,8 +29,8 @@ class PriceCalculator {
         $price += $card->getSpeed() / 30;
         $price += $card->getPower() / 50;
         $price += $card->getTorque() / 50;
-        $price += 50 / $card->getAcceleration();
-        $price += 10000 / $card->getWeight();
+        $price += ($card->getAcceleration() == 0 ? 0 : 50 / $card->getAcceleration());
+        $price += ($card->getWeight() == 0 ? 0 : 10000 / $card->getWeight());
 
         $price = (pow(($price+1)/10, 3.5));
         return round($price);
