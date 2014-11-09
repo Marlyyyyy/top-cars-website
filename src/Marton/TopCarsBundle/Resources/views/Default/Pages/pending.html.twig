@@ -40,10 +40,16 @@
                             <div class="card_title_actions">
                                 <img class="no_display" id="l{{ car.id }}" src="{{ asset('bundles/martontopcars/images/src/loading_small.gif') }}">
                                 {% if car.upvoted %}
-                                    <p class="upvote plus" data-element="{{ car.id }}">+1</p>
+                                    <p class="upvote action plus" data-element="{{ car.id }}">+1</p>
                                 {% else %}
-                                    <p class="upvote" data-element="{{ car.id }}">+1</p>
+                                    <p class="upvote action" data-element="{{ car.id }}">+1</p>
                                 {% endif %}
+                            </div>
+
+                            <div class="admin_tasks">
+                                <span class="accept admin_action" data-element="{{ car.id }}">Accept</span>
+                                <span class="edit admin_action" data-element="{{ car.id }}">Edit</span>
+                                <span class="delete admin_action" data-element="{{ car.id }}">Delete</span>
                             </div>
                         </div>
 
@@ -68,6 +74,9 @@
 {% block background %}
     <script>
         var pendingCar = new PendingCar();
-        pendingCar.setAjaxPath("{{ path('marton_topcars_pending_vote') }}");
+        pendingCar.setAjaxPath({
+            upvote: "{{ path('marton_topcars_pending_vote') }}",
+            accept: "{{ path('marton_topcars_pending_accept') }}"
+        });
     </script>
 {% endblock %}

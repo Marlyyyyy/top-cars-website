@@ -955,16 +955,17 @@ $(document).ready(function(){
 
 function PendingCar(){
 
-    var ajaxPath;
-    this.setAjaxPath = function(path){
-        ajaxPath = path;
+    var ajaxPath = {upvote:"",accept:""};
+    this.setAjaxPath = function(paths){
+        ajaxPath = paths;
     };
 
-    var BUTTON_CLASSNAME = "upvote";
+    var UPVOTE_BUTTON_CLASS = "upvote action";
+    var ACCEPT_BUTTON_CLASS = "accept action";
 
-    $("."+BUTTON_CLASSNAME).click(function(){
+    $(".upvote").click(function(){
         var button = this;
-        button.className = BUTTON_CLASSNAME;
+        button.className = UPVOTE_BUTTON_CLASS;
 
         var id = this.dataset.element;
         var loadingImg = document.getElementById("l"+id);
@@ -985,12 +986,35 @@ function PendingCar(){
                     loadingImg.className = loadingImgClass;
                     break;
                 case "removed":
-                    button.className = BUTTON_CLASSNAME;
+                    button.className = UPVOTE_BUTTON_CLASS;
                     counter.textContent = parseInt(counter.textContent) - 1;
                     loadingImg.className = loadingImgClass;
                     break;
             }
         };
-        post_to_server(ajaxPath, data, success);
+        post_to_server(ajaxPath.upvote, data, success);
     });
+
+    $(".accept").click(function(){
+        var button = this;
+
+        var id = this.dataset.element;
+
+        console.log(id);
+        var data = {car_id: id};
+
+        var success = function(response){
+
+            console.log(response.result);
+
+            switch(response.result){
+                case "success":
+                    $(button).closest(".card_frame").fadeOut(150);
+                    break;
+                case "fail":
+                    break;
+            }
+        };
+        post_to_server(ajaxPath.accept, data, success);
+    })
 }

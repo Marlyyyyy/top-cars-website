@@ -10,10 +10,14 @@ namespace Marton\TopCarsBundle\Controller;
 
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
+use Marton\TopCarsBundle\Classes\PriceCalculator;
+use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -109,6 +113,7 @@ class SuggestedCarController extends Controller{
         ));
     }
 
+    // Ajax call for voting
     public function voteAction(Request $request){
 
         $em = $this->getDoctrine()->getManager();
@@ -135,6 +140,52 @@ class SuggestedCarController extends Controller{
         }
 
         $em->flush();
+
+        $response = new Response(json_encode(array(
+            'result' => $response_msg)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    // Ajax call for accepting
+    public function acceptAction(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Get car
+        $car_id = $request->request->get('car_id');
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        // Move image to the final directory
+        $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
+        $image_file = new File($old_path);
+        $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game';
+        $image_file->move($new_path, $suggestedCar->getImage());
+        $image_file = null;
+
+        // Create car entity as a copy of the suggested car
+        $car = new Car();
+        $car->setModel($suggestedCar->getModel());
+        $car->setImage($suggestedCar->getImage());
+        $car->setSpeed($suggestedCar->getSpeed());
+        $car->setPower($suggestedCar->getPower());
+        $car->setTorque($suggestedCar->getTorque());
+        $car->setAcceleration($suggestedCar->getAcceleration());
+        $car->setWeight($suggestedCar->getWeight());
+
+        $priceCalculator = new PriceCalculator();
+        $car->setPrice($priceCalculator->calculatePrice($car));
+        try{
+            $em->persist($car);
+            $em->remove($suggestedCar);
+            $em->flush();
+
+            $response_msg = "success";
+        }catch(Exception $e){
+            $response_msg = "fail";
+        }
 
         $response = new Response(json_encode(array(
             'result' => $response_msg)));

@@ -43,6 +43,10 @@ marton_topcars_pending_vote:
     path:  /pending/vote
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:vote }
 
+marton_topcars_pending_accept:
+    path:  /pending/accept
+    defaults: { _controller: MartonTopCarsBundle:SuggestedCar:accept }
+
 # Account
 marton_topcars_register:
     path:     /register

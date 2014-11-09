@@ -985,12 +985,6 @@ input{
     opacity:1;
 }
 
-.frame_content:hover .upvote{
-    padding: 10px;
-    line-height: 10px;
-    font-size: 20px;
-}
-
 .card_title_background{
     z-index: 3;
     position: absolute;
@@ -1031,6 +1025,7 @@ input{
     bottom:0;
     right:0;
     transition: 0.15s all ease-out;
+    font-size:0;
 }
 
 .sold_frame{
@@ -1190,6 +1185,22 @@ input{
 
 /* Pending Page */
 
+.card_title_actions .action{
+    display: inline-block;
+    padding: 6px;
+    line-height: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.15s all ease-out;
+}
+
+.frame_content:hover .card_title_actions .action{
+    padding: 10px;
+    line-height: 10px;
+    font-size: 20px;
+}
+
 .vote p{
     display: inline-block;
     font-size: 20px;
@@ -1209,14 +1220,34 @@ input{
 }
 
 .upvote{
-    padding: 6px;
-    line-height: 10px;
-    font-size: 14px;
     color: rgba(27, 27, 27, 0.5);
-    font-weight: bold;
     background: rgba(255, 255, 255, 0.65);
+}
+
+.admin_tasks{
+    font-size: 0;
+}
+
+.admin_tasks .accept{
+    background: rgb(106, 173, 92);
+}
+
+.admin_tasks .edit{
+    background: rgba(224, 173, 63, 0.65);
+}
+
+.admin_tasks .delete{
+    background: rgb(215, 108, 108);
+}
+
+.card_frame .admin_action{
+    font-size: 14px;
+    width: 33%;
+    display: inline-block;
     cursor: pointer;
-    transition: 0.15s all ease-out;
+    color: rgb(39, 39, 39);
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .upvote:hover{
