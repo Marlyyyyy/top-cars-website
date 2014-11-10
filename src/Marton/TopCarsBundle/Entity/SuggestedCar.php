@@ -10,13 +10,14 @@ namespace Marton\TopCarsBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\SuggestedCarRepository")
  * @ORM\Table(name="tbl_car_suggest")
  * @ORM\HasLifecycleCallbacks()
  */
-class SuggestedCar {
+class SuggestedCar implements JsonSerializable{
 
     /**
      * @ORM\Column(type="integer")
@@ -216,5 +217,20 @@ class SuggestedCar {
     public function getUpVotedUsers()
     {
         return $this->upVotedUsers->toArray();
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'model'=> $this->model,
+            'image' => $this->image,
+            'speed' => $this->speed,
+            'power' => $this->power,
+            'torque' => $this->torque,
+            'acceleration' => $this->acceleration,
+            'weight' => $this->weight,
+            'comment' => $this->comment
+        );
     }
 } 
