@@ -108,8 +108,13 @@ class SuggestedCarController extends Controller{
             }
         }
 
+        // Create Form for editing pending suggested cars
+        $suggested_car = new SuggestedCar();
+        $edit_form = $this->createForm(new SuggestedCarType(), $suggested_car);
+
         return $this->render('MartonTopCarsBundle:Default:Pages/pending.html.twig', array(
-            'cars' => $suggested_cars
+            'cars' => $suggested_cars,
+            'edit_form' => $edit_form->createView()
         ));
     }
 

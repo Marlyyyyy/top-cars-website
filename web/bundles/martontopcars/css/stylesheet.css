@@ -967,6 +967,7 @@ input{
     padding: 15px;
     display: inline-block;
     border: 1px solid rgb(230, 230, 230);
+    vertical-align: top;
 }
 
 .frame_content{
@@ -1172,7 +1173,7 @@ input{
     display:inherit;
 }
 
-.card_suggest input{
+.card_fragment input{
     width:100%;
     text-align:center;
 }
@@ -1260,22 +1261,13 @@ input{
     display:none;
 }
 
-.show{
-    color: rgba(27, 27, 27, 0.5);
-    background: rgba(255, 255, 255, 0.65);
+.card_frame .image{
+    cursor:pointer;
 }
 
-.show:hover{
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.hide{
-    color: rgba(27, 27, 27, 0.5);
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.hide:hover{
-    background: rgba(255, 255, 255, 0.65);
+.card_frame  .image:hover{
+    opacity: 0.85;
+    transition: 0.15s all ease-out;
 }
 
 .admin_tasks{
@@ -1324,6 +1316,29 @@ input{
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 
+.card_frame .admin_action:hover{
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
 .card_frame .min{
     height:0;
+}
+
+.popup{
+    display:none;
+    position:absolute;
+    z-index:5;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    background: black;
+    background: rgba(0, 0, 0, 0.3);
+    text-align:center;
+}
+
+.popup-content{
+    display:inline-block;
+    margin: 200px auto auto auto;
+    background:white;
 }

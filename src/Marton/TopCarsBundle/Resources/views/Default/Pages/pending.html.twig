@@ -20,7 +20,7 @@
 
                         <div class="frame_content">
 
-                            <img class="show" data-element="{{ car.id }}" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
+                            <img class="image" data-element="{{ car.id }}" name="show" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
 
                             <div class="frame_fade">
                             </div>
@@ -54,7 +54,11 @@
                         </div>
 
                         <div class="frame_details min" id="f{{ car.id }}">
-                            Speed: {{ car.speed }} km/h | Power: {{ car.power }} hp | Torque: {{ car.torque }} Nm <br> Acceleration: {{ car.acceleration }} s | Weight: {{ car.weight }} kg
+                            Speed: <span class="speed">{{ car.speed }}</span> km/h |
+                            Power: <span class="power">{{ car.power }}</span> hp |
+                            Torque: <span class="torque">{{ car.torque }}</span> Nm <br>
+                            Acceleration: <span class="acceleration">{{ car.acceleration }}</span> s |
+                            Weight: <span class="weight">{{ car.weight }}</span> kg
                         </div>
 
                         <div class="admin_tasks">
@@ -79,16 +83,89 @@
 
     </div>
 
+    <!-- Popups -->
+    <div id="popup" class="popup">
+
+        <div class="popup-content">
+
+            <form action="" method="post" id="form" {{ form_enctype(edit_form) }}>
+
+                <div class="card_fragment card_suggest" id="c_fragment">
+
+                    <div class="card_block" id="c_block">
+
+                        <div class="player_card visible" id="c_card">
+
+                            <div class="card_name" id="c_name">{{ form_widget(edit_form.model, {value : 'Maker, model'}) }}</div>
+
+                            <div class="card_image" id="c_image">
+                                <img id="v_image" width="230px" height="153px" src=""/>
+                                {{ form_widget(edit_form.image) }}
+                            </div>
+
+                            <div class="card_row" id="c_speed" name="speed">
+                                <span class="row_label">Speed:</span>
+                                <span id="v_speed">{{ form_widget(edit_form.speed, {value : '-'}) }}</span>
+                                <span class="row_unit">Km/h</span>
+                            </div>
+
+                            <div class="card_row" id="c_power" name="power">
+                                <span class="row_label">Power:</span>
+                                <span id="v_power">{{ form_widget(edit_form.power, {value : '-'}) }}</span>
+                                <span class="row_unit">Hp</span>
+                            </div>
+
+                            <div class="card_row" id="c_torque" name="torque">
+                                <span class="row_label">Torque:</span>
+                                <span id="v_torque">{{ form_widget(edit_form.torque, {value : '-'}) }}</span>
+                                <span class="row_unit">Nm</span>
+                            </div>
+
+                            <div class="card_row" id="c_acceleration" name="acceleration">
+                                <span class="row_label">Acceleration:</span>
+                                <span id="v_acceleration">{{ form_widget(edit_form.acceleration, {value : '-'}) }}</span>
+                                <span class="row_unit">s</span>
+                            </div>
+
+                            <div class="card_row" id="c_weight" name="weight">
+                                <span class="row_label">Weight:</span>
+                                <span id="v_weight">{{ form_widget(edit_form.weight, {value : '-'}) }}</span>
+                                <span class="row_unit">kg</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {{ form_row(edit_form.comment) }}
+                    {{ form_widget(edit_form._token) }}
+
+                    <button type="submit" id="save">Save</button>
+
+                </div>
+
+
+
+            </form>
+
+        </div>
+
+    </div>
+
 {% endblock %}
 
 {% block background %}
     <script>
         var ajaxPath = {
             upvote:"{{ path('marton_topcars_pending_vote') }}",
-            accept:"{{ path('marton_topcars_pending_accept') }}"
+            accept:"{{ path('marton_topcars_pending_accept') }}",
+            edit:"{{ path('marton_topcars_pending_edit') }}",
+            query:"{{ path('marton_topcars_pending_query') }}"
         };
 
-        PendingCarModule.init(ajaxPath);
+        var imgPaths = "{{ asset('bundles/martontopcars/images/card_game_suggest/') }}";
+
+        PendingCarModule.init(ajaxPath,imgPaths);
 
     </script>
 {% endblock %}
