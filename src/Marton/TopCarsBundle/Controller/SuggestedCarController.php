@@ -209,4 +209,110 @@ class SuggestedCarController extends Controller{
 
         return $response;
     }
+
+    // Ajax call for editing
+    public function editAction(Request $request){
+
+        // Get id of the car to be edited
+        $car_id = $request->request->get('car_id');
+        $car_id = (int) $car_id;
+
+        $error = array();
+
+        $em = $this->getDoctrine()->getManager();
+        /* @var $suggested_car SuggestedCar*/
+        $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        // Check if there exists a car with the given id
+        if(sizeof($suggested_car) == 0){
+
+            array_push($error, array("id", "Such car does not exist! <br>"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Check if the car to be edited is indeed the user's car
+        if (!in_array($suggested_car,$user->getSuggestedCars())){
+
+            array_push($error, array("id", "This is not your suggested car! <br>"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        // Save the car's previous picture's path
+        $suggested_car_old_image = $suggested_car->getImage();
+        $suggested_car->setImage(null);
+
+        $form = $this->createForm(new SuggestedCarType(), $suggested_car);
+
+        $form->submit($request);
+
+        $suggested_car = $form->getData();
+
+        // TODO: Form validation
+        if ($form->isValid()){
+
+            $image_file = $suggested_car->getImage();
+
+            // Check if the user has uploaded any image
+            if($image_file != null){
+
+                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
+                $image_file->move($new_path, $image_file->getClientOriginalName());
+
+                $suggested_car->setImage($image_file->getClientOriginalName());
+            }else{
+                // Preserve previous image
+                $suggested_car->setImage($suggested_car_old_image);
+            }
+
+            $image_file = null;
+
+            $em->flush();
+
+        }else{
+            array_push($error, array("form", "Form errors..! <br>"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+
+
+        $response = new Response(json_encode(array(
+            'error' => $error)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    // Ajax call for returning details of a pending suggested car to be edited
+    public function queryAction(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Get car
+        $car_id = $request->request->get('carId');
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        $response = new Response(json_encode(array(
+            'car' => $suggestedCar)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 } 

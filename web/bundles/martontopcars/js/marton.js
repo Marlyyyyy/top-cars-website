@@ -933,6 +933,23 @@ function post_to_server(url, data, success){
     });
 }
 
+function post_files_to_server(url, data, success){
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: success,
+        cache: false,
+        contentType: false,
+        processData: false,
+        error: function(XMLHttpRequest, textStatus, errorThrown)
+        {
+            console.log('Error : ' + errorThrown);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     // Control appearance of default values within input fields.
@@ -955,19 +972,42 @@ $(document).ready(function(){
 
 var PendingCarModule = (function(){
 
-    var ajaxPath = {upvote:"",accept:""};
+    var ajaxPath = {upvote:"",accept:"",edit:"", query:""};
+    var imgPath;
 
     var UPVOTE_BUTTON_CLASS = "upvote";
     var ACCEPT_BUTTON_CLASS = "accept";
-    var SHOW_BUTTON_CLASS   = "show";
-    var HIDE_BUTTON_CLASS   = "hide";
+    var SHOW_BUTTON_CLASS   = "image";
+    var EDIT_BUTTON_CLASS   = "edit";
+
+    var popupElements = {
+    };
+
+    function registerElements(){
+        popupElements.popup         = document.getElementById("popup");
+        popupElements.form          = document.getElementById("edit_form")
+        popupElements.inputModel    = document.getElementById("suggestedCar_model");
+        popupElements.imgImage      = document.getElementById("v_image");
+        popupElements.inputSpeed    = document.getElementById("suggestedCar_speed");
+        popupElements.inputPower    = document.getElementById("suggestedCar_power");
+        popupElements.inputTorque   = document.getElementById("suggestedCar_torque");
+        popupElements.inputAcceleration = document.getElementById("suggestedCar_acceleration");
+        popupElements.inputWeight   = document.getElementById("suggestedCar_weight");
+        popupElements.inputComment  = document.getElementById("suggestedCar_comment");
+    }
 
     function registerEventListeners(){
 
         $("."+UPVOTE_BUTTON_CLASS).click(upvote);
         $("."+ACCEPT_BUTTON_CLASS).click(accept);
         $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
-        $(".card_frame").on("click", "."+HIDE_BUTTON_CLASS, hideDetails);
+        $("."+EDIT_BUTTON_CLASS).click(edit);
+        $("#edit_form").submit(submitForm);
+
+        $(popupElements.popup).click(hidePopup);
+        $(".popup-content").click(function(event){
+            event.stopPropagation();
+        })
     }
 
     function upvote(){
@@ -1031,29 +1071,88 @@ var PendingCarModule = (function(){
 
     function showDetails(){
 
-        this.className = HIDE_BUTTON_CLASS;
-        var id = "f" + this.dataset.element;
+        var elementState = this.getAttribute("name");
 
-        var frame_details = document.getElementById(id);
+        var carId = "f" + this.dataset.element;
+        var frame_details = document.getElementById(carId);
 
-        $(frame_details).finish().animateAuto("height", 150);
+        switch (elementState){
+            case "show":
+                $(frame_details).finish().animateAuto("height", 150);
+                this.setAttribute("name", "hide");
+                break;
+            case "hide":
+                $(frame_details).finish().animate({"height":0}, 150);
+                this.setAttribute("name", "show");
+                break;
+        }
     }
 
-    function hideDetails(){
 
-        this.className = SHOW_BUTTON_CLASS;
-        var id = "f" + this.dataset.element;
+    function edit(){
 
-        var frame_details = document.getElementById(id);
+        var carId = this.dataset.element;
+        var data = {
+            carId: carId
+        };
+        var success = function(response){
 
-        $(frame_details).finish().animate({"height":0}, 150);
+            var car = response.car;
+            // Fetch all existing values into popup's form
+            showPopup();
+
+            popupElements.form.dataset.element = carId;
+            popupElements.inputModel.value = car.model;
+            popupElements.imgImage.src = imgPath + car.image;
+            popupElements.inputSpeed.value = car.speed;
+            popupElements.inputPower.value = car.power;
+            popupElements.inputTorque.value = car.torque;
+            popupElements.inputAcceleration.value = car.acceleration;
+            popupElements.inputWeight.value = car.weight;
+            popupElements.inputComment.value = car.comment;
+        };
+
+        post_to_server(ajaxPath.query, data, success);
+
+    }
+
+    function submitForm(e){
+
+        // Prevent form from submitting the default way
+        e.preventDefault();
+
+        // Get all form values
+        var form = $(this);
+        var values = {};
+        $.each( form.serializeArray(), function(i, field) {
+            values[field.name] = field.value;
+        });
+
+        // Sending the form to the server
+        var form_data = new FormData(form[0]);
+        form_data.append("car_id", this.dataset.element);
+        var success = function(response){
+            location.reload();
+        };
+
+        post_files_to_server(ajaxPath.edit, form_data, success)
+    }
+
+    function showPopup(){
+        $(popupElements.popup).fadeIn(150);
+    }
+
+    function hidePopup(){
+        $(popupElements.popup).fadeOut(150);
     }
 
     return {
 
-        init: function (ajaxPaths){
+        init: function (ajaxPaths, imgPaths){
 
             ajaxPath = ajaxPaths;
+            imgPath = imgPaths
+            registerElements();
             registerEventListeners();
         }
     }

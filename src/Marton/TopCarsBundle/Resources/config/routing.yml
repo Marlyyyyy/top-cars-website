@@ -47,6 +47,14 @@ marton_topcars_pending_accept:
     path:  /pending/accept
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:accept }
 
+marton_topcars_pending_edit:
+    path:  /pending/edit
+    defaults: { _controller: MartonTopCarsBundle:SuggestedCar:edit }
+
+marton_topcars_pending_query:
+    path: /pending/query
+    defaults: { _controller: MartonTopCarsBundle:SuggestedCar:query }
+
 # Account
 marton_topcars_register:
     path:     /register
