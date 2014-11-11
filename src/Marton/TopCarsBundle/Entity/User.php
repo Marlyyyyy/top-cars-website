@@ -182,7 +182,7 @@ class User implements UserInterface, \Serializable{
      */
     public function getSuggestedCars()
     {
-        return $this->cars->toArray();
+        return $this->suggestedCars->toArray();
     }
 
     /**
