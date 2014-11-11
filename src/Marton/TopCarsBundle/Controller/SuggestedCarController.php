@@ -16,6 +16,7 @@ use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
+use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,14 +54,21 @@ class SuggestedCarController extends Controller{
             // Get image file and move it to designated directory
             $image_file = $suggested_car->getImage();
 
-            $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-            $image_file->move($new_path, $image_file->getClientOriginalName());
 
-            $suggested_car->setImage($image_file->getClientOriginalName());
+            // Check if the user has uploaded any image
+            if($image_file != null){
+
+                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
+                $image_file->move($new_path, $image_file->getClientOriginalName());
+
+                $suggested_car->setImage($image_file->getClientOriginalName());
+            }else{
+                $suggested_car->setImage("default.png");
+            }
 
             $image_file = null;
 
-            // Get the user
+            // Get the user and associate their newly suggested car with them
             /* @var $user User */
             $user = $this->get('security.context')->getToken()->getUser();
 
@@ -71,7 +79,10 @@ class SuggestedCarController extends Controller{
             $em->flush();
 
             return $this->redirect($this->generateUrl('marton_topcars_default'));
+
         }else{
+
+            // TODO: Display errors
             return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
                 'form' => $form->createView()
             ));
