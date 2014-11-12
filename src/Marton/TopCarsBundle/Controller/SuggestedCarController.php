@@ -281,6 +281,11 @@ class SuggestedCarController extends Controller{
 
             $em->flush();
 
+            $this->get('session')->getFlashBag()->add(
+                'notice',
+                'Your changes were saved!'
+            );
+
         }else{
             array_push($error, array("form", "Form errors..! <br>"));
             $response = new Response(json_encode(array(
