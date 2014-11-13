@@ -166,20 +166,47 @@ class SuggestedCarController extends Controller{
 
     // Ajax call for accepting
     public function acceptAction(Request $request){
+        // TODO: add security check - only allow this action for admins
 
         $em = $this->getDoctrine()->getManager();
+
+        $error = array();
 
         // Get car
         $car_id = $request->request->get('car_id');
         /* @var $suggestedCar SuggestedCar */
         $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
 
+        // Check if there exists a car with the given id
+        if(sizeof($suggestedCar) == 0){
+
+            array_push($error, array("id", "Such car does not exist! <br>"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
         // Move image to the final directory
-        $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
-        $image_file = new File($old_path);
-        $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game';
-        $image_file->move($new_path, $suggestedCar->getImage());
-        $image_file = null;
+        if ($suggestedCar->getImage() !== "default.png"){
+
+            $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
+            $image_file = new File($old_path);
+            $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game';
+            $image_file->move($new_path, $suggestedCar->getImage());
+            $image_file = null;
+
+        }else{
+
+            array_push($error, array("image", "This car doesn't have its own image! <br>"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
 
         // Create car entity as a copy of the suggested car
         $car = new Car();
