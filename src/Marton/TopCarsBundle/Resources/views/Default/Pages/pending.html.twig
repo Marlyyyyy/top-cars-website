@@ -20,7 +20,7 @@
 
                 {% for car in cars %}
 
-                    <div class="card_frame">
+                    <div class="card_frame" id="cf-{{ car.id }}">
 
                         <div class="frame_model">{{ car.model }}</div>
 
@@ -98,7 +98,7 @@
 
             <form action="" method="post" id="edit_form" class="popup-body" {{ form_enctype(edit_form) }}>
 
-                <h1>Edit selected pending car:</h1>
+                <h1>Edit</h1>
 
                 <div class="card_fragment card_suggest" id="c_fragment">
 
@@ -162,6 +162,20 @@
                 <button type="submit" class="button-save" id="save">Save</button>
 
             </form>
+
+            <div id="accept_form" class="popup-body">
+
+                <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
+                <button type="button" class="button-save" id="accept">Yes</button>
+
+            </div>
+
+            <div id="delete_form" class="popup-body">
+
+                <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
+                <button type="button" class="button-save" id="delete">Yes</button>
+
+            </div>
 
         </div>
 

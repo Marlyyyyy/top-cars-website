@@ -983,9 +983,13 @@ var PendingCarModule = (function(){
     var popupElements = {
     };
 
+    var selectedCar;
+
     function registerElements(){
         popupElements.popup         = document.getElementById("popup");
-        popupElements.form          = document.getElementById("edit_form")
+        popupElements.popupForms    = document.getElementsByClassName("popup-body");
+        // Edit
+        popupElements.form          = document.getElementById("edit_form");
         popupElements.inputModel    = document.getElementById("suggestedCar_model");
         popupElements.imgImage      = document.getElementById("v_image");
         popupElements.inputSpeed    = document.getElementById("suggestedCar_speed");
@@ -994,20 +998,47 @@ var PendingCarModule = (function(){
         popupElements.inputAcceleration = document.getElementById("suggestedCar_acceleration");
         popupElements.inputWeight   = document.getElementById("suggestedCar_weight");
         popupElements.inputComment  = document.getElementById("suggestedCar_comment");
+        // Accept & Delete
+        popupElements.accept_form   = document.getElementById("accept_form");
+        popupElements.delete_form   = document.getElementById("delete_form");
     }
 
     function registerEventListeners(){
 
-        $("."+UPVOTE_BUTTON_CLASS).click(upvote);
-        $("."+ACCEPT_BUTTON_CLASS).click(accept);
-        $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
-        $("."+EDIT_BUTTON_CLASS).click(edit);
-        $("#edit_form").submit(submitForm);
-
         $(popupElements.popup).click(hidePopup);
         $(".popup-content").click(function(event){
             event.stopPropagation();
-        })
+        });
+        $(".popup-exit").click(hidePopup);
+
+        $("."+UPVOTE_BUTTON_CLASS).click(upvote);
+        $("."+ACCEPT_BUTTON_CLASS).click(popupAccept);
+        $("#accept").click(accept);
+        $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
+        $("."+EDIT_BUTTON_CLASS).click(popupEdit);
+        $("#edit_form").submit(edit);
+
+
+
+    }
+
+    function showDetails(){
+
+        var elementState = this.getAttribute("name");
+
+        var carId = "f" + this.dataset.element;
+        var frame_details = document.getElementById(carId);
+
+        switch (elementState){
+            case "show":
+                $(frame_details).finish().animateAuto("height", 150);
+                this.setAttribute("name", "hide");
+                break;
+            case "hide":
+                $(frame_details).finish().animate({"height":0}, 150);
+                this.setAttribute("name", "show");
+                break;
+        }
     }
 
     function upvote(){
@@ -1045,22 +1076,27 @@ var PendingCarModule = (function(){
         post_to_server(ajaxPath.upvote, data, success);
     }
 
+
+    function popupAccept(){
+
+        selectedCar = this.dataset.element;
+
+        showPopup(popupElements.accept_form);
+
+    }
+
     function accept(){
 
-        var button = this;
-
-        var id = this.dataset.element;
-
-        console.log(id);
-        var data = {car_id: id};
+        var data = {car_id: selectedCar};
 
         var success = function(response){
 
-            console.log(response.result);
+            console.log(response);
 
             switch(response.result){
                 case "success":
-                    $(button).closest(".card_frame").fadeOut(150);
+                    $("#cf-"+selectedCar).fadeOut(150);
+                    hidePopup();
                     break;
                 case "fail":
                     break;
@@ -1069,27 +1105,17 @@ var PendingCarModule = (function(){
         post_to_server(ajaxPath.accept, data, success);
     }
 
-    function showDetails(){
 
-        var elementState = this.getAttribute("name");
+    function popupDelete(){
 
-        var carId = "f" + this.dataset.element;
-        var frame_details = document.getElementById(carId);
+    }
 
-        switch (elementState){
-            case "show":
-                $(frame_details).finish().animateAuto("height", 150);
-                this.setAttribute("name", "hide");
-                break;
-            case "hide":
-                $(frame_details).finish().animate({"height":0}, 150);
-                this.setAttribute("name", "show");
-                break;
-        }
+    function deleteCard(){
+
     }
 
 
-    function edit(){
+    function popupEdit(){
 
         var carId = this.dataset.element;
         var data = {
@@ -1099,24 +1125,24 @@ var PendingCarModule = (function(){
 
             var car = response.car;
             // Fetch all existing values into popup's form
-            showPopup();
+            showPopup(popupElements.form);
 
-            popupElements.form.dataset.element = carId;
-            popupElements.inputModel.value = car.model;
-            popupElements.imgImage.src = imgPath + car.image;
-            popupElements.inputSpeed.value = car.speed;
-            popupElements.inputPower.value = car.power;
-            popupElements.inputTorque.value = car.torque;
+            popupElements.form.dataset.element  = carId;
+            popupElements.inputModel.value      = car.model;
+            popupElements.imgImage.src          = imgPath + car.image;
+            popupElements.inputSpeed.value      = car.speed;
+            popupElements.inputPower.value      = car.power;
+            popupElements.inputTorque.value     = car.torque;
             popupElements.inputAcceleration.value = car.acceleration;
-            popupElements.inputWeight.value = car.weight;
-            popupElements.inputComment.value = car.comment;
+            popupElements.inputWeight.value     = car.weight;
+            popupElements.inputComment.value    = car.comment;
         };
 
         post_to_server(ajaxPath.query, data, success);
 
     }
 
-    function submitForm(e){
+    function edit(e){
 
         // Prevent form from submitting the default way
         e.preventDefault();
@@ -1138,12 +1164,18 @@ var PendingCarModule = (function(){
         post_files_to_server(ajaxPath.edit, form_data, success)
     }
 
-    function showPopup(){
+
+    function showPopup(element){
+    // Show popup with its given main container
+        $(element).show();
         $(popupElements.popup).fadeIn(150);
     }
 
     function hidePopup(){
-        $(popupElements.popup).fadeOut(150);
+    // Hide popup and all its main containers
+        $(popupElements.popup).fadeOut(150, function(){
+            $(popupElements.popupForms).hide();
+        });
     }
 
     return {

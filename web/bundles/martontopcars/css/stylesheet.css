@@ -1221,6 +1221,7 @@ input{
 
 .popup-body{
     margin: 20px;
+    display:none;
 }
 
 .input-comment{
