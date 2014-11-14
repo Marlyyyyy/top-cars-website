@@ -25,7 +25,7 @@ class SuggestedCarType extends AbstractType{
             ->add('torque', 'text')
             ->add('acceleration', 'text')
             ->add('weight', 'text')
-            ->add('comment', 'text')
+            ->add('comment', 'textarea')
             ->add('save', 'submit', array('label' => 'Submit'));
     }
 
