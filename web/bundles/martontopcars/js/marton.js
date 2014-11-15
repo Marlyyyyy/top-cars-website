@@ -1117,6 +1117,7 @@ var PendingCarModule = (function(){
 
     function popupEdit(){
 
+        LoadingModule.show();
         var carId = this.dataset.element;
         var data = {
             carId: carId
@@ -1136,6 +1137,7 @@ var PendingCarModule = (function(){
             popupElements.inputAcceleration.value = car.acceleration;
             popupElements.inputWeight.value     = car.weight;
             popupElements.inputComment.value    = car.comment;
+            LoadingModule.hide();
         };
 
         post_to_server(ajaxPath.query, data, success);
@@ -1143,6 +1145,8 @@ var PendingCarModule = (function(){
     }
 
     function edit(e){
+
+        LoadingModule.show();
 
         // Prevent form from submitting the default way
         e.preventDefault();
@@ -1186,8 +1190,37 @@ var PendingCarModule = (function(){
             imgPath = imgPaths
             registerElements();
             registerEventListeners();
+
+            LoadingModule.init();
         }
     }
+})();
+
+var LoadingModule = (function(){
+
+    var loadingBox;
+
+    function init(){
+        registerElements();
+        return this;
+    }
+
+    function registerElements(){
+
+        loadingBox = document.getElementById("loading-box");
+    }
+
+    return {
+
+        init: init,
+        show: function(){
+            $(loadingBox).finish().fadeIn(150);
+        },
+        hide: function(){
+            $(loadingBox).finish().fadeOut(150);
+        }
+    }
+
 })();
 
 // To animate auto-property
