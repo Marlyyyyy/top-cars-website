@@ -18,6 +18,10 @@
                     </div>
                 {% endfor %}
 
+                <div class="tool-bar">
+                    <button id="new-suggested-car" class="button-save">+ Add</button>
+                </div>
+
                 {% for car in cars %}
 
                     <div class="card_frame" id="cf-{{ car.id }}">
@@ -106,7 +110,7 @@
 
                         <div class="player_card visible" id="c_card">
 
-                            <div class="card_name" id="c_name">{{ form_widget(edit_form.model, {value : 'Maker, model'}) }}</div>
+                            <div class="card_name" id="c_name">{{ form_widget(edit_form.model, {value : '[name]'}) }}</div>
 
                             <div class="card_image" id="c_image">
                                 <img id="v_image" width="230px" height="153px" src=""/>
@@ -115,31 +119,31 @@
 
                             <div class="card_row" id="c_speed" name="speed">
                                 <span class="row_label">Speed:</span>
-                                <span id="v_speed">{{ form_widget(edit_form.speed, {value : '-'}) }}</span>
+                                <span id="v_speed">{{ form_widget(edit_form.speed, {value : '0'}) }}</span>
                                 <span class="row_unit">Km/h</span>
                             </div>
 
                             <div class="card_row" id="c_power" name="power">
                                 <span class="row_label">Power:</span>
-                                <span id="v_power">{{ form_widget(edit_form.power, {value : '-'}) }}</span>
+                                <span id="v_power">{{ form_widget(edit_form.power, {value : '0'}) }}</span>
                                 <span class="row_unit">Hp</span>
                             </div>
 
                             <div class="card_row" id="c_torque" name="torque">
                                 <span class="row_label">Torque:</span>
-                                <span id="v_torque">{{ form_widget(edit_form.torque, {value : '-'}) }}</span>
+                                <span id="v_torque">{{ form_widget(edit_form.torque, {value : '0'}) }}</span>
                                 <span class="row_unit">Nm</span>
                             </div>
 
                             <div class="card_row" id="c_acceleration" name="acceleration">
                                 <span class="row_label">Acceleration:</span>
-                                <span id="v_acceleration">{{ form_widget(edit_form.acceleration, {value : '-'}) }}</span>
+                                <span id="v_acceleration">{{ form_widget(edit_form.acceleration, {value : '0'}) }}</span>
                                 <span class="row_unit">s</span>
                             </div>
 
                             <div class="card_row" id="c_weight" name="weight">
                                 <span class="row_label">Weight:</span>
-                                <span id="v_weight">{{ form_widget(edit_form.weight, {value : '-'}) }}</span>
+                                <span id="v_weight">{{ form_widget(edit_form.weight, {value : '0'}) }}</span>
                                 <span class="row_unit">kg</span>
                             </div>
 
@@ -188,7 +192,7 @@
         var ajaxPath = {
             upvote:"{{ path('marton_topcars_pending_vote') }}",
             accept:"{{ path('marton_topcars_pending_accept') }}",
-            edit:"{{ path('marton_topcars_pending_edit') }}",
+            editOrCreate:"{{ path('marton_topcars_pending_edit_or_create') }}",
             query:"{{ path('marton_topcars_pending_query') }}"
         };
 

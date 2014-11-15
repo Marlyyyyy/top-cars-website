@@ -38,57 +38,6 @@ class SuggestedCarController extends Controller{
         ));
     }
 
-    // Handling form before creating a SuggestedCar
-    public function createAction(Request $request){
-
-        $suggested_car = new SuggestedCar();
-
-        $form = $this->createForm(new SuggestedCarType(), $suggested_car, array(
-            'action' => $this->generateUrl('marton_topcars_create_suggestedCar'))
-        );
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()){
-
-            // Get image file and move it to designated directory
-            $image_file = $suggested_car->getImage();
-
-
-            // Check if the user has uploaded any image
-            if($image_file != null){
-
-                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-                $image_file->move($new_path, $image_file->getClientOriginalName());
-
-                $suggested_car->setImage($image_file->getClientOriginalName());
-            }else{
-                $suggested_car->setImage("default.png");
-            }
-
-            $image_file = null;
-
-            // Get the user and associate their newly suggested car with them
-            /* @var $user User */
-            $user = $this->get('security.context')->getToken()->getUser();
-
-            $user->addSuggestedCar($suggested_car);
-            $suggested_car->setUser($user);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('marton_topcars_default'));
-
-        }else{
-
-            // TODO: Display errors
-            return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
-                'form' => $form->createView()
-            ));
-        }
-    }
-
     // Render page for displaying pending suggested cars
     public function pendingAction(){
 
@@ -237,49 +186,117 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
+    // Handling form before creating a SuggestedCar
+    public function createAction(Request $request){
+
+        $suggested_car = new SuggestedCar();
+
+        $form = $this->createForm(new SuggestedCarType(), $suggested_car, array(
+                'action' => $this->generateUrl('marton_topcars_create_suggestedCar'))
+        );
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()){
+
+            // Get image file and move it to designated directory
+            $image_file = $suggested_car->getImage();
+
+
+            // Check if the user has uploaded any image
+            if($image_file != null){
+
+                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
+                $image_file->move($new_path, $image_file->getClientOriginalName());
+
+                $suggested_car->setImage($image_file->getClientOriginalName());
+            }else{
+                $suggested_car->setImage("default.png");
+            }
+
+            $image_file = null;
+
+            // Get the user and associate their newly suggested car with them
+            /* @var $user User */
+            $user = $this->get('security.context')->getToken()->getUser();
+
+            $user->addSuggestedCar($suggested_car);
+            $suggested_car->setUser($user);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+            return $this->redirect($this->generateUrl('marton_topcars_default'));
+
+        }else{
+
+            // TODO: Display errors
+            return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
+                'form' => $form->createView()
+            ));
+        }
+    }
+
     // Ajax call for editing
-    public function editAction(Request $request){
-
-        // Get id of the car to be edited
-        $car_id = $request->request->get('car_id');
-        $car_id = (int) $car_id;
-
-        $error = array();
+    public function editOrCreateAction(Request $request){
 
         $em = $this->getDoctrine()->getManager();
-        /* @var $suggested_car SuggestedCar*/
-        $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
-
-        // Check if there exists a car with the given id
-        if(sizeof($suggested_car) == 0){
-
-            array_push($error, array("id", "Such car does not exist! <br>"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
-        }
-
 
         // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        // Check if the car to be edited is indeed the user's car
-        if (!in_array($suggested_car,$user->getSuggestedCars())){
+        // Get id of the car to be edited
+        $car_id = $request->request->get('car_id');
 
-            array_push($error, array("id", "This is not your suggested car! <br>"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
+        $car_id = (int) $car_id;
 
-            return $response;
+        $error = array();
+
+        // Check if it's a new car or existing car
+        if($car_id === -1){
+
+            // Create new suggested car
+            $suggested_car = new SuggestedCar();
+
+            $suggested_car->setUser($user);
+
+            $suggested_default_image = "default.png";
+
+        }else{
+
+            // Get suggested car to be edited
+            /* @var $suggested_car SuggestedCar*/
+            $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+            // Check if there exists a car with the given id
+            if(sizeof($suggested_car) == 0){
+
+                array_push($error, array("id", "Such car does not exist! <br>"));
+                $response = new Response(json_encode(array(
+                    'error' => $error)));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
+            // Check if the car to be edited is indeed the user's car
+            if (!in_array($suggested_car,$user->getSuggestedCars())){
+
+                array_push($error, array("id", "This is not your suggested car! <br>"));
+                $response = new Response(json_encode(array(
+                    'error' => $error)));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+
+            // Save the car's previous picture's path
+            $suggested_default_image = $suggested_car->getImage();
+            $suggested_car->setImage(null);
+
         }
 
-        // Save the car's previous picture's path
-        $suggested_car_old_image = $suggested_car->getImage();
-        $suggested_car->setImage(null);
 
         $form = $this->createForm(new SuggestedCarType(), $suggested_car);
 
@@ -300,12 +317,16 @@ class SuggestedCarController extends Controller{
 
                 $suggested_car->setImage($image_file->getClientOriginalName());
             }else{
-                // Preserve previous image
-                $suggested_car->setImage($suggested_car_old_image);
+
+                $suggested_car->setImage($suggested_default_image);
             }
 
             $image_file = null;
 
+            // If it's a new car, then add it to the database
+            if($car_id === -1){
+                $em->persist($suggested_car);
+            }
             $em->flush();
 
             $this->get('session')->getFlashBag()->add(

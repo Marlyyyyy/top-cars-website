@@ -972,7 +972,7 @@ $(document).ready(function(){
 
 var PendingCarModule = (function(){
 
-    var ajaxPath = {upvote:"",accept:"",edit:"", query:""};
+    var ajaxPath = {upvote:"",accept:"",editOrCreate:"", query:""};
     var imgPath;
 
     var UPVOTE_BUTTON_CLASS = "upvote";
@@ -1016,7 +1016,8 @@ var PendingCarModule = (function(){
         $("#accept").click(accept);
         $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
         $("."+EDIT_BUTTON_CLASS).click(popupEdit);
-        $("#edit_form").submit(edit);
+        $("#edit_form").submit(editOrCreate);
+        $("#new-suggested-car").click(popupCreate);
 
 
 
@@ -1114,6 +1115,12 @@ var PendingCarModule = (function(){
 
     }
 
+    function popupCreate(){
+
+        showPopup(popupElements.form);
+        popupElements.form.dataset.element = -1;
+
+    }
 
     function popupEdit(){
 
@@ -1144,7 +1151,7 @@ var PendingCarModule = (function(){
 
     }
 
-    function edit(e){
+    function editOrCreate(e){
 
         LoadingModule.show();
 
@@ -1162,10 +1169,10 @@ var PendingCarModule = (function(){
         var form_data = new FormData(form[0]);
         form_data.append("car_id", this.dataset.element);
         var success = function(response){
-            location.reload();
+            //location.reload();
         };
 
-        post_files_to_server(ajaxPath.edit, form_data, success)
+        post_files_to_server(ajaxPath.editOrCreate, form_data, success)
     }
 
 
