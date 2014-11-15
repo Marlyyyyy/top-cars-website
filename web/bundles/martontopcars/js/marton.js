@@ -1169,7 +1169,7 @@ var PendingCarModule = (function(){
         var form_data = new FormData(form[0]);
         form_data.append("car_id", this.dataset.element);
         var success = function(response){
-            //location.reload();
+            location.reload();
         };
 
         post_files_to_server(ajaxPath.editOrCreate, form_data, success)

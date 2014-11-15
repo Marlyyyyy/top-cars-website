@@ -27,7 +27,7 @@
                         <p>Dealership</p>
                     </a>
 
-                    <a href="{{ path('marton_topcars_dealership', {'option': 'available'}) }}">
+                    <a {% block active_pending %}{% endblock %} href="{{ path('marton_topcars_pending') }}">
                         <p>Pending</p>
                     </a>
 

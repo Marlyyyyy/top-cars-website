@@ -72,7 +72,7 @@ class SuggestedCarController extends Controller{
         $suggested_car = new SuggestedCar();
         $edit_form = $this->createForm(new SuggestedCarType(), $suggested_car);
 
-        return $this->render('MartonTopCarsBundle:Default:Pages/pending.html.twig', array(
+        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/pending.html.twig', array(
             'cars' => $suggested_cars,
             'edit_form' => $edit_form->createView()
         ));
