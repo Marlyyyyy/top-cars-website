@@ -70,6 +70,54 @@ input{
     color:black !important;
 }
 
+/* Buttons */
+
+.button-blue{
+    color: white !important;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    background: rgba(0, 119, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px 10px 5px 10px;
+    cursor: pointer;
+    transition: 0.15s all ease-out;
+}
+
+.button-blue:hover, .button-blue.active{
+    background: rgba(91, 161, 219, 0.8);
+    border: 1px solid rgb(102, 102, 102);
+}
+
+.button-yellow{
+    background: rgba(255,213,0,1);
+    background: -moz-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,213,0,1)), color-stop(100%, rgba(255,155,0,0.94)));
+    background: -webkit-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
+    background: -o-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
+    background: -ms-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
+    background: linear-gradient(to bottom, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+    font-weight: bold;
+    text-shadow: -1px 1px 1px rgba(0, 0, 0, 0.41);
+    display: inline-block;
+    color: white !important;
+    padding: 5px 10px 5px 10px;
+    cursor: pointer;
+}
+.button-yellow:hover{
+    background: rgba(255,213,0,1);
+    border-left: 1px solid rgba(0, 0, 0, 0.0);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.0);
+}
+
+.button-yellow.active{
+    background: rgba(255,213,0,1);
+    border-left: 1px solid rgba(0, 0, 0, 0.0);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.0);
+}
+
 .button-save{
     padding: 8px 14px 8px 14px;;
     border: none;
@@ -310,7 +358,7 @@ input{
     width:1024px;
     text-align: center;
     font-family: Arial,Helvetica,sans-serif;
-    padding-top:20px;
+    padding-top: 18px;
     padding-bottom:20px;
 }
 
@@ -900,34 +948,34 @@ input{
     margin-top: -18px;
 }
 
+.header-image{
+    background: black;
+    height:100px;
+    background:url('../images/src/dealership.jpg');
+}
+
 .header_content .car_lots{
     line-height: 44px;
     display: inline-block;
     width: 100%;
+    background: rgba(255, 255, 255, 1);
+    border-bottom: 1px solid rgba(224, 224, 224, 1);
+    border-top: 1px solid rgba(0, 0, 0, 0.75);
 }
 
 .header_content .car_lots a{
+    width:20%;
     color: rgba(255, 255, 255, 1);
     display: inline-block;
-    width: 40%;
-    height: 53px;
     border-radius: 0;
-    background: rgba(0, 0, 0, 0.3);
-    background-repeat: no-repeat;
     text-align: left;
     font-size: 16px;
     font-weight: bold;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.6), 1px 1px 15px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 1px 1px 15px rgba(0, 0, 0, 0.7);
     opacity: 0.5;
-    margin-top: 30px;
-    margin-right: 25px;
-    margin-left: 25px;
-    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.5);
+    margin-right: 20px;
+    margin-left: 20px;
     vertical-align:top;
-    -webkit-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-    filter: grayscale(100%);
     transition: 0.15s all ease-out;
 }
 
@@ -935,49 +983,16 @@ input{
     opacity:1;
     text-shadow: none;
     color: black;
-    -webkit-filter: grayscale(0%);
-    -moz-filter: grayscale(0%);
-    filter: grayscale(0%);
 }
 .header_content .car_lots .active{
     font-size: 24px;
 }
 .header_content .car_lots a p{
-    margin-left: 12px;
-    margin-top: -40px;
+    text-align: center;
 }
 
 .submenu{
     border-bottom: 1px solid rgb(230, 230, 230);
-}
-
-.submenu .option{
-    background: rgba(255,213,0,1);
-    background: -moz-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
-    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255,213,0,1)), color-stop(100%, rgba(255,155,0,0.94)));
-    background: -webkit-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
-    background: -o-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
-    background: -ms-linear-gradient(top, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
-    background: linear-gradient(to bottom, rgba(255,213,0,1) 0%, rgba(255,155,0,0.94) 100%);
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-    font-weight: bold;
-    text-shadow: -1px 1px 1px rgba(0, 0, 0, 0.41);
-    display: inline-block;
-    width: 10%;
-    color: white;
-    padding: 2px;
-}
-.submenu .option:hover{
-    background: rgba(255,213,0,1);
-    border-left: 1px solid rgba(0, 0, 0, 0.0);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.0);
-}
-
-.submenu .active{
-    background: rgba(255,213,0,1);
-    border-left: 1px solid rgba(0, 0, 0, 0.0);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.0);
 }
 
 .info_dialog{
@@ -1109,23 +1124,6 @@ input{
     display:inline-block;
     vertical-align:top;
     width: 100%;
-}
-
-.frame_buy button{
-    color: rgb(255, 255, 255);
-    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
-    font-weight: bold;
-    background: rgba(0, 158, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 5px 10px 5px 10px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: 0.15s all ease-out;
-}
-
-.frame_buy button:hover{
-    background: rgba(0, 195, 255, 0.80);
-    border: 1px solid rgb(102, 102, 102);
 }
 
 .frame_buy div{

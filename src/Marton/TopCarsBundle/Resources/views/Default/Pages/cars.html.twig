@@ -12,16 +12,23 @@
     <div class="content shadow">
         <div class="container" id="card_game">
 
-
             <div class="header_content cars_header">
 
+                <div class="header-image" style="background: url({{ asset('bundles/martontopcars/images/src/') }}{% block cars_image %}{% endblock %})">
+
+                </div>
+
                 <div class="car_lots">
-                    <a {% block active_garage %}{% endblock %} href="{{ path('marton_topcars_garage') }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/garage.png') }})">
+                    <a {% block active_garage %}{% endblock %} href="{{ path('marton_topcars_garage') }}">
                         <p>My Garage</p>
                     </a>
 
-                    <a {% block active_dealership %}{% endblock %} href="{{ path('marton_topcars_dealership', {'option': 'available'}) }}" style="background-image: url({{ asset('bundles/martontopcars/images/src/dealership.png') }})">
+                    <a {% block active_dealership %}{% endblock %} href="{{ path('marton_topcars_dealership', {'option': 'available'}) }}">
                         <p>Dealership</p>
+                    </a>
+
+                    <a href="{{ path('marton_topcars_dealership', {'option': 'available'}) }}">
+                        <p>Pending</p>
                     </a>
 
                 </div>

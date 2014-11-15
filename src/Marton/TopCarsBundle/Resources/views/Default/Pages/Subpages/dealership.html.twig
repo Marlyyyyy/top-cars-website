@@ -1,14 +1,16 @@
 
 {% extends 'MartonTopCarsBundle:Default/Pages:cars.html.twig' %}
 
+{% block cars_image %}dealership.jpg{% endblock %}
+
 {% block active_dealership %}class="active"{% endblock %}
 
 {% block subpage %}
 
 
     <div class="submenu">
-        <a class="option{{ available_active }}" href="{{ path('marton_topcars_dealership', {'option':'available'}) }}" >Available</a>
-        <a class="option{{ all_active }}" href="{{ path('marton_topcars_dealership', {'option':'all'}) }}">All</a>
+        <a class="button-blue{{ available_active }}" href="{{ path('marton_topcars_dealership', {'option':'available'}) }}" >Available</a>
+        <a class="button-blue{{ all_active }}" href="{{ path('marton_topcars_dealership', {'option':'all'}) }}">All</a>
     </div>
 
     {% if empty %}
@@ -27,7 +29,7 @@
                         <div class="frame_price">
 
                             <div class="frame_buy">
-                                <button class="purchase" id="{{ car.id }}" name="{{ car.price }}">Purchase</button>
+                                <button class="purchase button-yellow" id="{{ car.id }}" name="{{ car.price }}">Purchase</button>
 
                                 <div>
                                     <span>Pic</span><span>{{ car.price }}</span>
