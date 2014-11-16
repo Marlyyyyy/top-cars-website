@@ -986,8 +986,7 @@ var PendingCarModule = (function(){
     var selectedCar;
 
     function registerElements(){
-        popupElements.popup         = document.getElementById("popup");
-        popupElements.popupForms    = document.getElementsByClassName("popup-body");
+
         // Edit
         popupElements.form          = document.getElementById("edit_form");
         popupElements.inputModel    = document.getElementById("suggestedCar_model");
@@ -1005,12 +1004,6 @@ var PendingCarModule = (function(){
 
     function registerEventListeners(){
 
-        $(popupElements.popup).click(hidePopup);
-        $(".popup-content").click(function(event){
-            event.stopPropagation();
-        });
-        $(".popup-exit").click(hidePopup);
-
         $("."+UPVOTE_BUTTON_CLASS).click(upvote);
         $("."+ACCEPT_BUTTON_CLASS).click(popupAccept);
         $("#accept").click(accept);
@@ -1018,9 +1011,6 @@ var PendingCarModule = (function(){
         $("."+EDIT_BUTTON_CLASS).click(popupEdit);
         $("#edit_form").submit(editOrCreate);
         $("#new-suggested-car").click(popupCreate);
-
-
-
     }
 
     function showDetails(){
@@ -1059,8 +1049,6 @@ var PendingCarModule = (function(){
 
             var counter = document.getElementById("count"+id);
 
-            console.log(response.result);
-
             switch(response.result){
                 case "added":
                     button.className = button.className + " plus";
@@ -1078,11 +1066,10 @@ var PendingCarModule = (function(){
     }
 
 
+
     function popupAccept(){
 
-        selectedCar = this.dataset.element;
-
-        showPopup(popupElements.accept_form);
+        PopupModule.show(popupElements.accept_form);
 
     }
 
@@ -1092,20 +1079,18 @@ var PendingCarModule = (function(){
 
         var success = function(response){
 
-            console.log(response);
-
             switch(response.result){
                 case "success":
                     $("#cf-"+selectedCar).fadeOut(150);
-                    hidePopup();
+                    PopupModule.hide();
                     break;
                 case "fail":
                     break;
             }
         };
+
         post_to_server(ajaxPath.accept, data, success);
     }
-
 
     function popupDelete(){
 
@@ -1117,7 +1102,7 @@ var PendingCarModule = (function(){
 
     function popupCreate(){
 
-        showPopup(popupElements.form);
+        PopupModule.show(popupElements.form);
         popupElements.form.dataset.element = -1;
 
     }
@@ -1133,7 +1118,7 @@ var PendingCarModule = (function(){
 
             var car = response.car;
             // Fetch all existing values into popup's form
-            showPopup(popupElements.form);
+            PopupModule.show(popupElements.form);
 
             popupElements.form.dataset.element  = carId;
             popupElements.inputModel.value      = car.model;
@@ -1154,6 +1139,7 @@ var PendingCarModule = (function(){
     function editOrCreate(e){
 
         LoadingModule.show();
+        PopupModule.hide();
 
         // Prevent form from submitting the default way
         e.preventDefault();
@@ -1169,38 +1155,71 @@ var PendingCarModule = (function(){
         var form_data = new FormData(form[0]);
         form_data.append("car_id", this.dataset.element);
         var success = function(response){
+            console.log(response);
             location.reload();
         };
 
         post_files_to_server(ajaxPath.editOrCreate, form_data, success)
     }
 
-
-    function showPopup(element){
-    // Show popup with its given main container
-        $(element).show();
-        $(popupElements.popup).fadeIn(150);
-    }
-
-    function hidePopup(){
-    // Hide popup and all its main containers
-        $(popupElements.popup).fadeOut(150, function(){
-            $(popupElements.popupForms).hide();
-        });
-    }
-
     return {
 
         init: function (ajaxPaths, imgPaths){
 
+            PopupModule.init();
+            LoadingModule.init();
+
             ajaxPath = ajaxPaths;
-            imgPath = imgPaths
+            imgPath = imgPaths;
             registerElements();
             registerEventListeners();
-
-            LoadingModule.init();
         }
     }
+})();
+
+var PopupModule = (function(){
+
+    var popup;
+    var popupForms;
+
+    function registerEventListeners(){
+
+        $(popup).click(PopupModule.hide);
+        $(".popup-content").click(function(event){
+            event.stopPropagation();
+        });
+        $(".popup-exit").click(PopupModule.hide);
+    }
+
+    function init(){
+        popupForms    = document.getElementsByClassName("popup-body");
+        popup         = document.getElementById("popup");
+
+        registerEventListeners();
+    }
+
+    function showPopup(element){
+
+        // Show popup with its given main container
+        $(element).show();
+        $(popup).fadeIn(150);
+    }
+
+    function hidePopup(){
+        // Hide popup and all its main containers
+        $(popup).fadeOut(150, function(){
+            $(popupForms).hide();
+        });
+    }
+
+    return {
+        init: init,
+        show: function(element){
+            showPopup(element);
+        },
+        hide: hidePopup
+    }
+
 })();
 
 var LoadingModule = (function(){
