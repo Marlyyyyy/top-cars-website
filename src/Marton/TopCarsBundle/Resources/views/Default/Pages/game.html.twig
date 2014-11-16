@@ -114,10 +114,16 @@
         var IMG_FORMAT = ".png";
 
         var card_game = new Game();
-        card_game.setPlayers(2)
-                .setImgFolder(IMG_PREFIX)
-                .setImgFormat(IMG_FORMAT)
-                .setAjaxPostScore("{{ path('marton_topcars_post_score') }}");
+
+        var setting = {
+            "players" : 2,
+            "img_folder": IMG_PREFIX,
+            "img_format": IMG_FORMAT,
+            "ajax_post_score":"{{ path('marton_topcars_post_score') }}",
+            "game_container": document.getElementById("card_game")
+        };
+
+        card_game.setSettings(setting);
 
         card_game.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
 

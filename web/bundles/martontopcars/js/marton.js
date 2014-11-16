@@ -118,6 +118,9 @@ function Game(){
         "game_container": document.getElementById("card_game")
     };
 
+    this.setSettings = function(new_settings){
+        setting = new_settings;
+    };
     this.setPlayers = function(number){
         setting.players = number;
         return this;
@@ -246,7 +249,7 @@ function Game(){
             isEnded = false;
             hasRoundEnded = false;
 
-            animateStreakCount(ui_container.streakText, "new", "0");
+            AnimateModule.createStreakCount(ui_container.streakText, "new", "0");
 
             new_round();
         }
@@ -281,47 +284,6 @@ function Game(){
     }
 
     function select_field(){
-        console.log("Field selected");
-
-        // Helper function to show floating value animations
-        function create_floating_score(el, value, class_name){
-
-            var row_label = document.createElement("div");
-            row_label.className = "card_row_subscore";
-            row_label.className += class_name;
-            el.appendChild(row_label);
-
-            var t = document.createTextNode(value);
-            row_label.appendChild(t);
-
-            $(row_label).fadeIn(150, function(){
-                $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
-                    el.removeChild(row_label);
-                });
-            });
-
-            return row_label;
-        }
-
-        // Helper function to update Streak counter
-        function animateStreakCount(el, result, count){
-            switch (result){
-                case "win":
-                    el.innerText = count;
-                    $(el).css({"color":"rgba(0, 128, 0, 0.8)"});
-                    $(el).animate({"font-size":"80px"}, 200, function(){
-                        $(this).animate({"font-size":"25px"}, 200);
-                    });
-                    break;
-                case "lose":
-                    $(el).css({"color":"rgb(223, 79, 79)"});
-                    break;
-                default:
-                    $(el).css({"color":"grey"});
-                    el.innerText = count;
-                    break;
-            }
-        }
 
         // Helper function to calculate the score of players
         function calculate_subscore(p1val, p2val){
@@ -409,7 +371,7 @@ function Game(){
                 // Avoid negative score
                 if (player_queue[i].roundScore > 0) player_queue[i].addScore(player_queue[i].roundScore);
                 var class_name = (player_queue[i].roundScore > 0 ? " score_green" : " score_red");
-                create_floating_score(player_queue[i].getView(property), player_queue[i].roundScore, class_name);
+                AnimateModule.createFloatingText(player_queue[i].getView(property), player_queue[i].roundScore, class_name);
                 previous_active_rows.push(player_queue[i].getView(property));
 
                 if (foundWinner){
@@ -434,8 +396,7 @@ function Game(){
                 player_queue[i].roundScore = 0;
             }
 
-            console.log("streakText: " + ui_container.streakText);
-            animateStreakCount(ui_container.streakText, entity.player.host.roundResult, entity.player.host.getStreak());
+            AnimateModule.createStreakCount(ui_container.streakText, entity.player.host.roundResult, entity.player.host.getStreak());
 
             // Deciding game state: WIN/DRAW or LOSE and Create control buttons
             if (entity.player.host.roundResult === "lose"){
@@ -485,12 +446,9 @@ function Game(){
         var elements = card.create();
         ui_container.battlefield.appendChild(elements.card_fragment);
 
-        console.log(elements);
-
         // Control Panel
         roundControls.init(ui_container.battlefield);
         ui_container.streakText = roundControls.getStreakText();
-        console.log("streakText: " + ui_container.streakText);
 
         host.setViewField(elements.field_holder);
         host.setViewHolder(elements.view_holder);
@@ -923,6 +881,54 @@ function Game(){
         entity.player.host.addScore(user_info.score);
     };
 }
+
+var AnimateModule = function(){
+
+    // Helper function to show floating value animations
+    function createFloatingText(el, value, class_name){
+
+        var row_label = document.createElement("div");
+        row_label.className = "card_row_subscore";
+        row_label.className += class_name;
+        el.appendChild(row_label);
+
+        var t = document.createTextNode(value);
+        row_label.appendChild(t);
+
+        $(row_label).fadeIn(150, function(){
+            $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
+                el.removeChild(row_label);
+            });
+        });
+
+        return row_label;
+    }
+
+    // Helper function to update Streak counter
+    function animateStreakCount(el, result, count){
+        switch (result){
+            case "win":
+                el.innerText = count;
+                $(el).css({"color":"rgba(0, 128, 0, 0.8)"});
+                $(el).animate({"font-size":"80px"}, 200, function(){
+                    $(this).animate({"font-size":"25px"}, 200);
+                });
+                break;
+            case "lose":
+                $(el).css({"color":"rgb(223, 79, 79)"});
+                break;
+            default:
+                $(el).css({"color":"grey"});
+                el.innerText = count;
+                break;
+        }
+    }
+
+    return{
+        createFloatingText : createFloatingText,
+        createStreakCount  : animateStreakCount
+    }
+}();
 
 function post_to_server(url, data, success){
 
