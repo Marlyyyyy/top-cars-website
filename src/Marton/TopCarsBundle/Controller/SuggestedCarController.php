@@ -281,6 +281,8 @@ class SuggestedCarController extends Controller{
                 $image_file->move($new_path, $file_name);
 
                 $suggested_car->setImage($file_name);
+            }else{
+                $suggested_car->setImage($suggested_default_image);
             }
 
             $image_file = null;
