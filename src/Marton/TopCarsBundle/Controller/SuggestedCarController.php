@@ -59,13 +59,26 @@ class SuggestedCarController extends Controller{
             array_push($id_of_liked_suggested_cars, $car['id']);
         }
 
-        // Tag suggested cars in terms of whether the logged in user has voted on it or not.
+        // Tag suggested cars: has the user voted on it? does the car belong to the user?
         foreach($suggested_cars as &$car){
             if (in_array($car['id'], $id_of_liked_suggested_cars)){
                 $car['upvoted'] = true;
             }else{
                 $car['upvoted'] = false;
             }
+
+            if ((int)$car['userId'] === $user->getId()){
+                $car['belongs_to_user'] = true;
+            }else{
+                $car['belongs_to_user'] = false;
+            }
+        }
+
+        // Check for admin permission
+        if ($this->get('security.context')->isGranted('ROLE_ADMIN')) {
+            $is_admin = true;
+        }else{
+            $is_admin = false;
         }
 
         // Create Form for editing pending suggested cars
@@ -74,7 +87,8 @@ class SuggestedCarController extends Controller{
 
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/pending.html.twig', array(
             'cars' => $suggested_cars,
-            'edit_form' => $edit_form->createView()
+            'edit_form' => $edit_form->createView(),
+            'is_admin' => $is_admin
         ));
     }
 
@@ -312,7 +326,7 @@ class SuggestedCarController extends Controller{
             // Check if the user has uploaded any image
             if($image_file != null){
 
-                $file_name = $image_file->getClientOriginalName();
+                $file_name = $user->getId() . $image_file->getClientOriginalName();
 
                 $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
                 $image_file->move($new_path, $file_name);

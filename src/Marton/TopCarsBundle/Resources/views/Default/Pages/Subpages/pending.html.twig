@@ -68,9 +68,13 @@
                 </div>
 
                 <div class="admin_tasks">
-                    <span class="accept admin_action" data-element="{{ car.id }}">Accept</span>
-                    <span class="edit admin_action" data-element="{{ car.id }}">Edit</span>
-                    <span class="delete admin_action" data-element="{{ car.id }}">Delete</span>
+                    {% if is_admin %}
+                        <span class="accept admin_action" data-element="{{ car.id }}">Accept</span>
+                    {% endif %}
+                    {% if (is_admin or car.belongs_to_user) %}
+                        <span class="edit admin_action" data-element="{{ car.id }}">Edit</span>
+                        <span class="delete admin_action" data-element="{{ car.id }}">Delete</span>
+                    {% endif %}
                 </div>
 
             </div>
