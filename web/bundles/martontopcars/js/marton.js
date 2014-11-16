@@ -952,19 +952,17 @@ function post_files_to_server(url, data, success){
 
 $(document).ready(function(){
 
+    var defaultInputPlaceholder;
     // Control appearance of default values within input fields.
     $(":input").focus(function(){
-        var defaultValue = this.defaultValue;
-        var newValue     = this.value;
-        if (defaultValue === newValue){
-            this.value = "";
-            $(this).addClass("input_active");
-        }
+
+        defaultInputPlaceholder = this.placeholder;
+        this.placeholder = "";
+        $(this).addClass("input_active");
+
     }).blur(function(){
-        var defaultValue = this.defaultValue;
-        var newValue     = this.value;
-        if (newValue === ""){
-            this.value = defaultValue;
+        this.placeholder = defaultInputPlaceholder;
+        if(this.value === ""){
             $(this).removeClass("input_active");
         }
     });
