@@ -19,7 +19,7 @@ class SuggestedCarType extends AbstractType{
 
         $builder
             ->add('model', 'text')
-            ->add('image', 'file', array('required'=>false))
+            ->add('image_file', 'file', array('required'=>false))
             ->add('speed', 'text')
             ->add('power', 'text')
             ->add('torque', 'text')

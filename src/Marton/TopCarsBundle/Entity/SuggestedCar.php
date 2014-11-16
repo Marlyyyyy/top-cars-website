@@ -11,6 +11,8 @@ namespace Marton\TopCarsBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\SuggestedCarRepository")
@@ -34,7 +36,18 @@ class SuggestedCar implements JsonSerializable{
     /**
      * @ORM\Column(type="string", length=255)
      */
-    protected $image;
+    protected $image = "default.png";
+
+    /**
+     *
+     * @var File
+     *
+     * @Assert\File(
+     *     maxSize = "5M",
+     *     maxSizeMessage = "The maxmimum allowed file size is 5MB."
+     * )
+     */
+    protected $image_file;
 
     /**
      * @ORM\Column(type="integer")
@@ -128,6 +141,16 @@ class SuggestedCar implements JsonSerializable{
         return $this->image;
     }
 
+    public function setImageFile($image_file)
+    {
+        $this->image_file = $image_file;
+    }
+
+    public function getImageFile()
+    {
+        return $this->image_file;
+    }
+
     public function setModel($model)
     {
         $this->model = $model;
@@ -179,11 +202,35 @@ class SuggestedCar implements JsonSerializable{
     }
 
     /**
-     * @ORM\PrePersist
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
      */
-    public function setCreatedAt()
+    public function preUpload()
     {
         $this->createdAt = new \DateTime();
+    }
+
+    /**
+     * Called before entity removal
+     *
+     * @ORM\PreRemove()
+     */
+    public function removeUpload()
+    {
+
+    }
+
+    /**
+     * Called after entity persistence
+     *
+     * @ORM\PostPersist()
+     * @ORM\PostUpdate()
+     */
+    public function upload()
+    {
+
+        // Clean up the file property as we won't need it anymore
+        $this->image_file = null;
     }
 
     public function getCreatedAt()

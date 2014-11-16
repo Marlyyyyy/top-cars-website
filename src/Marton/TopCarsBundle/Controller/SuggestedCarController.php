@@ -307,18 +307,17 @@ class SuggestedCarController extends Controller{
         // TODO: Form validation
         if ($form->isValid()){
 
-            $image_file = $suggested_car->getImage();
+            $image_file = $suggested_car->getImageFile();
 
             // Check if the user has uploaded any image
             if($image_file != null){
 
+                $file_name = $image_file->getClientOriginalName();
+
                 $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-                $image_file->move($new_path, $image_file->getClientOriginalName());
+                $image_file->move($new_path, $file_name);
 
-                $suggested_car->setImage($image_file->getClientOriginalName());
-            }else{
-
-                $suggested_car->setImage($suggested_default_image);
+                $suggested_car->setImage($file_name);
             }
 
             $image_file = null;
