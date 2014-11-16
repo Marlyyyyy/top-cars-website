@@ -121,22 +121,6 @@ function Game(){
     this.setSettings = function(new_settings){
         setting = new_settings;
     };
-    this.setPlayers = function(number){
-        setting.players = number;
-        return this;
-    };
-    this.setImgFolder = function(path){
-        setting.img_folder = path;
-        return this;
-    };
-    this.setImgFormat = function(format){
-        setting.img_format = format;
-        return this;
-    };
-    this.setAjaxPostScore = function(path){
-        setting.ajax_post_score = path;
-        return this;
-    };
 
     var anim_setting = {
         "fade_speed":150
@@ -226,11 +210,23 @@ function Game(){
     };
 
     // States of the game
-    var isPaused        = false;
-    var hasRoundEnded   = false;
-    var isEnded         = true;
+    var isPaused        = false; // Normally changed when opening settings
+    var hasRoundEnded   = false; // Normally changed after each select
+    var isEnded         = true; // Normally changed when losing or restarting
+    var hostsTurn       = true; // Normally changed before and after the opponents selected.
 
-    // Actions made in the game
+    // To be overridden
+    function loseAction(){
+        isEnded = true;
+        roundControls.newGame();
+    }
+
+    // To be overridden
+    function winAction(){
+        roundControls.nextRound();
+    }
+
+    // To be overridden
     function start(){
 
         isPaused      = false;
@@ -242,6 +238,7 @@ function Game(){
         return this;
     }
 
+    // To be overridden
     function restart(){
 
         if (isEnded && hasRoundEnded){
@@ -255,6 +252,29 @@ function Game(){
         }
     }
 
+    // To be overridden
+    function endOfRoundAction(){
+
+        // Data to post to the server
+        var data = {
+            score:       entity.player.host.getScore(),
+            streak:      entity.player.host.getStreak(),
+            roundResult: entity.player.host.roundResult
+        };
+
+        var success = function(data){
+            var level_change    = data.levelChange;
+            var user_level_info = data.userLevelInfo;
+
+            console.log(data);
+            top_panel.update(level_change, user_level_info);
+        };
+
+        // Ajax call
+        post_to_server(setting.ajax_post_score, data, success);
+    }
+
+    // To be overridden
     function next_round(){
 
         if (hasRoundEnded){
@@ -265,6 +285,7 @@ function Game(){
         }
     }
 
+    // To be overridden
     function new_round(){
 
         // Hide Cards and Generate new card for host
@@ -283,7 +304,7 @@ function Game(){
         roundControls.reset();
     }
 
-    function select_field(){
+    function select_field(field){
 
         // Helper function to calculate the score of players
         function calculate_subscore(p1val, p2val){
@@ -310,17 +331,17 @@ function Game(){
             return 0;
         }
 
-        if (!hasRoundEnded){
+        if (!hasRoundEnded && hostsTurn){
 
             // Prevent player from selecting multiple times in one round
             hasRoundEnded = true;
 
             // Detect clicked property
-            var property = this.getAttribute("name");
-
-            var player_queue = Object.create(entity.player.opponent);
+            var property = field.getAttribute("name");
 
             // Assign cards to the opponents
+            var player_queue = Object.create(entity.player.opponent);
+
             for (var i=0;i<player_queue.length;i++){
                 player_queue[i].setCard(get_random_card()).showCard();
             }
@@ -398,31 +419,16 @@ function Game(){
 
             AnimateModule.createStreakCount(ui_container.streakText, entity.player.host.roundResult, entity.player.host.getStreak());
 
-            // Deciding game state: WIN/DRAW or LOSE and Create control buttons
+            // Deciding game state: WIN/DRAW or LOSE and acting accordingly
             if (entity.player.host.roundResult === "lose"){
-                isEnded = true;
-                roundControls.newGame();
+
+                loseAction();
             }else{
-                roundControls.nextRound();
+
+                winAction();
             }
 
-            // Data to post to the server
-            var data = {
-                score:       entity.player.host.getScore(),
-                streak:      entity.player.host.getStreak(),
-                roundResult: entity.player.host.roundResult
-            };
-
-            var success = function(data){
-                var level_change    = data.levelChange;
-                var user_level_info = data.userLevelInfo;
-
-                console.log(data);
-                top_panel.update(level_change, user_level_info);
-            };
-
-            // Ajax call
-            post_to_server(setting.ajax_post_score, data, success);
+            endOfRoundAction();
         }
     }
 
@@ -832,7 +838,9 @@ function Game(){
                     card_row = document.createElement("div");
                     card_row.className = "card_row";
                     card_row.setAttribute("name",key);
-                    card_row.addEventListener("click",select_field);
+                    card_row.addEventListener("click",function(){
+                        select_field(this);
+                    });
                     player_card.appendChild(card_row);
                     view_holder[key] = card_row;
 
