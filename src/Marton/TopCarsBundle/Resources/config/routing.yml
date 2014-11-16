@@ -31,10 +31,6 @@ marton_topcars_pending:
     path: /pending
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:pending }
 
-marton_topcars_suggest:
-    path: /suggest
-    defaults: {_controller: MartonTopCarsBundle:SuggestedCar:suggest }
-
 marton_topcars_create_suggestedCar:
     path: /suggest/create
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:create }

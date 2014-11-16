@@ -200,57 +200,6 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
-    // Handling form before creating a SuggestedCar
-    public function createAction(Request $request){
-
-        $suggested_car = new SuggestedCar();
-
-        $form = $this->createForm(new SuggestedCarType(), $suggested_car, array(
-                'action' => $this->generateUrl('marton_topcars_create_suggestedCar'))
-        );
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()){
-
-            // Get image file and move it to designated directory
-            $image_file = $suggested_car->getImage();
-
-
-            // Check if the user has uploaded any image
-            if($image_file != null){
-
-                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-                $image_file->move($new_path, $image_file->getClientOriginalName());
-
-                $suggested_car->setImage($image_file->getClientOriginalName());
-            }else{
-                $suggested_car->setImage("default.png");
-            }
-
-            $image_file = null;
-
-            // Get the user and associate their newly suggested car with them
-            /* @var $user User */
-            $user = $this->get('security.context')->getToken()->getUser();
-
-            $user->addSuggestedCar($suggested_car);
-            $suggested_car->setUser($user);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('marton_topcars_default'));
-
-        }else{
-
-            // TODO: Display errors
-            return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
-                'form' => $form->createView()
-            ));
-        }
-    }
-
     // Ajax call for editing
     public function editOrCreateAction(Request $request){
 
