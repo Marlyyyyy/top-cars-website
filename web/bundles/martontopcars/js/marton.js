@@ -62,19 +62,29 @@ function preload_images(array, el){
     }
 }
 
-function ImagePreview(){
+var ImageInputModule = function(){
 
-    var sourceInput, target;
+    var inputSource, targetElement;
 
-    this.setSourceInput = function(id){
-        sourceInput = document.getElementById(id);
-        return this;
-    };
+    function init(sourceId, targetId){
 
-    this.setTarget = function(id){
-        target = document.getElementById(id);
-        return this;
-    };
+        inputSource = document.getElementById(sourceId);
+        targetElement = document.getElementById(targetId);
+        registerEventListeners();
+    }
+
+    function registerEventListeners(){
+
+        $(document).ready(function(){
+            $(inputSource).change(function(){
+                readURL(this);
+            });
+
+            $(targetElement).click(function(){
+                $(inputSource).click();
+            })
+        });
+    }
 
     // Set the preview image
     function readURL(input) {
@@ -83,23 +93,19 @@ function ImagePreview(){
             var reader = new FileReader();
 
             reader.onload = function (e) {
-                $(target).attr('src', e.target.result);
+                $(targetElement).attr('src', e.target.result);
             };
 
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    $(document).ready(function(){
-        $(sourceInput).change(function(){
-            readURL(this);
-        });
+    return{
+        init: init
+    }
 
-        $(target).click(function(){
-            $(sourceInput).click();
-        })
-    });
-}
+}();
+
 
 function Game(){
 
