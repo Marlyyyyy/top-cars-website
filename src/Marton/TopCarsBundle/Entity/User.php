@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\UserRepository")
  * @UniqueEntity(fields="email", message="Email already taken")
  * @UniqueEntity(fields="username", message="Username already taken")
  * @ORM\Table(name="tbl_user")
@@ -88,7 +88,7 @@ class User implements UserInterface, \Serializable{
     private $suggestedCars;
 
     /**
-     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="upVotedUsers")
+     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="upVotedUsers", cascade={"remove", "persist"})
      * @ORM\JoinTable(name="upVotedUser_suggestedCar",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="suggestedCar_id", referencedColumnName="id")}
