@@ -72,8 +72,8 @@ marton_topcars_logout:
     path: /logout
 
 marton_topcars_admin_execute:
-    path: /admin/execute
-    defaults: { _controller: MartonTopCarsBundle:Data:addPricesToCars }
+    path: /admin/execute/{task}
+    defaults: { _controller: MartonTopCarsBundle:Data:oneTimeTask }
 
 # Ajax requests
 marton_topcars_post_score:
