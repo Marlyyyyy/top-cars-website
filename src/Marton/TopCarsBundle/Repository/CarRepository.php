@@ -39,21 +39,6 @@ class CarRepository extends EntityRepository {
         return $result;
     }
 
-    public function updatePriceWhereId($id, $price){
-
-        $em = $this->getEntityManager();
-        $qb = $em->createQueryBuilder();
-
-        $qb ->update('MartonTopCarsBundle:Car', 'c')
-            ->set('c.price', ':price')
-            ->where('c.id = :id')
-            ->setParameter('price', $price)
-            ->setParameter('id', $id);
-
-        $query = $qb->getQuery();
-        $query->execute();
-    }
-
     public function findAllNotUserCars($cars){
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
