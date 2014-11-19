@@ -52,32 +52,32 @@ class SuggestedCar implements JsonSerializable{
     /**
      * @ORM\Column(type="integer")
      */
-    protected $speed;
+    protected $speed = 0;
 
     /**
      * @ORM\Column(type="integer")
      */
-    protected $power;
+    protected $power = 0;
 
     /**
      * @ORM\Column(type="integer")
      */
-    protected $torque;
+    protected $torque = 0;
 
     /**
      * @ORM\Column(type="float")
      */
-    protected $acceleration;
+    protected $acceleration = 0;
 
     /**
      * @ORM\Column(type="integer")
      */
-    protected $weight;
+    protected $weight = 0;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    protected $comment;
+    protected $comment = "Please add this car!";
 
     /**
      * @ORM\Column(type="datetime")
