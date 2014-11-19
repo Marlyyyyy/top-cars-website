@@ -17,6 +17,7 @@
 !/src/Marton/TopCarsBundle/Form/Type/*
 !/src/Marton/TopCarsBundle/Repository/*
 !/src/Marton/TopCarsBundle/Tests/Controller/*
+!/src/Marton/TopCarsBundle/Tests/Classes/*
 !/src/Marton/TopCarsBundle/Tests/Entity/*
 !/src/Marton/TopCarsBundle/Tests/Form/Type/*
 !/src/Marton/TopCarsBundle/Resources/config/routing.yml
