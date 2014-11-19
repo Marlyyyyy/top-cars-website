@@ -113,22 +113,20 @@
         var IMG_PREFIX = "{{ asset('bundles/martontopcars/images/card_game/') }}";
         var IMG_FORMAT = ".png";
 
-        var card_game = new Game();
+        var CardGame = new ClassicGame();
 
-        var setting = {
-            "players" : 2,
-            "img_folder": IMG_PREFIX,
-            "img_format": IMG_FORMAT,
-            "ajax_post_score":"{{ path('marton_topcars_post_score') }}",
-            "game_container": document.getElementById("card_game")
-        };
+        console.log(CardGame.setting);
 
-        card_game.setSettings(setting);
+        CardGame.setting.players = 2;
+        CardGame.setting.img_folder = IMG_PREFIX;
+        CardGame.setting.img_format = IMG_FORMAT;
+        CardGame.setting.ajax_post_score = "{{ path('marton_topcars_post_score') }}";
+        CardGame.setting.game_container = document.getElementById("card_game");
 
-        card_game.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
+        CardGame.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
 
-        card_game.setCards({{ deck | raw }}).preload_images(function(){
-            card_game.test();
+        CardGame.setCards({{ deck | raw }}).preload_images(function(){
+            CardGame.test();
         });
     </script>
 
