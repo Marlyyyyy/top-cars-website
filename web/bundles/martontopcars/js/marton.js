@@ -143,11 +143,11 @@ function Game(){
     };
 
     // Returns a random card from the deck
-    function get_random_card(){
+    this.get_random_card = function(){
 
         var random = Math.floor(Math.random() * (cards.len - 0)) + 0;
         return cards.deck[random];
-    }
+    };
 
     this.preload_images = function(callback){
 
@@ -188,7 +188,7 @@ function Game(){
     };
 
     var ui_container = {};
-    var previous_active_rows;
+    this.previous_active_rows = [];
 
     var top_panel;
     function get_top_panel(){
@@ -228,7 +228,7 @@ function Game(){
         game.isEnded       = false;
         game.hasRoundEnded = false;
 
-        game.entity.player.host.setCard(get_random_card()).showCard();
+        game.entity.player.host.setCard(game.get_random_card()).showCard();
 
         return this;
     };
@@ -252,9 +252,9 @@ function Game(){
 
         // Data to post to the server
         var data = {
-            score:       game.entity.player.host.getScore(),
-            streak:      game.entity.player.host.getStreak(),
-            roundResult: game.entity.player.host.roundResult
+            score:       game.entity.player.user.getScore(),
+            streak:      game.entity.player.user.getStreak(),
+            roundResult: game.entity.player.user.roundResult
         };
 
         var success = function(data){
@@ -284,21 +284,26 @@ function Game(){
 
         // Hide Cards and Generate new card for host
         game.entity.player.host.hideCard(function(){
-            game.entity.player.host.setCard(get_random_card()).showCard();
+            game.entity.player.host.setCard(game.get_random_card()).showCard();
         });
 
         for (var i=0;i<game.entity.player.opponent.length;i++){
             game.entity.player.opponent[i].hideCard();
         }
 
-        for (var i=0;i<previous_active_rows.length;i++){
-            previous_active_rows[i].className = "card_row";
+        for (var i=0;i<game.previous_active_rows.length;i++){
+            game.previous_active_rows[i].className = "card_row";
         }
 
         game.roundControls.reset();
     };
 
-    function select_field(field){
+    // To be overridden
+    this.reorganisePlayers = function(player){
+        // No need to change the host in the default version of the game
+    };
+
+    this.select_field = function(field){
 
         if (!game.hasRoundEnded && game.hostsTurn){
 
@@ -309,10 +314,11 @@ function Game(){
             var property = field.getAttribute("name");
 
             // Assign cards to the opponents
+            // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
             var player_queue = Object.create(game.entity.player.opponent);
 
             for (var i=0;i<player_queue.length;i++){
-                player_queue[i].setCard(get_random_card()).showCard();
+                player_queue[i].setCard(game.get_random_card()).showCard();
             }
 
             player_queue.push(game.entity.player.host);
@@ -353,7 +359,7 @@ function Game(){
             }
 
             var foundWinner = false;
-            previous_active_rows = [];
+            game.previous_active_rows = [];
 
             // Add the round score to the players' overall score
             for (var i=0;i<player_queue.length;i++){
@@ -362,7 +368,7 @@ function Game(){
                 if (player_queue[i].roundScore > 0) player_queue[i].addScore(player_queue[i].roundScore);
                 var class_name = (player_queue[i].roundScore > 0 ? " score_green" : " score_red");
                 AnimateModule.createFloatingText(player_queue[i].getView(property), player_queue[i].roundScore, class_name);
-                previous_active_rows.push(player_queue[i].getView(property));
+                game.previous_active_rows.push(player_queue[i].getView(property));
 
                 if (foundWinner){
                     // Lose
@@ -381,12 +387,15 @@ function Game(){
                     player_queue[i].roundResult = "win";
                     foundWinner = true;
                     player_queue[i].addStreak(game.setting.players-1);
+
+                    // Make sure we know which player won the round
+                    game.reorganisePlayers(player_queue[i]);
                 }
 
                 player_queue[i].roundScore = 0;
             }
 
-            AnimateModule.createStreakCount(ui_container.streakText, game.entity.player.host.roundResult, game.entity.player.host.getStreak());
+            AnimateModule.createStreakCount(ui_container.streakText, game.entity.player.user.roundResult, game.entity.player.user.getStreak());
 
             // Deciding game state: WIN/DRAW or LOSE and acting accordingly
             if (game.entity.player.host.roundResult === "lose"){
@@ -397,14 +406,9 @@ function Game(){
                 game.winAction();
             }
 
-            /*var temp = game.entity.player.opponent[0];
-            game.entity.player.opponent[0] = game.entity.player.host;
-            game.entity.player.host = temp;
-            console.log(game.entity.player.user);*/
-
             game.endOfRoundAction();
         }
-    }
+    };
 
     // Helper function to calculate the score of players
     var calculate_subscore = function(property, p1val, p2val){
@@ -626,7 +630,7 @@ function Game(){
                     card_row.className = "card_row";
                     card_row.setAttribute("name",key);
                     card_row.addEventListener("click",function(){
-                        select_field(this);
+                        game.select_field(this);
                     });
                     player_card.appendChild(card_row);
                     view_holder[key] = card_row;
@@ -897,7 +901,55 @@ function Game(){
 
 function ClassicGame(){}
 ClassicGame.prototype = new Game();
-ClassicGame.prototype.constructor = Game;
+ClassicGame.prototype.constructor = ClassicGame;
+
+ClassicGame.prototype.reorganisePlayers = function(player){
+
+    var self = this;
+
+    console.log(self.entity.player.opponent);
+
+
+    self.entity.player.opponent.push(self.entity.player.host);
+    self.entity.player.host = player;
+
+    var index = self.entity.player.opponent.indexOf(player);
+    if (index > -1){
+        self.entity.player.opponent.splice(index, 1);
+    }
+
+    console.log(self.entity.player.opponent);
+};
+
+ClassicGame.prototype.new_round = function () {
+
+    var self = this;
+
+    if (self.entity.player.host == self.entity.player.user) {
+
+        // The game should move on with the user being the host
+        console.log("User won!");
+    } else {
+
+        // The game should move on with the computer being the host
+        // Hide Cards and Generate new card for host
+        self.entity.player.host.hideCard(function(){
+            self.entity.player.host.setCard(self.get_random_card()).showCard();
+        });
+
+        for (var i=0;i<self.entity.player.opponent.length;i++){
+            self.entity.player.opponent[i].hideCard();
+        }
+
+        for (var i=0;i<self.previous_active_rows.length;i++){
+            self.previous_active_rows[i].className = "card_row";
+        }
+
+        self.roundControls.reset();
+        self.select_field(self.entity.player.host.getView("speed"));
+        console.log("User didn't win.");
+    }
+};
 
 var AnimateModule = function(){
 
