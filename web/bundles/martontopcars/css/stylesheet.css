@@ -144,6 +144,23 @@ input{
     background-color: rgb(148, 148, 148);
 }
 
+/* Forms */
+
+.form-error{
+    margin-bottom: 5px;
+}
+
+.form-error ul{
+    list-style: none;
+    font-size: 14px;
+    padding: 2px 5px 2px 5px;
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    background: rgba(255, 0, 0, 0.1);
+    color: rgb(223, 0, 0);
+    font-weight: bold;
+    border-radius: 2px;
+}
+
 .loading-box-container{
     position: absolute;
     top: 0;
@@ -552,8 +569,11 @@ input{
 .level_score{
     display: inline-block;
     z-index: 5;
-    line-height: 20px;
+    line-height: 30px;
     vertical-align: top;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
 }
 .text_left{
     text-align: left;

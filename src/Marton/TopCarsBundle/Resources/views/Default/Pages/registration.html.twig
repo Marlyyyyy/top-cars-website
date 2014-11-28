@@ -24,21 +24,27 @@
 
                     <h1>Registration:</h1>
 
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
-                    {{ form_errors(form.user.username) }}
+                    <div class="form-error">{{ form_errors(form.user.username) }}</div>
                     {{ form_label(form.user.username) }}
                     {{ form_widget(form.user.username) }}
 
-                    {{ form_errors(form.user.email) }}
+                    <div class="form-error">{{ form_errors(form.user.email) }}</div>
                     {{ form_label(form.user.email) }}
                     {{ form_widget(form.user.email) }}
 
-                    {{ form_errors(form.user.password) }}
-                    {{ form_widget(form.user.password) }}
+                    {% for passwordField in form.user.password %}
+
+                        <div class="form-error">{{ form_errors(passwordField) }}</div>
+                        {{ form_label(passwordField) }}
+                        {{ form_widget(passwordField) }}
+
+                    {% endfor %}
 
                     <div>
 
+                        <div class="form-error">{{ form_errors(form.terms) }}</div>
                         {{ form_widget(form.terms) }}<a href="">Terms and Conditions</a>
 
                     </div>
