@@ -23,7 +23,8 @@ class UserType extends AbstractType {
             'first_options' => array('label' => 'Password:'),
             'second_name'   => 'confirm',
             'second_options' => array('label' => 'Confirm password:'),
-            'type'          => 'password'
+            'type'          => 'password',
+            'invalid_message' => 'The password fields must match.',
         ));
     }
 

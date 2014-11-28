@@ -33,15 +33,16 @@ class User implements UserInterface, \Serializable{
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Assert\Email()
+     * @Assert\NotBlank(message="Please enter your E-mail address")
+     * @Assert\Email(message="Uh oh! This is not a valid E-mail address")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Assert\Length(max = 4096)
+     * @Assert\NotBlank(message="Please choose your password")
+     * @Assert\Length(min="5", minMessage="Your password must be at least {{ limit }} characters long",
+     *                max="100", maxMessage="Your password must be at most {{ limit }} characters long")
      */
     private $password;
 
@@ -52,7 +53,10 @@ class User implements UserInterface, \Serializable{
 
     /**
      * @ORM\Column(type="string", length=25, unique=true)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message="Please choose a username")
+     * @Assert\Regex(pattern= "/^[a-zA-Z\d]+$/", message="Your username cannot contain any special characters")
+     * @Assert\Length(min="3", minMessage="Your username must be at least {{ limit }} characters long",
+     *                max="15", maxMessage="Your username must be at most {{ limit }} characters long")
      */
     private $username;
 

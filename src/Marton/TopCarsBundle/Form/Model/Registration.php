@@ -21,8 +21,8 @@ class Registration
     protected $user;
 
     /**
-     * @Assert\NotBlank()
-     * @Assert\True()
+     * @Assert\NotBlank(message=null)
+     * @Assert\True(message="You cannot register without accepting the rules")
      */
     protected $termsAccepted;
 
