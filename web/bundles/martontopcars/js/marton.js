@@ -758,12 +758,11 @@ function Game(){
 
             container.top_panel = document.getElementById("top_panel");
 
-            var fill = document.getElementById("s_fill");
-            ui.fill = fill;
+            // Filled bar of Score
+            ui.fill = document.getElementById("s_fill");
 
-            // Text middle
-            var level_score = document.getElementById("s_score");
-            ui.score = level_score;
+            // Text of Score
+            ui.score = document.getElementById("s_score");
         };
 
         this.update = function(level_change, user_level_info){
@@ -1218,7 +1217,6 @@ var PendingCarModule = (function(){
     function editOrCreate(e){
 
         LoadingModule.show();
-        PopupModule.hide();
 
         // Prevent form from submitting the default way
         e.preventDefault();
@@ -1234,8 +1232,13 @@ var PendingCarModule = (function(){
         var form_data = new FormData(form[0]);
         form_data.append("car_id", this.dataset.element);
         var success = function(response){
-            console.log(response);
-            location.reload();
+            if (response.error.length !== 0){
+                LoadingModule.hide();
+                ErrorModule.init(document.getElementById("error-block-edit")).displayErrors(response.error);
+            }else{
+                PopupModule.hide();
+                location.reload();
+            }
         };
 
         post_files_to_server(ajaxPath.editOrCreate, form_data, success)
@@ -1254,6 +1257,52 @@ var PendingCarModule = (function(){
             registerEventListeners();
         }
     }
+})();
+
+var ErrorModule = (function(){
+
+    var container;
+
+    function registerContainer(newContainer){
+        container = newContainer;
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        return this;
+    }
+
+    function displayErrors(errors){
+
+        for (key in errors){
+            if (errors.hasOwnProperty(key)){
+
+                if (typeof errors[key] === "object"){
+                    for (k in errors[key]){
+                        if (errors[key].hasOwnProperty(k)){
+
+                            appendError(errors[key][k]);
+                        }
+                    }
+                }else{
+                    appendError(errors[key]);
+                }
+            }
+        }
+    }
+
+    function appendError(errorText){
+
+        var p = document.createElement("p");
+        p.className = "error";
+        p.innerText = errorText;
+        container.appendChild(p);
+    }
+
+    return {
+        init: registerContainer,
+        displayErrors: displayErrors
+    }
+
 })();
 
 var PopupModule = (function(){
@@ -1282,12 +1331,16 @@ var PopupModule = (function(){
         // Show popup with its given main container
         $(element).show();
         $(popup).fadeIn(150);
+        popup.style.overflow = "scroll";
+        document.body.style.overflow = "hidden";
     }
 
     function hidePopup(){
         // Hide popup and all its main containers
         $(popup).fadeOut(150, function(){
             $(popupForms).hide();
+            popup.style.overflow = "hidden";
+            document.body.style.overflow = "scroll";
         });
     }
 

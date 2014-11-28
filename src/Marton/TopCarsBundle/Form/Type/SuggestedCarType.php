@@ -18,15 +18,15 @@ class SuggestedCarType extends AbstractType{
     public function buildForm(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('model', 'text')
-            ->add('image_file', 'file', array('required'=>false))
-            ->add('speed', 'text')
-            ->add('power', 'text')
-            ->add('torque', 'text')
-            ->add('acceleration', 'text')
-            ->add('weight', 'text')
-            ->add('comment', 'textarea')
-            ->add('save', 'submit', array('label' => 'Submit'));
+            ->add('model', 'text', array('error_bubbling' => true))
+            ->add('image_file', 'file', array('required'=>false), array('error_bubbling' => true))
+            ->add('speed', 'number', array('error_bubbling' => true))
+            ->add('power', 'number', array('error_bubbling' => true))
+            ->add('torque', 'number', array('error_bubbling' => true))
+            ->add('acceleration', 'number', array('error_bubbling' => true))
+            ->add('weight', 'number', array('error_bubbling' => true))
+            ->add('comment', 'textarea', array('error_bubbling' => true))
+            ->add('save', 'submit', array('label' => 'Submit'), array('error_bubbling' => true));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver){

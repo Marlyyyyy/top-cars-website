@@ -490,6 +490,18 @@ input{
     font-weight: normal;
 }
 
+.error{
+    list-style: none;
+    font-size: 14px;
+    padding: 2px 5px 2px 5px;
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    background: rgba(255, 0, 0, 0.1);
+    color: rgb(223, 0, 0);
+    font-weight: bold;
+    border-radius: 2px;
+    margin-botom: 5px;
+}
+
 /* Game Page */
 
 .game_header{
@@ -1432,7 +1444,7 @@ input{
 
 .popup{
     display:none;
-    position:absolute;
+    position:fixed;
     z-index:5;
     width:100%;
     height:100%;

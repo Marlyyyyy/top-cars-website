@@ -43,34 +43,51 @@ class SuggestedCar implements JsonSerializable{
      * @var File
      *
      * @Assert\File(
-     *     maxSize = "5M",
-     *     maxSizeMessage = "The maxmimum allowed file size is 5MB."
+     *     maxSize = "1M",
+     *     maxSizeMessage = "The maximum allowed file size is 1MB.",
+     *     mimeTypes = {"image/jpeg", "image/png"},
+     *     mimeTypesMessage = "The format of your image has to be either JPEG or PNG"
      * )
      */
     protected $image_file;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Type(type="numeric", message="The value for Speed has to be a positive number")
+     * @Assert\GreaterThan(value="-1", message="The value for Speed should be a positive number")
+     * @Assert\LessThan(value="10000", message="The value for Speed is too large")
      */
     protected $speed = 0;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Type(type="numeric", message="The value for Power has to be a positive number")
+     * @Assert\GreaterThan(value="-1", message="The value for Power should be a positive number")
+     * @Assert\LessThan(value="100000", message="The value for Power is too large")
      */
     protected $power = 0;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Type(type="numeric", message="The value for Torque has to be a positive number")
+     * @Assert\GreaterThan(value="-1", message="The value for Torque should be a positive number")
+     * @Assert\LessThan(value="100000", message="The value for Torque is too large")
      */
     protected $torque = 0;
 
     /**
      * @ORM\Column(type="float")
+     * @Assert\Type(type="numeric", message="The value for Acceleration has to be a positive number")
+     * @Assert\GreaterThanOrEqual(value="0", message="The value for Acceleration should be a positive number")
+     * @Assert\LessThan(value="10000", message="The value for Acceleration is too large")
      */
     protected $acceleration = 0;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Type(type="numeric", message="The value for Weight has to be a positive number")
+     * @Assert\GreaterThan(value="-1", message="The value for Weight should be a positive number")
+     * @Assert\LessThan(value="100000", message="The value for Weight is too large")
      */
     protected $weight = 0;
 

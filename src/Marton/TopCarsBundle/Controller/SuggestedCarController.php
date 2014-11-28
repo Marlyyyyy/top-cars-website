@@ -143,7 +143,7 @@ class SuggestedCarController extends Controller{
         // Check if there exists a car with the given id
         if(sizeof($suggestedCar) == 0){
 
-            array_push($error, array("id", "Such car does not exist! <br>"));
+            array_push($error, array("Such car does not exist!"));
             $response = new Response(json_encode(array(
                 'error' => $error)));
             $response->headers->set('Content-Type', 'application/json');
@@ -162,7 +162,7 @@ class SuggestedCarController extends Controller{
 
         }else{
 
-            array_push($error, array("image", "This car doesn't have its own image! <br>"));
+            array_push($error, array("This car doesn't have its own image!"));
             $response = new Response(json_encode(array(
                 'error' => $error)));
             $response->headers->set('Content-Type', 'application/json');
@@ -235,7 +235,7 @@ class SuggestedCarController extends Controller{
             // Check if there exists a car with the given id
             if(sizeof($suggested_car) == 0){
 
-                array_push($error, array("id", "Such car does not exist! <br>"));
+                array_push($error, array("Such car does not exist!"));
                 $response = new Response(json_encode(array(
                     'error' => $error)));
                 $response->headers->set('Content-Type', 'application/json');
@@ -246,7 +246,7 @@ class SuggestedCarController extends Controller{
             // Check if the car to be edited is indeed the user's car
             if (!in_array($suggested_car,$user->getSuggestedCars())){
 
-                array_push($error, array("id", "This is not your suggested car! <br>"));
+                array_push($error, array("This is not your suggested car!"));
                 $response = new Response(json_encode(array(
                     'error' => $error)));
                 $response->headers->set('Content-Type', 'application/json');
@@ -299,9 +299,15 @@ class SuggestedCarController extends Controller{
             );
 
         }else{
-            array_push($error, array("form", "Form errors..! <br>"));
+
+            // Handling form errors
+            // Make sure "extension=php_fileinfo.dll" is enabled in your php.ini. This allows checking mimetypes.
+            $form_errors = $this->getErrorMessages($form);
+            foreach ($form_errors as $form_error){
+                array_push($error, $form_error);
+            }
             $response = new Response(json_encode(array(
-                'error' => $error)));
+                'error' => $form_errors)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -314,6 +320,24 @@ class SuggestedCarController extends Controller{
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    private function getErrorMessages(\Symfony\Component\Form\Form $form) {
+        $errors = array();
+
+        // Single error message
+        foreach ($form->getErrors() as $key => $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        // Array of error messages
+        foreach ($form->all() as $child) {
+            if (!$child->isValid()) {
+                $errors[$child->getName()] = $this->getErrorMessages($child);
+            }
+        }
+
+        return $errors;
     }
 
     // Ajax call for returning details of a pending suggested car to be edited
