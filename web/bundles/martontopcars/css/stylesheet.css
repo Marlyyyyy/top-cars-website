@@ -1490,9 +1490,13 @@ input{
 .popup-tools span{
     cursor: pointer;
     opacity: 0.4;
-    border-radius: 10px;
     color: rgb(0, 0, 0);
     font-weight: bold;
+    vertical-align: top;
+    display: inline-block;
+    height: 20px;
+    box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.24);
+    transition: 0.15s all ease-out;
 }
 
 .popup-tools span:hover{

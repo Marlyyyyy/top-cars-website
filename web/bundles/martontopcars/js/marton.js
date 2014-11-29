@@ -1049,13 +1049,10 @@ $(document).ready(function(){
 
 var PendingCarModule = (function(){
 
-    var ajaxPath = {upvote:"",accept:"",editOrCreate:"", query:""};
+    var ajaxPath = {upvote:"", accept:"", delete:"", editOrCreate:"", query:""};
     var imgPath;
 
     var UPVOTE_BUTTON_CLASS = "upvote";
-    var ACCEPT_BUTTON_CLASS = "accept";
-    var SHOW_BUTTON_CLASS   = "image";
-    var EDIT_BUTTON_CLASS   = "edit";
 
     var popupElements = {
     };
@@ -1082,10 +1079,12 @@ var PendingCarModule = (function(){
     function registerEventListeners(){
 
         $("."+UPVOTE_BUTTON_CLASS).click(upvote);
-        $("."+ACCEPT_BUTTON_CLASS).click(popupAccept);
+        $(".accept").click(popupAccept);
         $("#accept").click(accept);
-        $(".card_frame").on("click", "."+SHOW_BUTTON_CLASS, showDetails);
-        $("."+EDIT_BUTTON_CLASS).click(popupEdit);
+        $(".delete").click(popupDelete);
+        $("#delete").click(deleteCard);
+        $(".card_frame").on("click", ".image", showDetails);
+        $(".edit").click(popupEdit);
         $("#edit_form").submit(editOrCreate);
         $("#new-suggested-car").click(popupCreate);
     }
@@ -1142,8 +1141,6 @@ var PendingCarModule = (function(){
         post_to_server(ajaxPath.upvote, data, success);
     }
 
-
-
     function popupAccept(){
 
         PopupModule.show(popupElements.accept_form, "Accept");
@@ -1170,14 +1167,36 @@ var PendingCarModule = (function(){
 
     function popupDelete(){
 
+        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
+        selectedCar = this.dataset.element;
+        PopupModule.show(popupElements.delete_form, "Delete");
     }
 
     function deleteCard(){
+
+        LoadingModule.show();
+
+        var data = {car_id: selectedCar};
+
+        var success = function(response){
+
+            LoadingModule.hide();
+
+            if (response.error.length !== 0){
+                ErrorModule.displayErrors(response.error);
+            }else{
+                PopupModule.hide();
+                $("#cf-"+selectedCar).fadeOut(150);
+            }
+        };
+
+        post_to_server(ajaxPath.delete, data, success);
 
     }
 
     function popupCreate(){
 
+        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
         PopupModule.show(popupElements.form, "Create new card");
         popupElements.form.dataset.element = -1;
         popupElements.inputModel.value = "";
@@ -1193,6 +1212,7 @@ var PendingCarModule = (function(){
 
     function popupEdit(){
 
+        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
         LoadingModule.show();
         var carId = this.dataset.element;
         var data = {
@@ -1240,7 +1260,7 @@ var PendingCarModule = (function(){
         var success = function(response){
             if (response.error.length !== 0){
                 LoadingModule.hide();
-                ErrorModule.init(document.getElementById("error-block-edit")).displayErrors(response.error);
+                ErrorModule.displayErrors(response.error);
             }else{
                 PopupModule.hide();
                 location.reload();
@@ -1271,7 +1291,6 @@ var ErrorModule = (function(){
 
     function registerContainer(newContainer){
         container = newContainer;
-        hideErrors();
         return this;
     }
 

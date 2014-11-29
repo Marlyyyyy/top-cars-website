@@ -200,6 +200,64 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
+    // Ajax call for deleting
+    public function deleteAction(Request $request){
+    // TODO: add security check - only allow this action for admins and the owner of the car
+
+        $em = $this->getDoctrine()->getManager();
+
+        $error = array();
+
+        // Get car
+        $car_id = $request->request->get('car_id');
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        // Check if there exists a car with the given id
+        if(sizeof($suggestedCar) == 0){
+
+            array_push($error, array("Such car does not exist!"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        // Remove image as long as it's not the default one
+        if ($suggestedCar->getImage() !== "default.png"){
+
+            $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
+
+            if (file_exists($old_path)){
+
+                $image_file = new File($old_path);
+
+                if (is_writable($image_file)){
+
+                    unlink($image_file);
+                }else{
+
+                    array_push($error, "You do not have permission to remove files");
+                }
+            }else{
+                array_push($error, "Such file does not exist");
+            }
+
+            $image_file = null;
+        }
+
+
+       $em->remove($suggestedCar);
+       $em->flush();
+
+        $response = new Response(json_encode(array(
+            'error' => $error)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
     // Ajax call for editing
     public function editOrCreateAction(Request $request){
 

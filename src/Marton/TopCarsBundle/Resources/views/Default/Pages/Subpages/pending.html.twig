@@ -102,87 +102,87 @@
 
         <h1 id="popup-header"></h1>
 
-    <form action="" method="post" id="edit_form" class="popup-body" {{ form_enctype(edit_form) }}>
-
         <div id="error-block-edit"></div>
 
-        <div class="card_fragment card_suggest" id="c_fragment">
+        <form action="" method="post" id="edit_form" class="popup-body" {{ form_enctype(edit_form) }}>
 
-            <div class="card_block" id="c_block">
+            <div class="card_fragment card_suggest" id="c_fragment">
 
-                <div class="player_card visible" id="c_card">
+                <div class="card_block" id="c_block">
 
-                    <div class="card_name" id="c_name">{{ form_widget(edit_form.model, { 'attr' : {'placeholder' : 'Name of the car'}}) }}</div>
+                    <div class="player_card visible" id="c_card">
 
-                    <div class="card_image" id="c_image">
-                        <div class="card-image-add" id="card-image-add"></div>
-                        <img id="v_image" class="v_image" width="230px" height="153px" src=""/>
-                        {{ form_widget(edit_form.image_file, {'attr': {'class' : 'input-file'}}) }}
-                    </div>
+                        <div class="card_name" id="c_name">{{ form_widget(edit_form.model, { 'attr' : {'placeholder' : 'Name of the car'}}) }}</div>
 
-                    <div class="card_row" id="c_speed" name="speed">
-                        <span class="row_label">Speed:</span>
-                        <span id="v_speed">{{ form_widget(edit_form.speed, { 'attr' : {'placeholder' : '0'}}) }}</span>
-                        <span class="row_unit">Km/h</span>
-                    </div>
+                        <div class="card_image" id="c_image">
+                            <div class="card-image-add" id="card-image-add"></div>
+                            <img id="v_image" class="v_image" width="230px" height="153px" src=""/>
+                            {{ form_widget(edit_form.image_file, {'attr': {'class' : 'input-file'}}) }}
+                        </div>
 
-                    <div class="card_row" id="c_power" name="power">
-                        <span class="row_label">Power:</span>
-                        <span id="v_power">{{ form_widget(edit_form.power, { 'attr' : {'placeholder' : '0'}}) }}</span>
-                        <span class="row_unit">Hp</span>
-                    </div>
+                        <div class="card_row" id="c_speed" name="speed">
+                            <span class="row_label">Speed:</span>
+                            <span id="v_speed">{{ form_widget(edit_form.speed, { 'attr' : {'placeholder' : '0'}}) }}</span>
+                            <span class="row_unit">Km/h</span>
+                        </div>
 
-                    <div class="card_row" id="c_torque" name="torque">
-                        <span class="row_label">Torque:</span>
-                        <span id="v_torque">{{ form_widget(edit_form.torque, { 'attr' : {'placeholder' : '0'}}) }}</span>
-                        <span class="row_unit">Nm</span>
-                    </div>
+                        <div class="card_row" id="c_power" name="power">
+                            <span class="row_label">Power:</span>
+                            <span id="v_power">{{ form_widget(edit_form.power, { 'attr' : {'placeholder' : '0'}}) }}</span>
+                            <span class="row_unit">Hp</span>
+                        </div>
 
-                    <div class="card_row" id="c_acceleration" name="acceleration">
-                        <span class="row_label">Acceleration:</span>
-                        <span id="v_acceleration">{{ form_widget(edit_form.acceleration, { 'attr' : {'placeholder' : '0'}}) }}</span>
-                        <span class="row_unit">s</span>
-                    </div>
+                        <div class="card_row" id="c_torque" name="torque">
+                            <span class="row_label">Torque:</span>
+                            <span id="v_torque">{{ form_widget(edit_form.torque, { 'attr' : {'placeholder' : '0'}}) }}</span>
+                            <span class="row_unit">Nm</span>
+                        </div>
 
-                    <div class="card_row" id="c_weight" name="weight">
-                        <span class="row_label">Weight:</span>
-                        <span id="v_weight">{{ form_widget(edit_form.weight, { 'attr' : {'placeholder' : '0'}}) }}</span>
-                        <span class="row_unit">kg</span>
+                        <div class="card_row" id="c_acceleration" name="acceleration">
+                            <span class="row_label">Acceleration:</span>
+                            <span id="v_acceleration">{{ form_widget(edit_form.acceleration, { 'attr' : {'placeholder' : '0'}}) }}</span>
+                            <span class="row_unit">s</span>
+                        </div>
+
+                        <div class="card_row" id="c_weight" name="weight">
+                            <span class="row_label">Weight:</span>
+                            <span id="v_weight">{{ form_widget(edit_form.weight, { 'attr' : {'placeholder' : '0'}}) }}</span>
+                            <span class="row_unit">kg</span>
+                        </div>
+
                     </div>
 
                 </div>
 
             </div>
 
+            <br>
+            <hr>
+
+            {{ form_widget(edit_form.comment, { 'attr': {'class': 'input-comment', 'placeholder' : 'Your comment'} }) }}
+            {{ form_widget(edit_form._token) }}
+
+            <hr>
+            <br>
+
+            <button type="button" class="button-cancel popup-exit" id="cancel">Cancel</button>
+            <button type="submit" class="button-save" id="save">Save</button>
+
+        </form>
+
+        <div id="accept_form" class="popup-body">
+
+            <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
+            <button type="button" class="button-save" id="accept">Yes</button>
+
         </div>
 
-        <br>
-        <hr>
+        <div id="delete_form" class="popup-body">
 
-        {{ form_widget(edit_form.comment, { 'attr': {'class': 'input-comment', 'placeholder' : 'Your comment'} }) }}
-        {{ form_widget(edit_form._token) }}
+            <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
+            <button type="button" class="button-save" id="delete">Yes</button>
 
-        <hr>
-        <br>
-
-        <button type="button" class="button-cancel popup-exit" id="cancel">Cancel</button>
-        <button type="submit" class="button-save" id="save">Save</button>
-
-    </form>
-
-    <div id="accept_form" class="popup-body">
-
-        <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
-        <button type="button" class="button-save" id="accept">Yes</button>
-
-    </div>
-
-    <div id="delete_form" class="popup-body">
-
-        <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
-        <button type="button" class="button-save" id="delete">Yes</button>
-
-    </div>
+        </div>
 
 {% endblock %}
 
@@ -191,6 +191,7 @@
             var ajaxPath = {
                 upvote:"{{ path('marton_topcars_pending_vote') }}",
                 accept:"{{ path('marton_topcars_pending_accept') }}",
+                delete:"{{ path('marton_topcars_pending_delete') }}",
                 editOrCreate:"{{ path('marton_topcars_pending_edit_or_create') }}",
                 query:"{{ path('marton_topcars_pending_query') }}"
             };
