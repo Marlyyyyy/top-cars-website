@@ -146,6 +146,7 @@ function Game(){
     // Returns a random card from the deck
     this.get_random_card = function(){
 
+        console.log("random card");
         var random = Math.floor(Math.random() * (cards.len - 0)) + 0;
         return cards.deck[random];
     };
@@ -296,6 +297,8 @@ function Game(){
             game.previous_active_rows[i].className = "card_row";
         }
 
+        game.previous_active_rows = [];
+
         game.roundControls.reset();
     };
 
@@ -360,7 +363,6 @@ function Game(){
             }
 
             var foundWinner = false;
-            game.previous_active_rows = [];
 
             // Add the round score to the players' overall score
             for (var i=0;i<player_queue.length;i++){
@@ -874,9 +876,6 @@ ClassicGame.prototype.reorganisePlayers = function(player){
 
     var self = this;
 
-    console.log(self.entity.player.opponent);
-
-
     self.entity.player.opponent.push(self.entity.player.host);
     self.entity.player.host = player;
 
@@ -884,37 +883,44 @@ ClassicGame.prototype.reorganisePlayers = function(player){
     if (index > -1){
         self.entity.player.opponent.splice(index, 1);
     }
-
-    console.log(self.entity.player.opponent);
 };
 
 ClassicGame.prototype.new_round = function () {
 
     var self = this;
 
+    for (var i=0;i<self.previous_active_rows.length;i++){
+        self.previous_active_rows[i].className = "card_row";
+    }
+
+    self.previous_active_rows = [];
+
+    self.roundControls.reset();
+
+    // Hide opponent cars
+    for (var i=0;i<self.entity.player.opponent.length;i++){
+        self.entity.player.opponent[i].hideCard();
+    }
+
     if (self.entity.player.host == self.entity.player.user) {
 
         // The game should move on with the user being the host
-        console.log("User won!");
-    } else {
-
-        // The game should move on with the computer being the host
-        // Hide Cards and Generate new card for host
         self.entity.player.host.hideCard(function(){
             self.entity.player.host.setCard(self.get_random_card()).showCard();
         });
+    } else {
 
-        for (var i=0;i<self.entity.player.opponent.length;i++){
-            self.entity.player.opponent[i].hideCard();
-        }
+        // The game should move on with the computer being the host
+        // Generate new card for host
+        self.entity.player.host.hideCard(function(){
 
-        for (var i=0;i<self.previous_active_rows.length;i++){
-            self.previous_active_rows[i].className = "card_row";
-        }
+            // TODO: Count-down
+            self.entity.player.host.setCard(self.get_random_card()).showCard(function(){
 
-        self.roundControls.reset();
-        self.select_field(self.entity.player.host.getView("speed"));
-        console.log("User didn't win.");
+                // TODO: Choice algorithm
+                self.select_field(self.entity.player.host.getView("speed"));
+            });
+        });
     }
 };
 
@@ -1095,18 +1101,22 @@ var Market = function(){
         }
 
         function success(data){
-            var frame_content   = $(this).closest(".frame_content");
-            var image           = $(frame_content).find("img");
-            console.log("successfully purchased");
-            var el = document.getElementById("p_gold");
-            var new_gold = userGold - price;
+
+            var frame_content   = $(previousElement).closest(".frame_content");
+            var image           = $(frame_content).find(".frame_image");
+            var el              = document.getElementById("p_gold");
+
+            var new_gold   = userGold - price;
             AnimateModule.animateIncrement(userGold, new_gold, el);
+
             userGold = new_gold;
+
             el = document.getElementById("user_gold");
             AnimateModule.createFloatingText(el, price, " score_red");
+
             slideFrame(previousElement, "-200%");
             previousElement = null;
-            image[0].className += " sold_frame";
+            $(image).addClass("sold_frame");
         }
     }
 
@@ -1171,7 +1181,7 @@ var PendingCarModule = (function(){
 
         var elementState = this.getAttribute("name");
 
-        var carId = "f" + this.dataset.element;
+        var carId = "f" + this.dataset.car;
         var frame_details = document.getElementById(carId);
 
         switch (elementState){
@@ -1191,7 +1201,7 @@ var PendingCarModule = (function(){
         var button = this;
         button.className = UPVOTE_BUTTON_CLASS;
 
-        var id = this.dataset.element;
+        var id = this.dataset.car;
 
         // Show loading image
         var loadingImg = document.getElementById("l"+id);
@@ -1246,7 +1256,7 @@ var PendingCarModule = (function(){
     function popupDelete(){
 
         ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
-        selectedCar = this.dataset.element;
+        selectedCar = this.dataset.car;
         PopupModule.show(popupElements.delete_form, "Delete");
     }
 
@@ -1276,7 +1286,7 @@ var PendingCarModule = (function(){
 
         ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
         PopupModule.show(popupElements.form, "Create new card");
-        popupElements.form.dataset.element = -1;
+        popupElements.form.dataset.car = -1;
         popupElements.inputModel.value = "";
         popupElements.imgImage.src = "";
         popupElements.inputSpeed.value = "";
@@ -1292,7 +1302,7 @@ var PendingCarModule = (function(){
 
         ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
         LoadingModule.show();
-        var carId = this.dataset.element;
+        var carId = this.dataset.car;
         var data = {
             carId: carId
         };
@@ -1302,7 +1312,7 @@ var PendingCarModule = (function(){
             // Fetch all existing values into popup's form
             PopupModule.show(popupElements.form, "Edit");
 
-            popupElements.form.dataset.element  = carId;
+            popupElements.form.dataset.car  = carId;
             popupElements.inputModel.value      = car.model;
             popupElements.imgImage.src          = imgPath + car.image;
             popupElements.inputSpeed.value      = car.speed;
@@ -1334,7 +1344,7 @@ var PendingCarModule = (function(){
 
         // Sending the form to the server
         var form_data = new FormData(form[0]);
-        form_data.append("car_id", this.dataset.element);
+        form_data.append("car_id", this.dataset.car);
         var success = function(response){
             if (response.error.length !== 0){
                 LoadingModule.hide();
