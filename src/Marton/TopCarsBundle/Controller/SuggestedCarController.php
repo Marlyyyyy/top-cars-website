@@ -129,7 +129,6 @@ class SuggestedCarController extends Controller{
 
     // Ajax call for accepting
     public function acceptAction(Request $request){
-        // TODO: add security check - only allow this action for admins
 
         $em = $this->getDoctrine()->getManager();
 
@@ -150,6 +149,17 @@ class SuggestedCarController extends Controller{
 
             return $response;
         }
+
+        // Check if the user is an admin
+        if (!$this->get('security.context')->isGranted('ROLE_ADMIN')) {
+            array_push($error, array("Only administrators can accept pending cars"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
 
         // Move image to the final directory
         if ($suggestedCar->getImage() !== "default.png"){
@@ -202,7 +212,6 @@ class SuggestedCarController extends Controller{
 
     // Ajax call for deleting
     public function deleteAction(Request $request){
-    // TODO: add security check - only allow this action for admins and the owner of the car
 
         $em = $this->getDoctrine()->getManager();
 
@@ -223,6 +232,21 @@ class SuggestedCarController extends Controller{
 
             return $response;
         }
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Check if the user is an admin OR the owner of the car
+        if ( (!$this->get('security.context')->isGranted('ROLE_ADMIN')) and ($user !== $suggestedCar->getUser())){
+            array_push($error, array("You must be the owner of the car in order to delete that"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
 
         // Remove image as long as it's not the default one
         if ($suggestedCar->getImage() !== "default.png"){
@@ -301,8 +325,8 @@ class SuggestedCarController extends Controller{
                 return $response;
             }
 
-            // Check if the car to be edited is indeed the user's car
-            if (!in_array($suggested_car,$user->getSuggestedCars())){
+            // Check if the car to be edited is indeed the user's car OR that the user is an admin
+            if (!in_array($suggested_car,$user->getSuggestedCars()) and (!$this->get('security.context')->isGranted('ROLE_ADMIN'))){
 
                 array_push($error, array("This is not your suggested car!"));
                 $response = new Response(json_encode(array(
