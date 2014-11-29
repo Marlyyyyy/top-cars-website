@@ -775,7 +775,7 @@ function Game(){
                 case "up":
 
                     // Animation till the top
-                    animate_increment(previous_score, attribute.high_score_limit, ui.score);
+                    AnimateModule.animateIncrement(previous_score, attribute.high_score_limit, ui.score);
                     animate_fill(previous_score, attribute.high_score_limit, function(){
 
                         // TODO: level up graphics
@@ -784,7 +784,7 @@ function Game(){
                         set_UI();
 
                         // Animation till new score
-                        animate_increment(attribute.low_score_limit, attribute.score, ui.score);
+                        AnimateModule.animateIncrement(attribute.low_score_limit, attribute.score, ui.score);
                         animate_fill(attribute.low_score_limit, attribute.score);
 
                     });
@@ -794,7 +794,7 @@ function Game(){
                 case "down":
 
                     // Animation till the bottom
-                    animate_increment(previous_score, attribute.low_score_limit, ui.score);
+                    AnimateModule.animateIncrement(previous_score, attribute.low_score_limit, ui.score);
                     animate_fill(previous_score, attribute.low_score_limit, function(){
 
                         // TODO: level up graphics
@@ -803,7 +803,7 @@ function Game(){
                         set_UI();
 
                         // Animation till new score
-                        animate_increment(attribute.high_score_limit, attribute.score, ui.score);
+                        AnimateModule.animateIncrement(attribute.high_score_limit, attribute.score, ui.score);
                         animate_fill(attribute.high_score_limit, attribute.score);
 
                     });
@@ -816,7 +816,7 @@ function Game(){
 
                     set_UI();
 
-                    animate_increment(previous_score, attribute.score, ui.score);
+                    AnimateModule.animateIncrement(previous_score, attribute.score, ui.score);
                     animate_fill(previous_score, attribute.score);
 
                     break;
@@ -852,39 +852,6 @@ function Game(){
                     // 200  - 400 ms
                     $(this).animate({"width":new_width+"%"}, 200, callback);
                 });
-            }
-
-            // Helper function to show a value increment/decrement
-            function animate_increment (old_score, new_score, el){
-
-                var PRINT_AMOUNT = 8;
-
-                var step = Math.ceil(Math.abs(old_score-new_score)/8);
-
-                if (old_score < new_score){
-                    var compare = function(s1,s2){
-                        return s1 + step >= s2;
-                    };
-                    var modify = function (){
-                        old_score += step;
-                    };
-                }else{
-                    var compare = function(s1,s2){
-                        return s1 - step <= s2;
-                    };
-                    var modify = function (){
-                        old_score -= step;
-                    };
-                }
-
-                var interval = setInterval(function() {
-                    el.innerHTML = old_score;
-                    if (compare(old_score, new_score)){
-                        clearInterval(interval);
-                        el.innerHTML = new_score;
-                    }
-                    modify();
-                }, Math.round(200/PRINT_AMOUNT));
             }
         }
     }
@@ -953,6 +920,39 @@ ClassicGame.prototype.new_round = function () {
 
 var AnimateModule = function(){
 
+    // Helper function to show a value increment/decrement
+    function animateIncrement(old_score, new_score, el){
+
+        var PRINT_AMOUNT = 8;
+
+        var step = Math.ceil(Math.abs(old_score-new_score)/8);
+
+        if (old_score < new_score){
+            var compare = function(s1,s2){
+                return s1 + step >= s2;
+            };
+            var modify = function (){
+                old_score += step;
+            };
+        }else{
+            var compare = function(s1,s2){
+                return s1 - step <= s2;
+            };
+            var modify = function (){
+                old_score -= step;
+            };
+        }
+
+        var interval = setInterval(function() {
+            el.innerHTML = old_score;
+            if (compare(old_score, new_score)){
+                clearInterval(interval);
+                el.innerHTML = new_score;
+            }
+            modify();
+        }, Math.round(200/PRINT_AMOUNT));
+    }
+
     // Helper function to show floating value animations
     function createFloatingText(el, value, class_name){
 
@@ -995,7 +995,8 @@ var AnimateModule = function(){
 
     return{
         createFloatingText : createFloatingText,
-        createStreakCount  : animateStreakCount
+        createStreakCount  : animateStreakCount,
+        animateIncrement   : animateIncrement
     }
 }();
 
@@ -1046,6 +1047,83 @@ $(document).ready(function(){
         $(this).removeClass("input_active");
     });
 });
+
+var Market = function(){
+
+    var ajaxPath;
+
+    var userGold;
+
+    var previousElement;
+
+    function init(path, gold){
+
+        ajaxPath = path;
+        userGold = gold;
+
+        registerEventListeners();
+    }
+
+    function registerEventListeners(){
+
+        $(".purchase").on("click", purchase);
+        $(".bt_yes").on("click", confirmPurchase);
+        $(".bt_no").on("click", cancelPurchase);
+    }
+
+    function purchase(){
+
+        if (typeof previousElement !== "undefined") slideFrame(previousElement, "0");
+
+        previousElement = this;
+
+        slideFrame(this, "-100%");
+    }
+
+    function confirmPurchase(){
+
+        var item  = this.dataset.element;
+        var price = this.dataset.price;
+
+        if (userGold >= price){
+            var data = {
+                "item":item
+            };
+            post_to_server(ajaxPath, data, success);
+        }else{
+            console.log("Not enough money");
+        }
+
+        function success(data){
+            var frame_content   = $(this).closest(".frame_content");
+            var image           = $(frame_content).find("img");
+            console.log("successfully purchased");
+            var el = document.getElementById("p_gold");
+            var new_gold = userGold - price;
+            AnimateModule.animateIncrement(userGold, new_gold, el);
+            userGold = new_gold;
+            el = document.getElementById("user_gold");
+            AnimateModule.createFloatingText(el, price, " score_red");
+            slideFrame(previousElement, "-200%");
+            previousElement = null;
+            image[0].className += " sold_frame";
+        }
+    }
+
+    function cancelPurchase(){
+
+        slideFrame(previousElement, "0");
+    }
+
+    function slideFrame(el, margin_left){
+        var frame = $(el).closest(".frame_buy");
+        $(frame).animate({"margin-left":margin_left},150);
+    }
+
+    return {
+        init: init
+    }
+}();
 
 var PendingCarModule = (function(){
 

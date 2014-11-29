@@ -17,6 +17,11 @@ marton_topcars_dealership:
     requirements:
         option:  available|all
 
+marton_topcars_purchase_car:
+    path: /car/purchase
+    defaults: { _controller: MartonTopCarsBundle:Car:purchase }
+
+
 # User
 marton_topcars_leaderboard:
     path: /leaderboard

@@ -29,10 +29,10 @@
                         <div class="frame_price">
 
                             <div class="frame_buy">
-                                <button class="purchase button-yellow" id="{{ car.id }}" name="{{ car.price }}">Purchase</button>
+                                <button class="purchase button-yellow" data-element="{{ car.id }}" data-price="{{ car.price }}">Purchase</button>
 
                                 <div>
-                                    <span>Pic</span><span>{{ car.price }}</span>
+                                    <span>Cr. </span><span>{{ car.price }}</span>
                                 </div>
                             </div>
 
@@ -40,8 +40,8 @@
                                 <p>Purchase this car for {{ car.price }}?</p>
 
                                 <div>
-                                    <button class="bt_yes" id="{{ car.id }}" name="{{ car.price }}">Yes</button>
-                                    <button class="bt_no" id="{{ car.id }}">No</button>
+                                    <button class="bt_yes" data-element="{{ car.id }}" data-price="{{ car.price }}">Yes</button>
+                                    <button class="bt_no">No</button>
                                 </div>
                             </div>
 
@@ -67,7 +67,19 @@
             <p class="p_level">Level</p><p class="p_level_val">{{ user.progress.level }}</p>
             <p class="p_level">Cr.</p><div id="user_gold"><p class="p_level_val" id="p_gold">{{ user.progress.gold }}</p></div>
         </div>
+
+        <p class="error">The value for Speed should be a positive number</p>
     </div>
+
+{% endblock %}
+
+{% block background %}
+
+    <script>
+
+        Market.init('{{ path("marton_topcars_purchase_car") }}', {{ user.progress.gold }});
+
+    </script>
 
 {% endblock %}
 
