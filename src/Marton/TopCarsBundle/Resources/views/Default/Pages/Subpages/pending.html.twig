@@ -98,11 +98,11 @@
 
     <div class="popup-content shadow">
 
-    <div class="popup-tools"><span class="popup-exit">X</span></div>
+    <div class="popup-tools"><span class="popup-exit"><img width="20px" height="20px" src="{{ asset('bundles/martontopcars/images/src/exit.png') }}"/></span></div>
+
+        <h1 id="popup-header"></h1>
 
     <form action="" method="post" id="edit_form" class="popup-body" {{ form_enctype(edit_form) }}>
-
-        <h1>Edit</h1>
 
         <div id="error-block-edit"></div>
 
@@ -115,7 +115,8 @@
                     <div class="card_name" id="c_name">{{ form_widget(edit_form.model, { 'attr' : {'placeholder' : 'Name of the car'}}) }}</div>
 
                     <div class="card_image" id="c_image">
-                        <img id="v_image" width="230px" height="153px" src=""/>
+                        <div class="card-image-add" id="card-image-add"></div>
+                        <img id="v_image" class="v_image" width="230px" height="153px" src=""/>
                         {{ form_widget(edit_form.image_file, {'attr': {'class' : 'input-file'}}) }}
                     </div>
 
@@ -197,7 +198,7 @@
             var imgPaths = "{{ asset('bundles/martontopcars/images/card_game_suggest/') }}";
 
             PendingCarModule.init(ajaxPath,imgPaths);
-            ImageInputModule.init("suggestedCar_image_file","v_image");
+            ImageInputModule.init("suggestedCar_image_file","v_image","card-image-add");
 
         </script>
 {% endblock %}

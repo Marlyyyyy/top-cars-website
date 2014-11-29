@@ -64,10 +64,11 @@ function preload_images(array, el){
 
 var ImageInputModule = function(){
 
-    var inputSource, targetElement;
+    var inputSource, targetElement, clickElement;
 
-    function init(sourceId, targetId){
+    function init(sourceId, targetId, clickId){
 
+        clickElement = document.getElementById(clickId);
         inputSource = document.getElementById(sourceId);
         targetElement = document.getElementById(targetId);
         registerEventListeners();
@@ -80,7 +81,7 @@ var ImageInputModule = function(){
                 readURL(this);
             });
 
-            $(targetElement).click(function(){
+            $(clickElement).click(function(){
                 $(inputSource).click();
             })
         });
@@ -1042,9 +1043,7 @@ $(document).ready(function(){
 
     }).blur(function(){
         this.placeholder = defaultInputPlaceholder;
-        if(this.value === ""){
-            $(this).removeClass("input_active");
-        }
+        $(this).removeClass("input_active");
     });
 });
 
@@ -1147,8 +1146,7 @@ var PendingCarModule = (function(){
 
     function popupAccept(){
 
-        PopupModule.show(popupElements.accept_form);
-
+        PopupModule.show(popupElements.accept_form, "Accept");
     }
 
     function accept(){
@@ -1180,8 +1178,16 @@ var PendingCarModule = (function(){
 
     function popupCreate(){
 
-        PopupModule.show(popupElements.form);
+        PopupModule.show(popupElements.form, "Create new card");
         popupElements.form.dataset.element = -1;
+        popupElements.inputModel.value = "";
+        popupElements.imgImage.src = "";
+        popupElements.inputSpeed.value = "";
+        popupElements.inputPower.value = "";
+        popupElements.inputTorque.value = "";
+        popupElements.inputAcceleration.value = "";
+        popupElements.inputWeight.value  = "";
+        popupElements.inputComment.value = "";
 
     }
 
@@ -1196,7 +1202,7 @@ var PendingCarModule = (function(){
 
             var car = response.car;
             // Fetch all existing values into popup's form
-            PopupModule.show(popupElements.form);
+            PopupModule.show(popupElements.form, "Edit");
 
             popupElements.form.dataset.element  = carId;
             popupElements.inputModel.value      = car.model;
@@ -1265,9 +1271,7 @@ var ErrorModule = (function(){
 
     function registerContainer(newContainer){
         container = newContainer;
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
+        hideErrors();
         return this;
     }
 
@@ -1298,9 +1302,17 @@ var ErrorModule = (function(){
         container.appendChild(p);
     }
 
+    function hideErrors(){
+
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
     return {
         init: registerContainer,
-        displayErrors: displayErrors
+        displayErrors: displayErrors,
+        hideErrors: hideErrors
     }
 
 })();
@@ -1308,7 +1320,8 @@ var ErrorModule = (function(){
 var PopupModule = (function(){
 
     var popup;
-    var popupForms;
+    var popupHeader;
+    var popupBodies;
 
     function registerEventListeners(){
 
@@ -1320,25 +1333,28 @@ var PopupModule = (function(){
     }
 
     function init(){
-        popupForms    = document.getElementsByClassName("popup-body");
+        popupHeader = document.getElementById("popup-header");
+        popupBodies    = document.getElementsByClassName("popup-body");
         popup         = document.getElementById("popup");
 
         registerEventListeners();
     }
 
-    function showPopup(element){
+    function showPopup(element, header){
 
         // Show popup with its given main container
         $(element).show();
         $(popup).fadeIn(150);
         popup.style.overflow = "scroll";
         document.body.style.overflow = "hidden";
+
+        popupHeader.innerText = header;
     }
 
     function hidePopup(){
         // Hide popup and all its main containers
         $(popup).fadeOut(150, function(){
-            $(popupForms).hide();
+            $(popupBodies).hide();
             popup.style.overflow = "hidden";
             document.body.style.overflow = "scroll";
         });
@@ -1346,9 +1362,7 @@ var PopupModule = (function(){
 
     return {
         init: init,
-        show: function(element){
-            showPopup(element);
-        },
+        show: showPopup,
         hide: hidePopup
     }
 
