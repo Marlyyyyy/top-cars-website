@@ -466,8 +466,8 @@ function Game(){
 
         // Main player
         var host = new Player();
-        var card = new Card(default_field);
-        var elements = card.create();
+        var card = new Card();
+        var elements = card.create(default_field);
         ui_container.battlefield.appendChild(elements.card_fragment);
 
         // Control Panel
@@ -483,8 +483,8 @@ function Game(){
         for (var i=0;i<game.setting.players-1;i++){
 
             var opponent = new Player();
-            card = new Card(default_field);
-            elements = card.create();
+            card = new Card();
+            elements = card.create(default_field);
             opponent.view_field = elements.field_holder;
             opponent.view_holder = elements.view_holder;
             ui_container.battlefield.appendChild(elements.card_fragment);
@@ -591,9 +591,12 @@ function Game(){
 
     // Classes
 
-    function Card(default_field){
+    function Card(){}
 
-        this.create = function(){
+    Card.prototype = {
+
+        constructor: Card,
+        create: function(default_field){
 
             var field_holder = {};
             var view_holder = {};
@@ -671,8 +674,8 @@ function Game(){
                 view_holder: view_holder,
                 card_fragment: card_fragment
             };
-        };
-    }
+        }
+    };
 
     function Player(){
 
@@ -863,6 +866,8 @@ function Game(){
         }
     }
 }
+
+// Classic Version of the game
 
 function ClassicGame(){}
 ClassicGame.prototype = new Game();
