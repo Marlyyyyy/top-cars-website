@@ -21,6 +21,10 @@ marton_topcars_purchase_car:
     path: /car/purchase
     defaults: { _controller: MartonTopCarsBundle:Car:purchase }
 
+marton_topcars_select_car:
+    path: /car/select
+    defaults: { _controller:MartonTopCarsBundle:Car:select }
+
 
 # User
 marton_topcars_leaderboard:

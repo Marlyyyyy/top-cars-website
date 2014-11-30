@@ -1054,6 +1054,60 @@ $(document).ready(function(){
     });
 });
 
+var GarageModule = function(){
+
+    var selectAjaxPath;
+
+    function init(selectAjax){
+
+        selectAjaxPath = selectAjax;
+        registerEventListeners();
+    }
+
+    function registerEventListeners(){
+
+        $(".card_frame").click(selectCar);
+    }
+
+    function selectCar(){
+
+        var carId = this.dataset.car;
+
+        var data = {item:carId};
+
+        var cardFrame = $(this);
+
+        var success = function(response){
+
+            console.log(response);
+
+            if (response.error.length !== 0){
+
+                // Display errors
+            }else{
+
+                switch(response.change){
+
+                    case "add":
+                        $(cardFrame).addClass("selected-card");
+                        break;
+
+                    case "remove":
+                        $(cardFrame).removeClass("selected-card");
+                        break;
+                }
+
+            }
+        }
+
+        post_to_server(selectAjaxPath, data, success);
+    }
+
+    return{
+        init:init
+    }
+}();
+
 var Market = function(){
 
     var ajaxPath;

@@ -54,6 +54,21 @@ class CarController extends Controller{
         $user = $this->get('security.context')->getToken()->getUser();
         $cars =  $user->getCars();
 
+        // Get collection of already selected cars
+        $selected_cars = $user->getSelectedCars();
+
+        // Tag cars that have already been selected
+        foreach($cars as $car){
+
+            if($selected_cars->contains($car)){
+
+                $car->selected = true;
+            }else{
+
+                $car->selected = false;
+            }
+        }
+
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig', array(
             "cars" => $cars,
             "user" => $user
@@ -124,6 +139,72 @@ class CarController extends Controller{
 
         $response = new Response(json_encode(array(
             'error' => $error)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    //Ajax call to select car
+    public function selectAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        $error = array();
+        $change = "";
+
+        // Get id of the car to be selected
+        $car_id = (int) $request->request->get('item');
+
+        // Get car to be selected
+        /* @var $car Car*/
+        $car = $em->getRepository('MartonTopCarsBundle:Car')->findOneById(array($car_id));
+
+        // Check if there exists a car with the given ID
+        if(sizeof($car) == 0){
+
+            array_push($error, array("Such car does not exist!"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Check if the user has already selected this car
+        if ($user->getSelectedCars()->contains($car)){
+
+            $change = "remove";
+
+            $user->removeSelectedCars($car);
+            $em->persist($user);
+            $em->flush();
+        }else{
+
+            // Check how many cars the user has already selected
+            if (count($user->getSelectedCars()) < 10){
+
+                $change = "add";
+
+                $user->addSelectedCars($car);
+                $em->persist($user);
+                $em->flush();
+            }else{
+
+                array_push($error, "You have already selected 10 cars!");
+                $response = new Response(json_encode(array(
+                    'error' => $error)));
+                $response->headers->set('Content-Type', 'application/json');
+            }
+        }
+
+        $response = new Response(json_encode(array(
+            'error' => $error,
+            'change' => $change)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

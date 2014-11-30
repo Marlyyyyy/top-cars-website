@@ -11,7 +11,7 @@
 
         {% for car in cars %}
 
-            <div class="card_frame">
+            <div class="card_frame {{ (car.selected) ? 'selected-card' : '' }}" data-car="{{ car.id }}">
                 <div class="frame_model">{{ car.model }}</div>
                 <div class="frame_content">
                     <img width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}.png"/>
@@ -32,6 +32,16 @@
         {% endif %}
 
     </div>
+
+{% endblock %}
+
+{% block background %}
+
+    <script>
+
+        GarageModule.init("{{ path('marton_topcars_select_car') }}");
+
+    </script>
 
 {% endblock %}
 
