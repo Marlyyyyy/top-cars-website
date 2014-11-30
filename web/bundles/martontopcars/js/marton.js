@@ -254,8 +254,8 @@ function Game(){
 
         // Data to post to the server
         var data = {
-            score:       game.entity.player.user.getScore(),
-            streak:      game.entity.player.user.getStreak(),
+            score:       game.entity.player.user.score,
+            streak:      game.entity.player.user.streak,
             roundResult: game.entity.player.user.roundResult
         };
 
@@ -375,28 +375,28 @@ function Game(){
             for (var i=0;i<player_queue.length;i++){
 
                 // Avoid negative score
-                if (player_queue[i].roundScore > 0) player_queue[i].addScore(player_queue[i].roundScore);
+                if (player_queue[i].roundScore > 0) player_queue[i].score += player_queue[i].roundScore;
                 var class_name = (player_queue[i].roundScore > 0 ? " score_green" : " score_red");
-                AnimateModule.createFloatingText(player_queue[i].getView(property), player_queue[i].roundScore, class_name);
-                game.previous_active_rows.push(player_queue[i].getView(property));
+                AnimateModule.createFloatingText(player_queue[i].view_holder[property], player_queue[i].roundScore, class_name);
+                game.previous_active_rows.push(player_queue[i].view_holder[property]);
 
                 if (foundWinner){
                     // Lose
-                    player_queue[i].getView(property).className = "card_row row_red";
+                    player_queue[i].view_holder[property].className = "card_row row_red";
                     player_queue[i].roundResult = "lose";
-                    player_queue[i].resetStreak();
+                    player_queue[i].streak = 0;
                 }else if (drawCounter > 0){
                     // Draw
                     drawCounter--;
-                    player_queue[i].getView(property).className = "card_row row_draw";
+                    player_queue[i].view_holder[property].className = "card_row row_draw";
                     player_queue[i].roundResult = "draw";
                     if (drawCounter === 0) foundWinner = true;
                 }else{
                     // Win
-                    player_queue[i].getView(property).className = "card_row row_green";
+                    player_queue[i].view_holder[property].className = "card_row row_green";
                     player_queue[i].roundResult = "win";
                     foundWinner = true;
-                    player_queue[i].addStreak(game.setting.players-1);
+                    player_queue[i].streak += game.setting.players-1;
 
                     // Make sure we know which player won the round
                     game.reorganisePlayers(player_queue[i]);
@@ -405,7 +405,7 @@ function Game(){
                 player_queue[i].roundScore = 0;
             }
 
-            AnimateModule.createStreakCount(ui_container.streakText, game.entity.player.user.roundResult, game.entity.player.user.getStreak());
+            AnimateModule.createStreakCount(ui_container.streakText, game.entity.player.user.roundResult, game.entity.player.user.streak);
 
             // Deciding game state: WIN/DRAW or LOSE and acting accordingly
             if (game.entity.player.host.roundResult === "lose"){
@@ -474,8 +474,8 @@ function Game(){
         game.roundControls.init(ui_container.battlefield);
         ui_container.streakText = game.roundControls.getStreakText();
 
-        host.setViewField(elements.field_holder);
-        host.setViewHolder(elements.view_holder);
+        host.view_field = elements.field_holder;
+        host.view_holder = elements.view_holder;
         game.entity.player.host = host;
         game.entity.player.user = game.entity.player.host;
 
@@ -485,8 +485,8 @@ function Game(){
             var opponent = new Player();
             card = new Card(default_field);
             elements = card.create();
-            opponent.setViewField(elements.field_holder);
-            opponent.setViewHolder(elements.view_holder);
+            opponent.view_field = elements.field_holder;
+            opponent.view_holder = elements.view_holder;
             ui_container.battlefield.appendChild(elements.card_fragment);
             game.entity.player.opponent.push(opponent);
         }
@@ -586,7 +586,7 @@ function Game(){
         create_UI();
         game.start();
         get_top_panel().update("default", user_info);
-        game.entity.player.host.addScore(user_info.score);
+        game.entity.player.host.score += user_info.score;
     };
 
     // Classes
@@ -677,77 +677,66 @@ function Game(){
     function Player(){
 
         // DOM Fields
-        var view_field = {};
-        this.setViewField = function(fields){
-            view_field = fields;
-        };
+        this.view_field = {};
 
         // DOM Rows and Elements
-        var view_holder = {};
-        this.setViewHolder = function(views){
-            view_holder = views;
-        };
-        this.getView = function(prop){
-            return view_holder[prop];
-        };
+        this.view_holder = {};
 
         // Values
-        var card = {};
-        this.setCard = function(new_card){
-            card = new_card;
+        this.card = {};
 
-            for(key in card){
-                if(card.hasOwnProperty(key) && key != "id" && key != "price"){
+        this.roundScore  = 0;
+        this.roundResult = 0;
+
+        this.score = 0;
+
+        this.streak = 0;
+    }
+
+    Player.prototype = {
+
+        constructor: Player,
+        getCard: function(property){
+
+            var self = this;
+
+            return self.card[property];
+        },
+        setCard: function(new_card){
+
+            var self = this;
+
+            self.card = new_card;
+
+            for(key in self.card){
+                if(self.card.hasOwnProperty(key) && key != "id" && key != "price"){
                     if (key !== "image"){
-                        view_field[key].innerHTML = card[key];
+                        self.view_field[key].innerHTML = self.card[key];
                     }else{
-                        view_field[key].src = game.setting.img_folder + card[key] + game.setting.img_format;
+                        self.view_field[key].src = game.setting.img_folder + self.card[key] + game.setting.img_format;
                     }
                 }
             }
 
             return this;
-        };
-        this.getCard = function(property){
-            return card[property];
-        };
+        },
+        showCard: function(callback){
 
-        this.roundScore  = 0;
-        this.roundResult = 0;
+            var self = this;
 
-        // Stores the player's score
-        var score = 0;
-        this.addScore = function(subscore){
-            score = score + subscore;
-        };
-        this.getScore = function(){
-            return score;
-        };
-
-        // Stores the player's streak
-        var streak = 0;
-        this.getStreak = function(){
-            return streak;
-        };
-        this.addStreak = function(substreak){
-            streak += substreak;
-        };
-        this.resetStreak = function(){
-            streak = 0;
-        };
-
-        this.showCard = function(callback){
             if (typeof callback === 'undefined') callback = function(){};
-            $(view_holder.card).fadeIn(150, callback);
+            $(self.view_holder.card).fadeIn(150, callback);
             return this;
-        };
+        },
+        hideCard: function(callback){
 
-        this.hideCard = function(callback){
+            var self = this;
+
             if (typeof callback === 'undefined') callback = function(){};
-            $(view_holder.card).fadeOut(150, callback);
+            $(self.view_holder.card).fadeOut(150, callback);
             return this;
         }
-    }
+    };
 
     function TopPanel(){
 
@@ -944,7 +933,7 @@ ClassicGame.prototype.new_round = function () {
                 self.entity.player.host.setCard(self.get_random_card()).showCard(function(){
 
                     // TODO: Choice algorithm
-                    self.select_field(self.entity.player.host.getView("speed"));
+                    self.select_field(self.entity.player.host.view_holder.speed);
                 });
             })
         });
