@@ -307,6 +307,15 @@ function Game(){
         // No need to change the host in the default version of the game
     };
 
+    // To be overridden
+    this.assignCardsToPlayers = function(){
+
+        // Assign cards to all opponents
+        for (var i=0;i<game.entity.player.opponent.length;i++){
+            game.entity.player.opponent[i].setCard(game.get_random_card()).showCard();
+        }
+    };
+
     this.select_field = function(field){
 
         if (!game.hasRoundEnded && game.hostsTurn){
@@ -319,11 +328,9 @@ function Game(){
 
             // Assign cards to the opponents
             // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
-            var player_queue = Object.create(game.entity.player.opponent);
+            game.assignCardsToPlayers();
 
-            for (var i=0;i<player_queue.length;i++){
-                player_queue[i].setCard(game.get_random_card()).showCard();
-            }
+            var player_queue = Object.create(game.entity.player.opponent);
 
             player_queue.push(game.entity.player.host);
 
@@ -873,6 +880,7 @@ ClassicGame.prototype = new Game();
 ClassicGame.prototype.constructor = ClassicGame;
 
 ClassicGame.prototype.reorganisePlayers = function(player){
+    // Takes the winner as an argument
 
     var self = this;
 
@@ -882,6 +890,20 @@ ClassicGame.prototype.reorganisePlayers = function(player){
     var index = self.entity.player.opponent.indexOf(player);
     if (index > -1){
         self.entity.player.opponent.splice(index, 1);
+    }
+};
+
+ClassicGame.prototype.assignCardsToPlayers = function(){
+
+    var self = this;
+
+    // Assign cards to all opponents
+    for (var i=0;i<self.entity.player.opponent.length;i++){
+
+        // Except for the main player - since she already received a card
+        if(self.entity.player.opponent[i] !== self.entity.player.user){
+            self.entity.player.opponent[i].setCard(self.get_random_card()).showCard();
+        }
     }
 };
 
@@ -911,15 +933,20 @@ ClassicGame.prototype.new_round = function () {
     } else {
 
         // The game should move on with the computer being the host
-        // Generate new card for host
+
+        // Assign new card for host
         self.entity.player.host.hideCard(function(){
 
-            // TODO: Count-down
-            self.entity.player.host.setCard(self.get_random_card()).showCard(function(){
+            // Assign new card for user
+            self.entity.player.user.setCard(self.get_random_card()).showCard(function(){
 
-                // TODO: Choice algorithm
-                self.select_field(self.entity.player.host.getView("speed"));
-            });
+                // TODO: Count-down
+                self.entity.player.host.setCard(self.get_random_card()).showCard(function(){
+
+                    // TODO: Choice algorithm
+                    self.select_field(self.entity.player.host.getView("speed"));
+                });
+            })
         });
     }
 };
