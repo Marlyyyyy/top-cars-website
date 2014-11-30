@@ -2,62 +2,62 @@
  * Created by Marci on 27/10/14.
  */
 
-function preload_images(array, el){
+function preloadImages(array, el){
 
-    var new_images = [], loaded_images = 0, arr_length = array.length, background_2, loading_container, progress_p;
+    var newImages = [], loadedImages = 0, arrLength = array.length, background_2, loadingContainer, progressP;
     var container = (typeof el === "undefined" ? document.body : el);
 
-    var post_action = function(){};
+    var postAction = function(){};
 
     var arr = (typeof array != "object") ? [array] : array;
 
     // Executes call-back function after preloading all images
-    function image_load_post(){
+    function imageLoadPost(){
 
-        loaded_images++;
-        progress_p.innerHTML = Math.round(100*(loaded_images/arr_length)) + "%";
-        if (loaded_images == arr_length){
-            on_finish();
-            post_action(new_images);
+        loadedImages++;
+        progressP.innerHTML = Math.round(100*(loadedImages/arrLength)) + "%";
+        if (loadedImages == arrLength){
+            onFinish();
+            postAction(newImages);
         }
     }
 
     // Creates loading screen
-    function on_create(){
+    function onCreate(){
 
-        loading_container = document.createElement("div");
-        loading_container.className  = "loading_container";
+        loadingContainer = document.createElement("div");
+        loadingContainer.className  = "loading_container";
 
-        progress_p = document.createElement("p");
-        progress_p.className = "progress_p";
-        loading_container.appendChild(progress_p);
+        progressP = document.createElement("p");
+        progressP.className = "progress_p";
+        loadingContainer.appendChild(progressP);
 
-        container.appendChild(loading_container);
+        container.appendChild(loadingContainer);
     }
 
     // Removes loading screen
-    function on_finish(){
+    function onFinish(){
 
-        container.removeChild(loading_container);
+        container.removeChild(loadingContainer);
     }
 
-    on_create();
+    onCreate();
 
-    for (var i=0; i<arr_length; i++){
-        new_images[i] = new Image();
-        new_images[i].src = arr[i];
-        new_images[i].onload = function(){
-            image_load_post();
+    for (var i=0; i<arrLength; i++){
+        newImages[i] = new Image();
+        newImages[i].src = arr[i];
+        newImages[i].onload = function(){
+            imageLoadPost();
         };
-        new_images[i].onerror = function(){
-            image_load_post();
+        newImages[i].onerror = function(){
+            imageLoadPost();
         }
     }
 
     // Return blank object with done() method
     return {
         done:function(f){
-            post_action= f || post_action;
+            postAction= f || postAction;
         }
     }
 }
@@ -115,23 +115,22 @@ function Game(){
     // Default settings
     this.setting = {
         "players" : 4,
-        "img_folder": "",
-        "img_format":".png",
-        "ajax_post_score":"",
-        "game_container": document.getElementById("card_game")
+        "imgFolder": "",
+        "imgFormat":".png",
+        "ajaxPostScore":"",
+        "gameContainer": document.getElementById("card_game")
     };
 
     // Stores progress details about the logged in user
-    var user_info;
+    var userInfo;
     this.setUserInfo = function(info){
-        user_info = info;
+        userInfo = info;
     };
 
     // Whole deck of cards
     this.cards = {};
     this.setCards = function (deck){
 
-        console.log(deck);
         game.cards.deck = [];
         for (key in deck){
             if (deck.hasOwnProperty(key)){
@@ -151,7 +150,7 @@ function Game(){
 
         for (key in deck){
             if (deck.hasOwnProperty(key)){
-                game.entity.player.user.deck.push(deck[key]);
+                game.player.user.deck.push(deck[key]);
             }
         }
 
@@ -164,9 +163,9 @@ function Game(){
 
         var self = this;
 
-        for (key in self.entity.player.opponent){
+        for (key in self.player.opponent){
 
-            if (self.entity.player.opponent.hasOwnProperty(key)){
+            if (self.player.opponent.hasOwnProperty(key)){
 
                 var deck = self.cards.deck;
 
@@ -175,7 +174,7 @@ function Game(){
                     var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
                     var randomCard = deck[random];
 
-                    self.entity.player.opponent[key].deck.push(randomCard);
+                    self.player.opponent[key].deck.push(randomCard);
 
                     deck.slice(random, 1);
                 }
@@ -184,65 +183,63 @@ function Game(){
     };
 
     // Returns a random card from the deck
-    this.get_random_card = function(deck){
+    this.getRandomCard = function(deck){
 
         var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
         return deck[random];
     };
 
-    this.preload_images = function(callback){
+    this.preloadImages = function(callback){
 
         if (typeof callback === "undefined") callback = function(){};
         var arr = [];
         for (var i=0; i<game.cards.len;i++){
-            arr.push(game.setting.img_folder + game.cards.deck[i].image + game.setting.img_format);
+            arr.push(game.setting.imgFolder + game.cards.deck[i].image + game.setting.imgFormat);
         }
-        preload_images(arr).done(callback);
+        preloadImages(arr).done(callback);
     };
 
-    var default_field =  {
+    var defaultField =  {
         speed:{
             label:"Speed:",
             unit:"km/h",
-            column_name:"speed"
+            columnName:"speed"
         },
         power:{
             label:"Power:",
             unit:"hp",
-            column_name:"power"
+            columnName:"power"
         },
         torque:{
             label:"Torque:",
             unit:"Nm",
-            column_name:"torque"
+            columnName:"torque"
         },
         acceleration:{
             label:"Acceleration:",
             unit:"s",
-            column_name:"acceleration"
+            columnName:"acceleration"
         },
         weight:{
             label:"Weight:",
             unit:"kg",
-            column_name:"weight"
+            columnName:"weight"
         }
     };
 
-    var ui_container = {};
-    this.previous_active_rows = [];
+    var uiContainer = {};
+    this.previousActiveRows = [];
 
-    this.top_panel = null;
-    function get_top_panel(){
-        return game.top_panel;
+    this.topPanel = null;
+    function getTopPanel(){
+        return game.topPanel;
     }
 
     // Containing agents of the game
-    this.entity = {
-        player:{
+    this.player = {
             user:null,
             host:null,
             opponent:[]
-        }
     };
 
     // States of the game
@@ -269,7 +266,7 @@ function Game(){
         game.isEnded       = false;
         game.hasRoundEnded = false;
 
-        game.entity.player.host.setCard(game.get_random_card(game.cards.deck)).showCard();
+        game.player.host.setCard(game.getRandomCard(game.cards.deck)).showCard();
 
         return this;
     };
@@ -282,9 +279,9 @@ function Game(){
             game.isEnded = false;
             game.hasRoundEnded = false;
 
-            AnimateModule.createStreakCount(ui_container.streakText, "new", "0");
+            AnimateModule.createStreakCount(uiContainer.streakText, "new", "0");
 
-            game.new_round();
+            game.newRound();
         }
     };
 
@@ -293,50 +290,50 @@ function Game(){
 
         // Data to post to the server
         var data = {
-            score:       game.entity.player.user.score,
-            streak:      game.entity.player.user.streak,
-            roundResult: game.entity.player.user.roundResult
+            score:       game.player.user.score,
+            streak:      game.player.user.streak,
+            roundResult: game.player.user.roundResult
         };
 
         var success = function(data){
-            var level_change    = data.levelChange;
-            var user_level_info = data.userLevelInfo;
+            var levelChange    = data.levelChange;
+            var userLevelInfo = data.userLevelInfo;
 
-            game.top_panel.update(level_change, user_level_info);
+            game.topPanel.update(levelChange, userLevelInfo);
         };
 
         // Ajax call
-        post_to_server(game.setting.ajax_post_score, data, success);
+        postToServer(game.setting.ajaxPostScore, data, success);
     };
 
     // To be overridden
-    this.next_round = function(){
+    this.nextRound = function(){
 
         if (game.hasRoundEnded){
 
             game.hasRoundEnded = false;
 
-            game.new_round();
+            game.newRound();
         }
     };
 
     // To be overridden
-    this.new_round = function(){
+    this.newRound = function(){
 
         // Hide Cards and Generate new card for host
-        game.entity.player.host.hideCard(function(){
-            game.entity.player.host.setCard(game.get_random_card(game.cards.deck)).showCard();
+        game.player.host.hideCard(function(){
+            game.player.host.setCard(game.getRandomCard(game.cards.deck)).showCard();
         });
 
-        for (var i=0;i<game.entity.player.opponent.length;i++){
-            game.entity.player.opponent[i].hideCard();
+        for (var i=0;i<game.player.opponent.length;i++){
+            game.player.opponent[i].hideCard();
         }
 
-        for (var i=0;i<game.previous_active_rows.length;i++){
-            game.previous_active_rows[i].className = "card_row";
+        for (var i=0;i<game.previousActiveRows.length;i++){
+            game.previousActiveRows[i].className = "card_row";
         }
 
-        game.previous_active_rows = [];
+        game.previousActiveRows = [];
 
         game.roundControls.reset();
     };
@@ -350,12 +347,12 @@ function Game(){
     this.assignCardsToPlayers = function(){
 
         // Assign cards to all opponents
-        for (var i=0;i<game.entity.player.opponent.length;i++){
-            game.entity.player.opponent[i].setCard(game.get_random_card(game.cards.deck)).showCard();
+        for (var i=0;i<game.player.opponent.length;i++){
+            game.player.opponent[i].setCard(game.getRandomCard(game.cards.deck)).showCard();
         }
     };
 
-    this.select_field = function(field){
+    this.selectField = function(field){
 
         if (!game.hasRoundEnded && game.hostsTurn){
 
@@ -369,37 +366,37 @@ function Game(){
             // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
             game.assignCardsToPlayers();
 
-            var player_queue = Object.create(game.entity.player.opponent);
+            var playerQueue = Object.create(game.player.opponent);
 
-            player_queue.push(game.entity.player.host);
+            playerQueue.push(game.player.host);
 
             // Make a copy of the players array
-            var new_player_queue = player_queue.slice();
+            var newPlayerQueue = playerQueue.slice();
 
             // Compare each player with everyone once
-            for (var i=0;i<player_queue.length;i++){
+            for (var i=0;i<playerQueue.length;i++){
 
-                var current_player = new_player_queue.shift();
+                var currentPlayer = newPlayerQueue.shift();
 
-                for (key in new_player_queue){
-                    if (new_player_queue.hasOwnProperty(key)){
-                        var subscore = calculate_subscore(property, current_player.getCard(property), new_player_queue[key].getCard(property));
+                for (key in newPlayerQueue){
+                    if (newPlayerQueue.hasOwnProperty(key)){
+                        var subscore = calculateSubscore(property, currentPlayer.getCard(property), newPlayerQueue[key].getCard(property));
 
-                        current_player.roundScore -= subscore;
-                        new_player_queue[key].roundScore += subscore;
+                        currentPlayer.roundScore -= subscore;
+                        newPlayerQueue[key].roundScore += subscore;
                     }
                 }
             }
 
             // Sort players in terms of score
-            player_queue.sort(compare);
+            playerQueue.sort(compare);
 
             // Count draws on the first place
             var drawCounter = 0;
 
-            for (var i=0;i<player_queue.length;i++){
-                if (typeof player_queue[i+1] !== 'undefined'){
-                    if (player_queue[i].roundScore === player_queue[i+1].roundScore){
+            for (var i=0;i<playerQueue.length;i++){
+                if (typeof playerQueue[i+1] !== 'undefined'){
+                    if (playerQueue[i].roundScore === playerQueue[i+1].roundScore){
                         drawCounter++;
                     }else{
                         if (drawCounter > 0) drawCounter++;
@@ -411,43 +408,43 @@ function Game(){
             var foundWinner = false;
 
             // Add the round score to the players' overall score
-            for (var i=0;i<player_queue.length;i++){
+            for (var i=0;i<playerQueue.length;i++){
 
                 // Avoid negative score
-                if (player_queue[i].roundScore > 0) player_queue[i].score += player_queue[i].roundScore;
-                var class_name = (player_queue[i].roundScore > 0 ? " score_green" : " score_red");
-                AnimateModule.createFloatingText(player_queue[i].view_holder[property], player_queue[i].roundScore, class_name);
-                game.previous_active_rows.push(player_queue[i].view_holder[property]);
+                if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
+                var newClass = (playerQueue[i].roundScore > 0 ? " score_green" : " score_red");
+                AnimateModule.createFloatingText(playerQueue[i].viewHolder[property], playerQueue[i].roundScore, newClass);
+                game.previousActiveRows.push(playerQueue[i].viewHolder[property]);
 
                 if (foundWinner){
                     // Lose
-                    player_queue[i].view_holder[property].className = "card_row row_red";
-                    player_queue[i].roundResult = "lose";
-                    player_queue[i].streak = 0;
+                    playerQueue[i].viewHolder[property].className = "card_row row_red";
+                    playerQueue[i].roundResult = "lose";
+                    playerQueue[i].streak = 0;
                 }else if (drawCounter > 0){
                     // Draw
                     drawCounter--;
-                    player_queue[i].view_holder[property].className = "card_row row_draw";
-                    player_queue[i].roundResult = "draw";
+                    playerQueue[i].viewHolder[property].className = "card_row row_draw";
+                    playerQueue[i].roundResult = "draw";
                     if (drawCounter === 0) foundWinner = true;
                 }else{
                     // Win
-                    player_queue[i].view_holder[property].className = "card_row row_green";
-                    player_queue[i].roundResult = "win";
+                    playerQueue[i].viewHolder[property].className = "card_row row_green";
+                    playerQueue[i].roundResult = "win";
                     foundWinner = true;
-                    player_queue[i].streak += game.setting.players-1;
+                    playerQueue[i].streak += game.setting.players-1;
 
                     // Make sure we know which player won the round
-                    game.reorganisePlayers(player_queue[i]);
+                    game.reorganisePlayers(playerQueue[i]);
                 }
 
-                player_queue[i].roundScore = 0;
+                playerQueue[i].roundScore = 0;
             }
 
-            AnimateModule.createStreakCount(ui_container.streakText, game.entity.player.user.roundResult, game.entity.player.user.streak);
+            AnimateModule.createStreakCount(uiContainer.streakText, game.player.user.roundResult, game.player.user.streak);
 
             // Deciding game state: WIN/DRAW or LOSE and acting accordingly
-            if (game.entity.player.host.roundResult === "lose"){
+            if (game.player.host.roundResult === "lose"){
 
                 game.loseAction();
             }else{
@@ -460,15 +457,15 @@ function Game(){
     };
 
     // Helper function to calculate the score of players
-    var calculate_subscore = function(property, p1val, p2val){
+    var calculateSubscore = function(property, p1val, p2val){
 
         var subscore = 0;
 
-        if (property === default_field.acceleration.column_name){
+        if (property === defaultField.acceleration.columnName){
 
             subscore = Math.round(500*(p1val - p2val));
 
-        } else if (property === default_field.weight.column_name){
+        } else if (property === defaultField.weight.columnName){
 
             subscore = p1val - p2val;
 
@@ -489,45 +486,45 @@ function Game(){
         return 0;
     };
 
-    function create_UI(){
+    function createUI(){
 
         // Start by allocating the container of the game
-        ui_container.container = game.setting.game_container;
+        uiContainer.container = game.setting.gameContainer;
 
         // Create top panel
-        game.top_panel = new TopPanel();
-        game.top_panel.setContainer(ui_container);
-        game.top_panel.create_UI();
+        game.topPanel = new TopPanel();
+        game.topPanel.setContainer(uiContainer);
+        game.topPanel.createUI();
 
         // Create elements that don't belong to anyone
         var battlefield = new Battlefield();
-        ui_container.battlefield = battlefield.create();
+        uiContainer.battlefield = battlefield.create();
 
         // Main player
         var host = new Player();
         var card = new Card();
-        var elements = card.create(default_field);
-        ui_container.battlefield.appendChild(elements.card_fragment);
+        var elements = card.create(defaultField);
+        uiContainer.battlefield.appendChild(elements.cardFragment);
 
         // Control Panel
-        game.roundControls.init(ui_container.battlefield);
-        ui_container.streakText = game.roundControls.getStreakText();
+        game.roundControls.init(uiContainer.battlefield);
+        uiContainer.streakText = game.roundControls.getStreakText();
 
-        host.view_field = elements.field_holder;
-        host.view_holder = elements.view_holder;
-        game.entity.player.host = host;
-        game.entity.player.user = game.entity.player.host;
+        host.viewField = elements.fieldHolder;
+        host.viewHolder = elements.viewHolder;
+        game.player.host = host;
+        game.player.user = game.player.host;
 
         // Opponents
         for (var i=0;i<game.setting.players-1;i++){
 
             var opponent = new Player();
             card = new Card();
-            elements = card.create(default_field);
-            opponent.view_field = elements.field_holder;
-            opponent.view_holder = elements.view_holder;
-            ui_container.battlefield.appendChild(elements.card_fragment);
-            game.entity.player.opponent.push(opponent);
+            elements = card.create(defaultField);
+            opponent.viewField = elements.fieldHolder;
+            opponent.viewHolder = elements.viewHolder;
+            uiContainer.battlefield.appendChild(elements.cardFragment);
+            game.player.opponent.push(opponent);
         }
 
         return this;
@@ -535,8 +532,8 @@ function Game(){
 
     function removeUI(){
 
-        while (game.setting.game_container.firstChild) {
-            game.setting.game_container.removeChild(game.setting.game_container.firstChild);
+        while (game.setting.gameContainer.firstChild) {
+            game.setting.gameContainer.removeChild(game.setting.gameContainer.firstChild);
         }
     }
 
@@ -555,30 +552,30 @@ function Game(){
 
         function makeContainer(view){
 
-            var control_panel = document.createElement("div");
-            control_panel.className = "player_controls";
-            control_panel.id = "control_panel";
-            view.appendChild(control_panel);
+            var controlPanel = document.createElement("div");
+            controlPanel.className = "player_controls";
+            controlPanel.id = "control_panel";
+            view.appendChild(controlPanel);
 
             streakContainer = document.createElement("div");
             streakContainer.className = "streak_container";
             streakText = document.createElement("p");
             streakText.innerText  = "0";
             streakContainer.appendChild(streakText);
-            control_panel.appendChild(streakContainer);
+            controlPanel.appendChild(streakContainer);
 
             buttonContainer = document.createElement("div");
             buttonContainer.className = "button_container";
-            control_panel.appendChild(buttonContainer);
+            controlPanel.appendChild(buttonContainer);
 
-            return control_panel;
+            return controlPanel;
         }
 
         function makeNextButton(){
 
             var button = document.createElement("div");
-            button.className = "bt_next_round bt";
-            button.addEventListener("click",game.next_round);
+            button.className = "bt_nextRound bt";
+            button.addEventListener("click",game.nextRound);
             buttonContainer.appendChild(button);
             var t = document.createTextNode("Next");
             button.appendChild(t);
@@ -639,10 +636,10 @@ function Game(){
     }();
 
     this.test = function(){
-        create_UI();
+        createUI();
         game.start();
-        get_top_panel().update("default", user_info);
-        game.entity.player.host.score += user_info.score;
+        getTopPanel().update("default", userInfo);
+        game.player.host.score += userInfo.score;
     };
 
     // Classes
@@ -652,84 +649,84 @@ function Game(){
     Card.prototype = {
 
         constructor: Card,
-        create: function(default_field){
+        create: function(defaultField){
 
-            var field_holder = {};
-            var view_holder = {};
+            var fieldHolder = {};
+            var viewHolder = {};
 
-            var card_fragment = document.createElement("div");
-            card_fragment.className = "card_fragment";
-            view_holder.fragment = card_fragment;
+            var cardFragment = document.createElement("div");
+            cardFragment.className = "card_fragment";
+            viewHolder.fragment = cardFragment;
 
             // Card
-            var card_block = document.createElement("div");
-            card_block.className = "card_block";
-            card_fragment.appendChild(card_block);
+            var cardBlock = document.createElement("div");
+            cardBlock.className = "card_block";
+            cardFragment.appendChild(cardBlock);
 
-            var player_card = document.createElement("div");
-            player_card.className = "player_card";
-            card_block.appendChild(player_card);
-            view_holder.card = player_card;
+            var playerCard = document.createElement("div");
+            playerCard.className = "player_card";
+            cardBlock.appendChild(playerCard);
+            viewHolder.card = playerCard;
 
             // Card Name
-            var card_name = document.createElement("div");
-            card_name.className = "card_name";
-            player_card.appendChild(card_name);
+            var cardName = document.createElement("div");
+            cardName.className = "card_name";
+            playerCard.appendChild(cardName);
 
-            field_holder.model = card_name;
-            view_holder.model = card_name;
+            fieldHolder.model = cardName;
+            viewHolder.model = cardName;
 
             // Card Image
-            var card_image = document.createElement("div");
-            card_image.className = "card_image";
-            player_card.appendChild(card_image);
+            var cardImage = document.createElement("div");
+            cardImage.className = "card_image";
+            playerCard.appendChild(cardImage);
 
             var img = document.createElement("img");
-            card_image.appendChild(img);
+            cardImage.appendChild(img);
 
-            field_holder.image = img;
-            view_holder.image = card_image;
+            fieldHolder.image = img;
+            viewHolder.image = cardImage;
 
 
             // Rest
-            var card_row, row_label, t;
+            var cardRow, rowLabel, t;
 
-            for(key in default_field){
-                if(default_field.hasOwnProperty(key)){
-                    card_row = document.createElement("div");
-                    card_row.className = "card_row";
-                    card_row.setAttribute("name",key);
-                    card_row.addEventListener("click",function(){
-                        game.select_field(this);
+            for(key in defaultField){
+                if(defaultField.hasOwnProperty(key)){
+                    cardRow = document.createElement("div");
+                    cardRow.className = "card_row";
+                    cardRow.setAttribute("name",key);
+                    cardRow.addEventListener("click",function(){
+                        game.selectField(this);
                     });
-                    player_card.appendChild(card_row);
-                    view_holder[key] = card_row;
+                    playerCard.appendChild(cardRow);
+                    viewHolder[key] = cardRow;
 
-                    row_label = document.createElement("span");
-                    row_label.className = "row_label";
-                    card_row.appendChild(row_label);
+                    rowLabel = document.createElement("span");
+                    rowLabel.className = "row_label";
+                    cardRow.appendChild(rowLabel);
 
-                    t = document.createTextNode(default_field[key].label);
-                    row_label.appendChild(t);
+                    t = document.createTextNode(defaultField[key].label);
+                    rowLabel.appendChild(t);
 
                     // Changing field
-                    row_label = document.createElement("span");
-                    card_row.appendChild(row_label);
-                    field_holder[key] = row_label;
+                    rowLabel = document.createElement("span");
+                    cardRow.appendChild(rowLabel);
+                    fieldHolder[key] = rowLabel;
 
-                    row_label = document.createElement("span");
-                    row_label.className = "row_unit";
-                    card_row.appendChild(row_label);
+                    rowLabel = document.createElement("span");
+                    rowLabel.className = "row_unit";
+                    cardRow.appendChild(rowLabel);
 
-                    t = document.createTextNode(default_field[key].unit);
-                    row_label.appendChild(t);
+                    t = document.createTextNode(defaultField[key].unit);
+                    rowLabel.appendChild(t);
                 }
             }
 
             return {
-                field_holder: field_holder,
-                view_holder: view_holder,
-                card_fragment: card_fragment
+                fieldHolder: fieldHolder,
+                viewHolder: viewHolder,
+                cardFragment: cardFragment
             };
         }
     };
@@ -737,10 +734,10 @@ function Game(){
     function Player(){
 
         // DOM Fields
-        this.view_field = {};
+        this.viewField = {};
 
         // DOM Rows and Elements
-        this.view_holder = {};
+        this.viewHolder = {};
 
         // Values
         this.card = {};
@@ -765,18 +762,18 @@ function Game(){
 
             return self.card[property];
         },
-        setCard: function(new_card){
+        setCard: function(newCard){
 
             var self = this;
 
-            self.card = new_card;
+            self.card = newCard;
 
             for(key in self.card){
                 if(self.card.hasOwnProperty(key) && key != "id" && key != "price"){
                     if (key !== "image"){
-                        self.view_field[key].innerHTML = self.card[key];
+                        self.viewField[key].innerHTML = self.card[key];
                     }else{
-                        self.view_field[key].src = game.setting.img_folder + self.card[key] + game.setting.img_format;
+                        self.viewField[key].src = game.setting.imgFolder + self.card[key] + game.setting.imgFormat;
                     }
                 }
             }
@@ -788,7 +785,7 @@ function Game(){
             var self = this;
 
             if (typeof callback === 'undefined') callback = function(){};
-            $(self.view_holder.card).fadeIn(150, callback);
+            $(self.viewHolder.card).fadeIn(150, callback);
             return this;
         },
         hideCard: function(callback){
@@ -796,7 +793,7 @@ function Game(){
             var self = this;
 
             if (typeof callback === 'undefined') callback = function(){};
-            $(self.view_holder.card).fadeOut(150, callback);
+            $(self.viewHolder.card).fadeOut(150, callback);
             return this;
         }
     };
@@ -810,15 +807,15 @@ function Game(){
 
         var attribute = {
             score: 0,
-            low_score_limit: 0,
-            high_score_limit: 0
+            lowScoreLimit: 0,
+            highScoreLimit: 0
         };
 
         var ui = {};
 
-        this.create_UI = function(){
+        this.createUI = function(){
 
-            container.top_panel = document.getElementById("top_panel");
+            container.topPanel = document.getElementById("top_panel");
 
             // Filled bar of Score
             ui.fill = document.getElementById("s_fill");
@@ -827,26 +824,26 @@ function Game(){
             ui.score = document.getElementById("s_score");
         };
 
-        this.update = function(level_change, user_level_info){
-            // user_level_info is an object with attributes: "low_score_limit", "high_score_limit", "level", "score"
+        this.update = function(levelChange, userLevelInfo){
+            // userLevelInfo is an object with attributes: "lowScoreLimit", "highScoreLimit", "level", "score"
 
-            var previous_score = attribute.score;
+            var previousScore = attribute.score;
 
-            switch (level_change){
+            switch (levelChange){
                 case "up":
 
                     // Animation till the top
-                    AnimateModule.animateIncrement(previous_score, attribute.high_score_limit, ui.score);
-                    animate_fill(previous_score, attribute.high_score_limit, function(){
+                    AnimateModule.animateIncrement(previousScore, attribute.highScoreLimit, ui.score);
+                    animateFill(previousScore, attribute.highScoreLimit, function(){
 
                         // TODO: level up graphics
-                        set_attributes(user_level_info);
+                        setAttributes(userLevelInfo);
 
-                        set_UI();
+                        setUI();
 
                         // Animation till new score
-                        AnimateModule.animateIncrement(attribute.low_score_limit, attribute.score, ui.score);
-                        animate_fill(attribute.low_score_limit, attribute.score);
+                        AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, ui.score);
+                        animateFill(attribute.lowScoreLimit, attribute.score);
 
                     });
 
@@ -855,17 +852,17 @@ function Game(){
                 case "down":
 
                     // Animation till the bottom
-                    AnimateModule.animateIncrement(previous_score, attribute.low_score_limit, ui.score);
-                    animate_fill(previous_score, attribute.low_score_limit, function(){
+                    AnimateModule.animateIncrement(previousScore, attribute.lowScoreLimit, ui.score);
+                    animateFill(previousScore, attribute.lowScoreLimit, function(){
 
                         // TODO: level up graphics
-                        set_attributes(user_level_info);
+                        setAttributes(userLevelInfo);
 
-                        set_UI();
+                        setUI();
 
                         // Animation till new score
-                        AnimateModule.animateIncrement(attribute.high_score_limit, attribute.score, ui.score);
-                        animate_fill(attribute.high_score_limit, attribute.score);
+                        AnimateModule.animateIncrement(attribute.highScoreLimit, attribute.score, ui.score);
+                        animateFill(attribute.highScoreLimit, attribute.score);
 
                     });
 
@@ -873,12 +870,12 @@ function Game(){
 
                 default:
 
-                    set_attributes(user_level_info);
+                    setAttributes(userLevelInfo);
 
-                    set_UI();
+                    setUI();
 
-                    AnimateModule.animateIncrement(previous_score, attribute.score, ui.score);
-                    animate_fill(previous_score, attribute.score);
+                    AnimateModule.animateIncrement(previousScore, attribute.score, ui.score);
+                    animateFill(previousScore, attribute.score);
 
                     break;
             }
@@ -886,32 +883,32 @@ function Game(){
 
             return this;
 
-            function set_attributes(user_level_info){
+            function setAttributes(userLevelInfo){
 
-                attribute.low_score_limit   = user_level_info.low_score_limit;
-                attribute.score             = user_level_info.score;
-                attribute.high_score_limit  = user_level_info.high_score_limit;
+                attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
+                attribute.score             = userLevelInfo.score;
+                attribute.highScoreLimit  = userLevelInfo.high_score_limit;
             }
 
-            function set_UI(){
+            function setUI(){
 
-                //ui.low_score_limit.innerHTML = attribute.score - attribute.low_score_limit;
-                //ui.high_score_limit.innerHTML = attribute.high_score_limit - attribute.score + " until next level";
+                //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
+                //ui.highScoreLimit.innerHTML = attribute.highScoreLimit - attribute.score + " until next level";
             }
 
-            function animate_fill (old_score, new_score, callback){
+            function animateFill (oldScore, newScore, callback){
 
                 callback = typeof callback !== 'undefined' ? callback : function(){};
 
-                var old_width = Math.round(100*(old_score-attribute.low_score_limit)/(attribute.high_score_limit - attribute.low_score_limit));
-                $(ui.fill).css({"width":old_width+"%"});
+                var oldWidth = Math.round(100*(oldScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
+                $(ui.fill).css({"width":oldWidth+"%"});
 
-                var new_width = Math.round(100*(new_score-attribute.low_score_limit)/(attribute.high_score_limit - attribute.low_score_limit));
-                if (new_width>100) new_width = 100;
+                var newWidth = Math.round(100*(newScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
+                if (newWidth>100) newWidth = 100;
 
                 $(ui.fill).promise().done(function(){
                     // 200  - 400 ms
-                    $(this).animate({"width":new_width+"%"}, 200, callback);
+                    $(this).animate({"width":newWidth+"%"}, 200, callback);
                 });
             }
         }
@@ -941,33 +938,28 @@ ClassicGame.prototype.start = function(){
     // Set players' cards
     self.setUserCards(self.userCards);
 
-    console.log("User's cars");
-    console.log(self.userCards);
-
     self.setOpponentCards();
 
     // Create and Fill up additional UI elements
-    self.entity.player.host.view_holder.indicator =
-        self.ProgressModule.createCardIndicator(self.entity.player.host.view_holder.fragment);
+    self.player.host.viewHolder.indicator =
+        self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
 
-    self.ProgressModule.updateCardIndicator(self.entity.player.host.deck.length, self.entity.player.host.view_holder.indicator);
+    self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
 
-    for (key in self.entity.player.opponent){
-        if (self.entity.player.opponent.hasOwnProperty(key)){
+    for (key in self.player.opponent){
+        if (self.player.opponent.hasOwnProperty(key)){
 
-            self.entity.player.opponent[key].view_holder.indicator =
-            self.ProgressModule.createCardIndicator(self.entity.player.opponent[key].view_holder.fragment);
-            self.ProgressModule.updateCardIndicator(10, self.entity.player.opponent[key].view_holder.indicator)
+            self.player.opponent[key].viewHolder.indicator =
+            self.ProgressModule.createCardIndicator(self.player.opponent[key].viewHolder.fragment);
+            self.ProgressModule.updateCardIndicator(10, self.player.opponent[key].viewHolder.indicator)
         }
     }
-
-
 
     self.isPaused      = false;
     self.isEnded       = false;
     self.hasRoundEnded = false;
 
-    self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard();
+    self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
 
     return this;
 };
@@ -977,12 +969,12 @@ ClassicGame.prototype.reorganisePlayers = function(player){
 
     var self = this;
 
-    self.entity.player.opponent.push(self.entity.player.host);
-    self.entity.player.host = player;
+    self.player.opponent.push(self.player.host);
+    self.player.host = player;
 
-    var index = self.entity.player.opponent.indexOf(player);
+    var index = self.player.opponent.indexOf(player);
     if (index > -1){
-        self.entity.player.opponent.splice(index, 1);
+        self.player.opponent.splice(index, 1);
     }
 };
 
@@ -991,53 +983,54 @@ ClassicGame.prototype.assignCardsToPlayers = function(){
     var self = this;
 
     // Assign cards to all opponents
-    for (var i=0;i<self.entity.player.opponent.length;i++){
+    for (var i=0;i<self.player.opponent.length;i++){
 
         // Except for the main player - since she already received a card
-        if(self.entity.player.opponent[i] !== self.entity.player.user){
-            self.entity.player.opponent[i].setCard(self.get_random_card(self.entity.player.opponent[i].deck)).showCard();
+        if(self.player.opponent[i] !== self.player.user){
+            self.player.opponent[i].setCard(self.getRandomCard(self.player.opponent[i].deck)).showCard();
         }
     }
 };
 
-ClassicGame.prototype.new_round = function () {
+ClassicGame.prototype.newRound = function () {
 
     var self = this;
 
-    for (var i=0;i<self.previous_active_rows.length;i++){
-        self.previous_active_rows[i].className = "card_row";
+    for (var i=0;i<self.previousActiveRows.length;i++){
+        self.previousActiveRows[i].className = "card_row";
     }
 
-    self.previous_active_rows = [];
+    self.previousActiveRows = [];
 
     self.roundControls.reset();
 
     // Hide opponent cars
-    for (var i=0;i<self.entity.player.opponent.length;i++){
-        self.entity.player.opponent[i].hideCard();
+    for (var i=0;i<self.player.opponent.length;i++){
+        self.player.opponent[i].hideCard();
     }
 
-    if (self.entity.player.host == self.entity.player.user) {
+    if (self.player.host == self.player.user) {
 
+        // TODO: Instead of getting a random card from the players, get one in order (queue)
         // The game should move on with the user being the host
-        self.entity.player.host.hideCard(function(){
-            self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard();
+        self.player.host.hideCard(function(){
+            self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
         });
     } else {
 
         // The game should move on with the computer being the host
 
         // Assign new card for host
-        self.entity.player.host.hideCard(function(){
+        self.player.host.hideCard(function(){
 
             // Assign new card for user
-            self.entity.player.user.setCard(self.get_random_card(self.entity.player.user.deck)).showCard(function(){
+            self.player.user.setCard(self.getRandomCard(self.player.user.deck)).showCard(function(){
 
                 // TODO: Count-down
-                self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard(function(){
+                self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard(function(){
 
                     // TODO: Choice algorithm
-                    self.select_field(self.entity.player.host.view_holder.speed);
+                    self.selectField(self.player.host.viewHolder.speed);
                 });
             })
         });
@@ -1053,75 +1046,75 @@ ClassicGame.prototype.endOfRoundAction = function(){
 
     // Data to post to the server
     var data = {
-        score:       self.entity.player.user.score,
-        streak:      self.entity.player.user.streak,
-        roundResult: self.entity.player.user.roundResult
+        score:       self.player.user.score,
+        streak:      self.player.user.streak,
+        roundResult: self.player.user.roundResult
     };
 
     var success = function(data){
-        var level_change    = data.levelChange;
-        var user_level_info = data.userLevelInfo;
+        var levelChange    = data.levelChange;
+        var userLevelInfo = data.userLevelInfo;
 
-        self.top_panel.update(level_change, user_level_info);
+        self.topPanel.update(levelChange, userLevelInfo);
     };
 
     // Ajax call
-    post_to_server(self.setting.ajax_post_score, data, success);
+    postToServer(self.setting.ajaxPostScore, data, success);
 };
 
 var AnimateModule = function(){
 
     // Helper function to show a value increment/decrement
-    function animateIncrement(old_score, new_score, el){
+    function animateIncrement(oldScore, newScore, el){
 
         var PRINT_AMOUNT = 8;
 
-        var step = Math.ceil(Math.abs(old_score-new_score)/8);
+        var step = Math.ceil(Math.abs(oldScore-newScore)/8);
 
-        if (old_score < new_score){
+        if (oldScore < newScore){
             var compare = function(s1,s2){
                 return s1 + step >= s2;
             };
             var modify = function (){
-                old_score += step;
+                oldScore += step;
             };
         }else{
             var compare = function(s1,s2){
                 return s1 - step <= s2;
             };
             var modify = function (){
-                old_score -= step;
+                oldScore -= step;
             };
         }
 
         var interval = setInterval(function() {
-            el.innerHTML = old_score;
-            if (compare(old_score, new_score)){
+            el.innerHTML = oldScore;
+            if (compare(oldScore, newScore)){
                 clearInterval(interval);
-                el.innerHTML = new_score;
+                el.innerHTML = newScore;
             }
             modify();
         }, Math.round(200/PRINT_AMOUNT));
     }
 
     // Helper function to show floating value animations
-    function createFloatingText(el, value, class_name){
+    function createFloatingText(el, value, newClass){
 
-        var row_label = document.createElement("div");
-        row_label.className = "card_row_subscore";
-        row_label.className += class_name;
-        el.appendChild(row_label);
+        var rowLabel = document.createElement("div");
+        rowLabel.className = "card_row_subscore";
+        rowLabel.className += newClass;
+        el.appendChild(rowLabel);
 
         var t = document.createTextNode(value);
-        row_label.appendChild(t);
+        rowLabel.appendChild(t);
 
-        $(row_label).fadeIn(150, function(){
+        $(rowLabel).fadeIn(150, function(){
             $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
-                el.removeChild(row_label);
+                el.removeChild(rowLabel);
             });
         });
 
-        return row_label;
+        return rowLabel;
     }
 
     // Helper function to update Streak counter
@@ -1151,7 +1144,7 @@ var AnimateModule = function(){
     }
 }();
 
-function post_to_server(url, data, success){
+function postToServer(url, data, success){
 
     $.ajax({
         type: "POST",
@@ -1166,7 +1159,7 @@ function post_to_server(url, data, success){
     });
 }
 
-function post_files_to_server(url, data, success){
+function postFilesToServer(url, data, success){
 
     $.ajax({
         type: "POST",
@@ -1245,7 +1238,7 @@ var GarageModule = function(){
             }
         }
 
-        post_to_server(selectAjaxPath, data, success);
+        postToServer(selectAjaxPath, data, success);
     }
 
     return{
@@ -1287,28 +1280,28 @@ var Market = function(){
 
     function confirmPurchase(){
 
-        var item  = this.dataset.element;
+        var item  = this.dataset.car;
         var price = this.dataset.price;
 
         if (userGold >= price){
             var data = {
                 "item":item
             };
-            post_to_server(ajaxPath, data, success);
+            postToServer(ajaxPath, data, success);
         }else{
             console.log("Not enough money");
         }
 
         function success(data){
 
-            var frame_content   = $(previousElement).closest(".frame_content");
-            var image           = $(frame_content).find(".frame_image");
+            var frameContent   = $(previousElement).closest(".frame_content");
+            var image           = $(frameContent).find(".frame_image");
             var el              = document.getElementById("p_gold");
 
-            var new_gold   = userGold - price;
-            AnimateModule.animateIncrement(userGold, new_gold, el);
+            var newGold   = userGold - price;
+            AnimateModule.animateIncrement(userGold, newGold, el);
 
-            userGold = new_gold;
+            userGold = newGold;
 
             el = document.getElementById("user_gold");
             AnimateModule.createFloatingText(el, price, " score_red");
@@ -1425,7 +1418,7 @@ var PendingCarModule = (function(){
                     break;
             }
         };
-        post_to_server(ajaxPath.upvote, data, success);
+        postToServer(ajaxPath.upvote, data, success);
     }
 
     function popupAccept(){
@@ -1449,7 +1442,7 @@ var PendingCarModule = (function(){
             }
         };
 
-        post_to_server(ajaxPath.accept, data, success);
+        postToServer(ajaxPath.accept, data, success);
     }
 
     function popupDelete(){
@@ -1477,7 +1470,7 @@ var PendingCarModule = (function(){
             }
         };
 
-        post_to_server(ajaxPath.delete, data, success);
+        postToServer(ajaxPath.delete, data, success);
 
     }
 
@@ -1523,7 +1516,7 @@ var PendingCarModule = (function(){
             LoadingModule.hide();
         };
 
-        post_to_server(ajaxPath.query, data, success);
+        postToServer(ajaxPath.query, data, success);
 
     }
 
@@ -1542,8 +1535,8 @@ var PendingCarModule = (function(){
         });
 
         // Sending the form to the server
-        var form_data = new FormData(form[0]);
-        form_data.append("car_id", this.dataset.car);
+        var formData = new FormData(form[0]);
+        formData.append("car_id", this.dataset.car);
         var success = function(response){
             if (response.error.length !== 0){
                 LoadingModule.hide();
@@ -1554,7 +1547,7 @@ var PendingCarModule = (function(){
             }
         };
 
-        post_files_to_server(ajaxPath.editOrCreate, form_data, success)
+        postFilesToServer(ajaxPath.editOrCreate, formData, success)
     }
 
     return {

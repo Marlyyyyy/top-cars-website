@@ -68,10 +68,10 @@
         var cardGame = new ClassicGame();
 
         cardGame.setting.players = 2;
-        cardGame.setting.img_folder = IMG_PREFIX;
-        cardGame.setting.img_format = IMG_FORMAT;
-        cardGame.setting.ajax_post_score = "{{ path('marton_topcars_post_score') }}";
-        cardGame.setting.game_container = document.getElementById("card_game");
+        cardGame.setting.imgFolder = IMG_PREFIX;
+        cardGame.setting.imgFormat = IMG_FORMAT;
+        cardGame.setting.ajaxPostScore = "{{ path('marton_topcars_post_score') }}";
+        cardGame.setting.gameContainer = document.getElementById("card_game");
 
         cardGame.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
 
@@ -84,7 +84,7 @@
             }
         }
 
-        cardGame.setCards({{ deck | raw }}).preload_images(function(){
+        cardGame.setCards({{ deck | raw }}).preloadImages(function(){
             cardGame.test();
         });
 
