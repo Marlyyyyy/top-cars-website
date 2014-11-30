@@ -101,6 +101,16 @@ class User implements UserInterface, \Serializable{
      */
     private $votedSuggestedCars;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="Car", inversedBy="selectedOwners", cascade={"remove"})
+     * @ORM\JoinTable(name="user_selectedCar",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="car_id", referencedColumnName="id")}
+     * )
+     *
+     */
+    private $selectedCars;
+
     // Array to store calculated statistics
     private $statistics;
 
@@ -120,6 +130,7 @@ class User implements UserInterface, \Serializable{
         $this->cars  = new ArrayCollection();
         $this->suggestedCars  = new ArrayCollection();
         $this->votedSuggestedCars = new ArrayCollection();
+        $this->selectedCars = new ArrayCollection();
         $this->salt  = md5(uniqid(null, true));
     }
 
@@ -232,6 +243,40 @@ class User implements UserInterface, \Serializable{
      */
     public function removeVotedSuggestedCars(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
         $this->votedSuggestedCars->removeElement($suggestedCar);
+
+        return $this;
+    }
+
+    /**
+     * Returns cars owned and selected by the user.
+     * @return Car[]
+     */
+    public function getSelectedCars()
+    {
+        return $this->selectedCars;
+    }
+
+    /**
+     * Add selected cars
+     *
+     * @param \Marton\TopCarsBundle\Entity\Car $selectedCar
+     * @return User
+     */
+    public function addSelectedCars(\Marton\TopCarsBundle\Entity\Car $selectedCar) {
+        $this->selectedCars[] = $selectedCar;
+        $selectedCar->addSelectedOwners($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove selected car
+     *
+     * @param \Marton\TopCarsBundle\Entity\Car $selectedCar
+     * @return User
+     */
+    public function removeSelectedCars(\Marton\TopCarsBundle\Entity\Car $selectedCar) {
+        $this->selectedCars->removeElement($selectedCar);
 
         return $this;
     }

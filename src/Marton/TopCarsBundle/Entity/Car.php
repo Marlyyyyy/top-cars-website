@@ -71,9 +71,16 @@ class Car {
      */
     private $users;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="selectedCars", cascade={"persist"})
+     *
+     */
+    private $selectedOwners;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->selectedOwners = new ArrayCollection();
     }
 
     public function getId()
@@ -177,5 +184,23 @@ class Car {
     public function getUsers()
     {
         return $this->users->toArray();
+    }
+
+    /**
+     * Add users which selected a particular car
+     *
+     * @param \Marton\TopCarsBundle\Entity\User $selectedOwners
+     * @return Car
+     */
+    public function addSelectedOwners(\Marton\TopCarsBundle\Entity\User $selectedOwners)
+    {
+        $this->selectedOwners[] = $selectedOwners;
+
+        return $this;
+    }
+
+    public function getSelectedOwners()
+    {
+        return $this->selectedOwners->toArray();
     }
 } 
