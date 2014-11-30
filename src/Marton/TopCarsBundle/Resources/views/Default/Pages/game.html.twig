@@ -14,6 +14,7 @@
 
             <div class="game_header">
                 <button id="bt_settings">Settings</button>
+                <div class="level_score" id="s_score">0</div>
             </div>
 
             <div class="settings">
@@ -32,7 +33,6 @@
             </div>
 
             <div class="user_header">
-
             </div>
 
 
@@ -42,7 +42,6 @@
 
                     <div class="score_bar">
                         <div class="fill" id="s_fill"></div>
-                        <div class="level_score" id="s_score">0</div>
                     </div>
 
                 </div>
@@ -50,54 +49,6 @@
 
             <!-- Battlefield -->
             <div class="battlefield" id="battlefield">
-
-
-                {#<div class="card_fragment" id="c_fragment">
-
-                    <div class="card_block" id="c_block">
-
-                        <div class="player_card" id="c_card">
-
-                            <div class="card_name" id="c_name"></div>
-                            <div class="card_image" id="c_image">
-                                <img id="v_image" width="230px" height="153px" src="{{ asset('bundles/martontopcars/images/card_game/alfaromeo8c.png') }}"/>
-                            </div>
-
-                            <div class="card_row" id="c_speed" name="speed">
-                                <span class="row_label">Speed:</span>
-                                <span id="v_speed">345</span>
-                                <span class="row_unit">Km/h</span>
-                            </div>
-
-                            <div class="card_row" id="c_power" name="power">
-                                <span class="row_label">Power:</span>
-                                <span id="v_power">345</span>
-                                <span class="row_unit">Hp</span>
-                            </div>
-
-                            <div class="card_row" id="c_torque" name="torque">
-                                <span class="row_label">Torque:</span>
-                                <span id="v_torque">345</span>
-                                <span class="row_unit">Nm</span>
-                            </div>
-
-                            <div class="card_row" id="c_acceleration" name="acceleration">
-                                <span class="row_label">Acceleration:</span>
-                                <span id="v_acceleration">345</span>
-                                <span class="row_unit">s</span>
-                            </div>
-
-                            <div class="card_row" id="c_weight" name="weight">
-                                <span class="row_label">Weight:</span>
-                                <span id="v_weight">345</span>
-                                <span class="row_unit">kg</span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>#}
 
             </div>
 
@@ -109,25 +60,34 @@
 {% block background %}
 
     <script>
+
         // Card Game
         var IMG_PREFIX = "{{ asset('bundles/martontopcars/images/card_game/') }}";
         var IMG_FORMAT = ".png";
 
-        var CardGame = new ClassicGame();
+        var cardGame = new ClassicGame();
 
-        console.log(CardGame.setting);
+        cardGame.setting.players = 2;
+        cardGame.setting.img_folder = IMG_PREFIX;
+        cardGame.setting.img_format = IMG_FORMAT;
+        cardGame.setting.ajax_post_score = "{{ path('marton_topcars_post_score') }}";
+        cardGame.setting.game_container = document.getElementById("card_game");
 
-        CardGame.setting.players = 2;
-        CardGame.setting.img_folder = IMG_PREFIX;
-        CardGame.setting.img_format = IMG_FORMAT;
-        CardGame.setting.ajax_post_score = "{{ path('marton_topcars_post_score') }}";
-        CardGame.setting.game_container = document.getElementById("card_game");
+        cardGame.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
 
-        CardGame.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
+        var userDeck = {{ user_deck | raw }};
 
-        CardGame.setCards({{ deck | raw }}).preload_images(function(){
-            CardGame.test();
+        // TODO: set these cards after the players have been created
+        for (key in userDeck){
+            if (userDeck.hasOwnProperty(key)){
+                cardGame.userCards[key] = userDeck[key];
+            }
+        }
+
+        cardGame.setCards({{ deck | raw }}).preload_images(function(){
+            cardGame.test();
         });
+
     </script>
 
 {% endblock %}

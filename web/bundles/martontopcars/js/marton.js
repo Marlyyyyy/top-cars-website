@@ -128,35 +128,74 @@ function Game(){
     };
 
     // Whole deck of cards
-    var cards = {};
+    this.cards = {};
     this.setCards = function (deck){
 
-        cards.deck = [];
+        console.log(deck);
+        game.cards.deck = [];
         for (key in deck){
             if (deck.hasOwnProperty(key)){
-                cards.deck.push(deck[key]);
+                game.cards.deck.push(deck[key]);
             }
         }
 
-        cards.len   = cards.deck.length;
+        game.cards.len   = game.cards.deck.length;
 
         return this;
     };
 
-    // Returns a random card from the deck
-    this.get_random_card = function(){
+    this.userCards = {};
 
-        console.log("random card");
-        var random = Math.floor(Math.random() * (cards.len - 0)) + 0;
-        return cards.deck[random];
+    // Gives 10 cards to the user by default
+    this.setUserCards = function(deck){
+
+        for (key in deck){
+            if (deck.hasOwnProperty(key)){
+                game.entity.player.user.deck.push(deck[key]);
+            }
+        }
+
+        console.log(deck);
+        return this;
+    };
+
+    // Gives 10 unique random cards to the opponents by default
+    this.setOpponentCards = function(){
+
+        var self = this;
+
+        for (key in self.entity.player.opponent){
+
+            if (self.entity.player.opponent.hasOwnProperty(key)){
+
+                var deck = self.cards.deck;
+
+                for (var i=1; i<10; i++){
+
+                    var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
+                    var randomCard = deck[random];
+
+                    self.entity.player.opponent[key].deck.push(randomCard);
+
+                    deck.slice(random, 1);
+                }
+            }
+        }
+    };
+
+    // Returns a random card from the deck
+    this.get_random_card = function(deck){
+
+        var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
+        return deck[random];
     };
 
     this.preload_images = function(callback){
 
         if (typeof callback === "undefined") callback = function(){};
         var arr = [];
-        for (var i=0; i<cards.len;i++){
-            arr.push(game.setting.img_folder + cards.deck[i].image + game.setting.img_format);
+        for (var i=0; i<game.cards.len;i++){
+            arr.push(game.setting.img_folder + game.cards.deck[i].image + game.setting.img_format);
         }
         preload_images(arr).done(callback);
     };
@@ -192,15 +231,15 @@ function Game(){
     var ui_container = {};
     this.previous_active_rows = [];
 
-    var top_panel;
+    this.top_panel = null;
     function get_top_panel(){
-        return top_panel;
+        return game.top_panel;
     }
 
     // Containing agents of the game
     this.entity = {
         player:{
-            user: null,
+            user:null,
             host:null,
             opponent:[]
         }
@@ -230,7 +269,7 @@ function Game(){
         game.isEnded       = false;
         game.hasRoundEnded = false;
 
-        game.entity.player.host.setCard(game.get_random_card()).showCard();
+        game.entity.player.host.setCard(game.get_random_card(game.cards.deck)).showCard();
 
         return this;
     };
@@ -263,7 +302,7 @@ function Game(){
             var level_change    = data.levelChange;
             var user_level_info = data.userLevelInfo;
 
-            top_panel.update(level_change, user_level_info);
+            game.top_panel.update(level_change, user_level_info);
         };
 
         // Ajax call
@@ -286,7 +325,7 @@ function Game(){
 
         // Hide Cards and Generate new card for host
         game.entity.player.host.hideCard(function(){
-            game.entity.player.host.setCard(game.get_random_card()).showCard();
+            game.entity.player.host.setCard(game.get_random_card(game.cards.deck)).showCard();
         });
 
         for (var i=0;i<game.entity.player.opponent.length;i++){
@@ -312,7 +351,7 @@ function Game(){
 
         // Assign cards to all opponents
         for (var i=0;i<game.entity.player.opponent.length;i++){
-            game.entity.player.opponent[i].setCard(game.get_random_card()).showCard();
+            game.entity.player.opponent[i].setCard(game.get_random_card(game.cards.deck)).showCard();
         }
     };
 
@@ -456,9 +495,9 @@ function Game(){
         ui_container.container = game.setting.game_container;
 
         // Create top panel
-        top_panel = new TopPanel();
-        top_panel.setContainer(ui_container);
-        top_panel.create_UI();
+        game.top_panel = new TopPanel();
+        game.top_panel.setContainer(ui_container);
+        game.top_panel.create_UI();
 
         // Create elements that don't belong to anyone
         var battlefield = new Battlefield();
@@ -509,7 +548,6 @@ function Game(){
         var streakText;
         var buttonContainer;
 
-        // Constructor
         var init = function(view){
             container = makeContainer(view);
             return this;
@@ -544,7 +582,7 @@ function Game(){
             buttonContainer.appendChild(button);
             var t = document.createTextNode("Next");
             button.appendChild(t);
-            return button;
+            $(button).fadeIn(100);
         }
 
         function makeNewGameButton(){
@@ -555,7 +593,7 @@ function Game(){
             buttonContainer.appendChild(button);
             var t = document.createTextNode("Restart");
             button.appendChild(t);
-            return button;
+            $(button).fadeIn(100);
         }
 
         function removeAllButtons(){
@@ -566,21 +604,39 @@ function Game(){
 
         return {
             init: init,
-            nextRound: function(){
-                $(makeNextButton()).fadeIn(100);
-            },
-
-            newGame: function(){
-                $(makeNewGameButton()).fadeIn(100);
-            },
-            reset: function(){
-                removeAllButtons();
-            },
+            nextRound: makeNextButton,
+            newGame: makeNewGameButton,
+            reset: removeAllButtons,
             getStreakText: function(){
                 return streakText;
             }
         }
     })();
+
+    this.ProgressModule = function(){
+
+        function createCardIndicator(container){
+
+            var box = document.createElement("div");
+            box.className = "indicator-box";
+            container.insertBefore(box, container.firstChild);
+            return box;
+        }
+
+        function updateCardIndicator(noOfCards, box){
+
+            for (var i=0; i<noOfCards; i++){
+
+                var miniCard = document.createElement("span");
+                box.appendChild(miniCard);
+            }
+        }
+
+        return {
+            createCardIndicator: createCardIndicator,
+            updateCardIndicator: updateCardIndicator
+        }
+    }();
 
     this.test = function(){
         create_UI();
@@ -603,6 +659,7 @@ function Game(){
 
             var card_fragment = document.createElement("div");
             card_fragment.className = "card_fragment";
+            view_holder.fragment = card_fragment;
 
             // Card
             var card_block = document.createElement("div");
@@ -687,6 +744,9 @@ function Game(){
 
         // Values
         this.card = {};
+
+        // Deck
+        this.deck = [];
 
         this.roundScore  = 0;
         this.roundResult = 0;
@@ -870,8 +930,47 @@ function Game(){
 // Classic Version of the game
 
 function ClassicGame(){}
+
 ClassicGame.prototype = new Game();
 ClassicGame.prototype.constructor = ClassicGame;
+
+ClassicGame.prototype.start = function(){
+
+    var self = this;
+
+    // Set players' cards
+    self.setUserCards(self.userCards);
+
+    console.log("User's cars");
+    console.log(self.userCards);
+
+    self.setOpponentCards();
+
+    // Create and Fill up additional UI elements
+    self.entity.player.host.view_holder.indicator =
+        self.ProgressModule.createCardIndicator(self.entity.player.host.view_holder.fragment);
+
+    self.ProgressModule.updateCardIndicator(self.entity.player.host.deck.length, self.entity.player.host.view_holder.indicator);
+
+    for (key in self.entity.player.opponent){
+        if (self.entity.player.opponent.hasOwnProperty(key)){
+
+            self.entity.player.opponent[key].view_holder.indicator =
+            self.ProgressModule.createCardIndicator(self.entity.player.opponent[key].view_holder.fragment);
+            self.ProgressModule.updateCardIndicator(10, self.entity.player.opponent[key].view_holder.indicator)
+        }
+    }
+
+
+
+    self.isPaused      = false;
+    self.isEnded       = false;
+    self.hasRoundEnded = false;
+
+    self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard();
+
+    return this;
+};
 
 ClassicGame.prototype.reorganisePlayers = function(player){
     // Takes the winner as an argument
@@ -896,7 +995,7 @@ ClassicGame.prototype.assignCardsToPlayers = function(){
 
         // Except for the main player - since she already received a card
         if(self.entity.player.opponent[i] !== self.entity.player.user){
-            self.entity.player.opponent[i].setCard(self.get_random_card()).showCard();
+            self.entity.player.opponent[i].setCard(self.get_random_card(self.entity.player.opponent[i].deck)).showCard();
         }
     }
 };
@@ -922,7 +1021,7 @@ ClassicGame.prototype.new_round = function () {
 
         // The game should move on with the user being the host
         self.entity.player.host.hideCard(function(){
-            self.entity.player.host.setCard(self.get_random_card()).showCard();
+            self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard();
         });
     } else {
 
@@ -932,10 +1031,10 @@ ClassicGame.prototype.new_round = function () {
         self.entity.player.host.hideCard(function(){
 
             // Assign new card for user
-            self.entity.player.user.setCard(self.get_random_card()).showCard(function(){
+            self.entity.player.user.setCard(self.get_random_card(self.entity.player.user.deck)).showCard(function(){
 
                 // TODO: Count-down
-                self.entity.player.host.setCard(self.get_random_card()).showCard(function(){
+                self.entity.player.host.setCard(self.get_random_card(self.entity.player.host.deck)).showCard(function(){
 
                     // TODO: Choice algorithm
                     self.select_field(self.entity.player.host.view_holder.speed);
@@ -943,6 +1042,31 @@ ClassicGame.prototype.new_round = function () {
             })
         });
     }
+};
+
+ClassicGame.prototype.endOfRoundAction = function(){
+
+    var self = this;
+
+    // TODO: Check for winning
+
+
+    // Data to post to the server
+    var data = {
+        score:       self.entity.player.user.score,
+        streak:      self.entity.player.user.streak,
+        roundResult: self.entity.player.user.roundResult
+    };
+
+    var success = function(data){
+        var level_change    = data.levelChange;
+        var user_level_info = data.userLevelInfo;
+
+        self.top_panel.update(level_change, user_level_info);
+    };
+
+    // Ajax call
+    post_to_server(self.setting.ajax_post_score, data, success);
 };
 
 var AnimateModule = function(){

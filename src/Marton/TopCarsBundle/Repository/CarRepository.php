@@ -76,4 +76,34 @@ class CarRepository extends EntityRepository {
 
         return $result;
     }
+
+    public function findSelectedCarsOfUser($id){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $car_table = $em->getClassMetadata('MartonTopCarsBundle:Car')->getTableName();
+        $join_table = "user_selectedCar";
+
+        $sql =
+            'SELECT
+              c.id AS id,
+              c.model AS model,
+              c.image AS image,
+              c.speed AS speed,
+              c.power AS power,
+              c.torque AS torque,
+              c.acceleration AS acceleration,
+              c.weight AS weight
+            FROM
+              '.$car_table.' c
+              INNER JOIN '.$join_table.' j ON c.id = j.car_id
+              WHERE j.user_id = '.$id;
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+
+        return $result;
+    }
 } 
