@@ -27,11 +27,19 @@ class UserDetails {
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(
+     *     max = "25",
+     *     maxMessage = "Sorry, your first name is too long. It must be less than 25 characters."
+     * )
      */
     protected $firstName = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(
+     *     max = "25",
+     *     maxMessage = "Sorry, your last name is too long. It must be less than 25 characters."
+     * )
      */
     protected $lastName = null;
 
@@ -55,6 +63,10 @@ class UserDetails {
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(
+     *     max = "20",
+     *     maxMessage = "Sorry, your country name is too long. It must be less than 20 characters."
+     * )
      */
     protected $country = null;
 
