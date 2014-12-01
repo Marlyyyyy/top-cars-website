@@ -8,7 +8,7 @@
 
 namespace Marton\TopCarsBundle\Classes;
 
-use Symfony\Component\HttpFoundation\File;
+use Symfony\Component\HttpFoundation\File\File;
 
 class FileHelper {
 
@@ -26,6 +26,19 @@ class FileHelper {
         $unique_name = $key.'_'.$now['year'].$now['mon'].$now['mday'].$now['hours'].$now['minutes'].$now['seconds'].'.'.$ext;
 
         return $unique_name;
+    }
+
+    public function removeFile($path){
+
+        if (file_exists($path)){
+
+            $image_file = new File($path);
+
+            if (is_writable($image_file)){
+
+                unlink($image_file);
+            }
+        }
     }
 
 } 
