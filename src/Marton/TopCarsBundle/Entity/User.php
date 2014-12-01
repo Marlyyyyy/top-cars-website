@@ -66,7 +66,7 @@ class User implements UserInterface, \Serializable{
     private $progress;
 
     /**
-     * @ORM\OneToOne(targetEntity="UserDetails", cascade={"remove"})
+     * @ORM\OneToOne(targetEntity="UserDetails", cascade={"remove", "persist"})
      */
     private $details;
 
