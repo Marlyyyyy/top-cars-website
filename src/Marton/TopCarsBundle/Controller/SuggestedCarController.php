@@ -298,7 +298,7 @@ class SuggestedCarController extends Controller{
 
         $error = array();
 
-        // Check if it's a new car or existing car
+        // Check if it's a new car or existing car (-1 stands for new car)
         if($car_id === -1){
 
             // Create new suggested car
@@ -339,9 +339,7 @@ class SuggestedCarController extends Controller{
             // Save the car's previous picture's path
             $suggested_default_image = $suggested_car->getImage();
             $suggested_car->setImage(null);
-
         }
-
 
         $form = $this->createForm(new SuggestedCarType(), $suggested_car);
 
@@ -349,7 +347,6 @@ class SuggestedCarController extends Controller{
 
         $suggested_car = $form->getData();
 
-        // TODO: Form validation
         if ($form->isValid()){
 
             $image_file = $suggested_car->getImageFile();
@@ -357,10 +354,28 @@ class SuggestedCarController extends Controller{
             // Check if the user has uploaded any image
             if($image_file != null){
 
+                $image_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/';
+
+                // Remove previous image
+                if ($suggested_default_image !== 'default.png'){
+
+                    $old_path = $image_dir_path.$suggested_default_image;
+
+                    // TODO: factor out this check
+                    if (file_exists($old_path)){
+
+                        $old_image_file = new File($old_path);
+
+                        if (is_writable($old_image_file)){
+
+                            unlink($old_image_file);
+                        }
+                    }
+                }
+
                 $file_name = $user->getId() . $image_file->getClientOriginalName();
 
-                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest';
-                $image_file->move($new_path, $file_name);
+                $image_file->move($image_dir_path, $file_name);
 
                 $suggested_car->setImage($file_name);
             }else{
