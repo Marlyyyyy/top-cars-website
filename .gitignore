@@ -4,7 +4,6 @@
 
 !*/
 !/app/AppKernel.php
-!/app/dbselp.db
 !/app/config/config.yml
 !/app/config/parameters.yml
 !/app/config/security.yml
@@ -29,6 +28,5 @@
 !/web/bundles/martontopcars/js/*
 !/web/bundles/martontopcars/images/avatar/*
 !/web/bundles/martontopcars/images/background/*
-!/web/bundles/martontopcars/images/src/*
 !/web/app.php
 !/web/app_dev.php
