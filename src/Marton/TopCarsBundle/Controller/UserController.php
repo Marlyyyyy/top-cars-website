@@ -20,6 +20,7 @@ use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\File;
 
 class UserController extends Controller{
 
@@ -28,7 +29,7 @@ class UserController extends Controller{
 
         // Get all highscores
         /* @var $repository UserProgressRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:UserProgress');
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
         $users = $repository-> findHighscores();
 
         foreach ($users as $user){
@@ -47,7 +48,7 @@ class UserController extends Controller{
 
         // Get details of this user
         /* @var $repository UserProgressRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:UserProgress');
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
         $user_details = $repository-> findDetailsOfUser($user);
 
         $statisticsCalculator = new StatisticsCalculator($user_details[0]);
@@ -110,15 +111,50 @@ class UserController extends Controller{
 
         $edit_form->handleRequest($request);
 
-        // TODO: add validation
         if ($edit_form->isValid()) {
 
             $user_details = $edit_form->getData();
+
+            // Check if the user has uploaded any image
+            $image_file = $user_details->getImageFile();
+
+            if($image_file != null){
+
+                // Remove previous image
+                $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
+
+                if (file_exists($old_path)){
+
+                    $old_image_file = new File($old_path);
+
+                    if (is_writable($old_image_file)){
+
+                        unlink($old_image_file);
+                    }
+                }
+
+                // Renaming the image to avoid user clash
+                $file_name = $user->getId() . $image_file->getClientOriginalName();
+                $new_file_name = $user->getId().'_'.$file_name;
+
+                // Moving the image to the "avatar" directory
+                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar';
+                $image_file->move($new_path, $new_file_name);
+
+                $user_details->setProfilePicturePath($new_file_name);
+            }
+
+            $image_file = null;
+
             $user->setDetails($user_details);
             $em->persist($user);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('marton_topcars_default'));
+            // Set flash message
+            $this->get('session')->getFlashBag()->add(
+                'notice',
+                'Your changes have been successfully saved! :)'
+            );
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/account.html.twig', array(

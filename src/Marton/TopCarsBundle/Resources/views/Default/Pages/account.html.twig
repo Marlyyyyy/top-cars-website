@@ -19,7 +19,7 @@
 
             <!-- Left Column -->
             <div class="user_column user_left">
-                <img src="{{ asset('bundles/martontopcars/images/avatar/default.jpg') }}"/>
+                <img id="profile-picture" width="160" height="160" src="{{ asset('bundles/martontopcars/images/avatar/' ~ user_details.profilePicturePath) }}"/>
                 <hr>
                 <div class="user_roles">
                     {% for role in user.roles %}
@@ -27,7 +27,6 @@
                     {% endfor %}
                 </div>
                 <hr>
-                <h2>Achievements</h2>
             </div>
 
             <!-- Right Column -->
@@ -38,12 +37,17 @@
                         <h3>{{ user.username }}</h3>
                     </div>
                     <div class="user_level">
-                        <p class="p_level">Cars owned</p><p class="p_level_val">{{ user.cars | length }}</p>
-                    </div>
-                    <div class="user_level">
-                        <p class="p_level">Level</p><p class="p_level_val">{{ user.progress.level }}</p>
+                        <button class="button-delete">
+                            Delete Account
+                        </button>
                     </div>
                 </div>
+
+                {% for flashMessage in app.session.flashbag.get('notice') %}
+                    <div class="success">
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
 
                 <h5>Details</h5>
 
@@ -86,4 +90,12 @@
 
 {% endblock %}
 
-{% block background %}{% endblock %}
+{% block background %}
+
+    <script>
+
+        ImageInputModule.init("userDetails_imageFile", "profile-picture", "profile-picture");
+
+    </script>
+
+{% endblock %}
