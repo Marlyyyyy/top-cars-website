@@ -38,8 +38,12 @@ class StatisticsCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
         $this->assertEquals(5, $statistics['level']);
         $this->assertEquals(5, $statistics['streak']);
         $this->assertEquals((float) 1, $statistics['wLRatio']);
+        $this->assertGreaterThan(0 , $statistics['wLRatioPercentage']);
+        $this->assertLessThan(100 , $statistics['wLRatioPercentage']);
         $this->assertEquals(1000, $statistics['score']);
         $this->assertEquals(0, $statistics['draw']);
         $this->assertEquals(100, $statistics['scorePerRound']);
+        $this->assertGreaterThan(0, $statistics['scorePerRoundPercentage']);
+        $this->assertLessThan(100, $statistics['scorePerRoundPercentage']);
     }
 } 
