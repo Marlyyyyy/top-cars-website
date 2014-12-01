@@ -20,7 +20,7 @@ class UserDetailsType extends AbstractType{
         $builder
             ->add('firstName', 'text', array('required'=>false, 'label' => 'First Name'))
             ->add('lastName', 'text', array('required'=>false, 'label' => 'Last Name'))
-            ->add('profilePicturePath', 'email', array('required'=>false, 'label' => 'Avatar', 'empty_data' => 'default.jpg'))
+            ->add('imageFile', 'file', array('required'=>false, 'label' => 'Avatar'))
             ->add('country', 'text', array('required'=>false))
             ->add('about', 'textarea', array('required'=>false))
             ->add('save', 'submit', array('label' => 'Save'));

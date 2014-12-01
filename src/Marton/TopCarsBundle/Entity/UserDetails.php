@@ -9,6 +9,8 @@
 namespace Marton\TopCarsBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
@@ -24,14 +26,14 @@ class UserDetails {
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $firstName;
+    protected $firstName = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $lastName;
+    protected $lastName = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -39,14 +41,31 @@ class UserDetails {
     protected $profilePicturePath = "default.jpg";
 
     /**
-     * @ORM\Column(type="string", length=255)
+     *
+     * @var File
+     *
+     * @Assert\File(
+     *     maxSize = "1M",
+     *     maxSizeMessage = "The maximum allowed file size is 1MB.",
+     *     mimeTypes = {"image/jpeg", "image/png"},
+     *     mimeTypesMessage = "The format of your image has to be either JPEG or PNG"
+     * )
      */
-    protected $country;
+    protected $imageFile;
 
     /**
-     * @ORM\Column(type="string", length=1000)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $about;
+    protected $country = null;
+
+    /**
+     * @ORM\Column(type="string", length=1000, nullable=true)
+     * @Assert\Length(
+     *     max = "1000",
+     *     maxMessage = "Sorry, your introduction is too long. It must be less than 1000 characters."
+     * )
+     */
+    protected $about = null;
 
     /**
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
@@ -106,6 +125,16 @@ class UserDetails {
     public function getProfilePicturePath()
     {
         return $this->profilePicturePath;
+    }
+
+    public function setImageFile($imageFile)
+    {
+        $this->imageFile = $imageFile;
+    }
+
+    public function getImageFile()
+    {
+        return $this->imageFile;
     }
 
     public function setUser($user)
