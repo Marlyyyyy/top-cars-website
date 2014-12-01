@@ -43,7 +43,7 @@
                         </div>
                     </div>
 
-                    <h1>Statistics</h1>
+                    <h5>Statistics</h5>
 
                     <div class="stats_block">
                         <div class="stats_general">
@@ -81,7 +81,7 @@
                                 <div class="stats_graphics">
                                     <div class="meter_frame">
                                         <div class="stats_meter"></div>
-                                        <div class="stats_lever" style="margin-left:{{ 100 * user.statistics.wLRatio }}%"></div>
+                                        <div class="stats_lever" style="margin-left:{{ user.statistics.wLRatioPercentage }}%"></div>
                                     </div>
                                 </div>
                                 <p>{{ user.statistics.wLRatio }}</p>
@@ -92,7 +92,7 @@
                                 <div class="stats_graphics">
                                     <div class="meter_frame">
                                         <div class="stats_meter"></div>
-                                        <div class="stats_lever" style="margin-left:{{ 100 * user.statistics.wLRatio }}%"></div>
+                                        <div class="stats_lever" style="margin-left:{{ user.statistics.scorePerRoundPercentage }}%"></div>
                                     </div>
                                 </div>
                                 <p>{{ user.statistics.scorePerRound }}</p>
@@ -104,7 +104,7 @@
                     </div>
 
 
-                    <h1>Garage ({{ cars|length }})</h1>
+                    <h5>Garage ({{ cars|length }})</h5>
 
                     <div class="stats_block">
                         {% for car in cars %}
