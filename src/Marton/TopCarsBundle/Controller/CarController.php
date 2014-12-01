@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Controller;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\User;
@@ -55,7 +56,11 @@ class CarController extends Controller{
         $cars =  $user->getCars();
 
         // Get collection of already selected cars
+        /* @var $selected_cars ArrayCollection */
         $selected_cars = $user->getSelectedCars();
+        $selected_cars_count = count($selected_cars);
+
+        $all_cars_count = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car')->countAllCars();
 
         // Tag cars that have already been selected
         foreach($cars as $car){
@@ -71,7 +76,9 @@ class CarController extends Controller{
 
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig', array(
             "cars" => $cars,
-            "user" => $user
+            "user" => $user,
+            "selected_cars_count" => $selected_cars_count,
+            "all_cars_count" => $all_cars_count
         ));
     }
 
@@ -175,26 +182,39 @@ class CarController extends Controller{
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
+        $selected_cars = $user->getSelectedCars();
+        $selected_cars_count = count($selected_cars);
+        $is_full = false;
+
         // Check if the user has already selected this car
-        if ($user->getSelectedCars()->contains($car)){
+        if ($selected_cars->contains($car)){
 
             $change = "remove";
 
             $user->removeSelectedCars($car);
             $em->persist($user);
             $em->flush();
+
+            $selected_cars_count--;
         }else{
 
             // Check how many cars the user has already selected
-            if (count($user->getSelectedCars()) < 10){
+            if ($selected_cars_count < 10){
 
                 $change = "add";
 
                 $user->addSelectedCars($car);
                 $em->persist($user);
                 $em->flush();
+
+                $selected_cars_count++;
+
+                if ($selected_cars_count === 10){
+                    $is_full = true;
+                }
             }else{
 
+                $is_full = true;
                 array_push($error, "You have already selected 10 cars!");
                 $response = new Response(json_encode(array(
                     'error' => $error)));
@@ -204,7 +224,9 @@ class CarController extends Controller{
 
         $response = new Response(json_encode(array(
             'error' => $error,
-            'change' => $change)));
+            'change' => $change,
+            'no_of_cars' => $selected_cars_count,
+            'is_full' => $is_full)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
