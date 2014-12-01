@@ -13,7 +13,9 @@ use Marton\TopCarsBundle\Classes\AchievementCalculator;
 use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Entity\UserDetails;
 use Marton\TopCarsBundle\Entity\UserProgress;
+use Marton\TopCarsBundle\Form\Type\UserDetailsType;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,18 +53,21 @@ class UserController extends Controller{
         $statisticsCalculator = new StatisticsCalculator($user_details[0]);
         $user_details[0]->setStatistics($statisticsCalculator->getStatistics());
 
-        $garage = $user_details[0]->getCars();
-
-        $priceCalculator = new PriceCalculator();
+        $cars = $user_details[0]->getCars();
+        $cars_value = 0;
+        foreach($cars as $car){
+            $cars_value += $car->getPrice();
+        }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/user.html.twig', array(
             'user' => $user_details[0],
-            'cars' => $priceCalculator->assignPrices($garage)
+            'cars' => $cars,
+            'cars_value' => $cars_value
         ));
     }
 
-    // Ajax call to update the user's score during a game
-    public function postUserScoreAction(Request $request){
+    // Renders Account page
+    public function accountAction(){
 
         // Get entity manager
         $em = $this->getDoctrine()->getManager();
@@ -70,54 +75,56 @@ class UserController extends Controller{
         // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
-        $progress = $user->getProgress();
 
-        // Score and Level
-        $score = (int) $request->request->get('score');
+        // Get details of the user
+        /* @var $user_details UserDetails */
+        $user_details = $user->getDetails();
 
-        $achievementCalculator = new AchievementCalculator();
-        $new_score_info = $achievementCalculator->calculateLevel($score);
+        // Create Form for editing user details
+        $edit_form = $this->createForm(new UserDetailsType(), $user_details, array(
+            'action' => $this->generateUrl('marton_topcars_account_update'),
+        ));
 
-        /* @var $progress UserProgress */
-        $progress->setScore($score);
+        return $this->render('MartonTopCarsBundle:Default:Pages/account.html.twig', array(
+            'details_form' => $edit_form->createView(),
+            'user' => $user,
+            'user_details' => $user_details
+        ));
+    }
 
-        $old_level = $progress->getLevel();
-        $progress->setLevel($new_score_info["level"]);
+    // Handles the submitted form to update user details
+    public function updateAccountAction(Request $request){
 
-        // Streak
-        $streak = (int) $request->request->get('streak');
-        $old_streak = $progress->getStreak();
-        if ($streak > $old_streak) $progress->setStreak($streak);
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
 
-        // Round Result
-        $roundResult = $request->request->get('roundResult');
-        $old_allRound = $progress->getAllRound();
-        $progress->setAllRound($old_allRound + 1);
-        switch ($roundResult){
-            case "win":
-                $progress->setRoundWin($progress->getRoundWin()+1);
-                break;
-            case "lose":
-                $progress->setRoundLose($progress->getRoundLose()+1);
-                break;
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Get details of the user
+        /* @var $user_details UserDetails */
+        $user_details = $user->getDetails();
+
+        $edit_form = $this->createForm(new UserDetailsType(), $user_details);
+
+        $edit_form->handleRequest($request);
+
+        // TODO: add validation
+        if ($edit_form->isValid()) {
+
+            $user_details = $edit_form->getData();
+            $user->setDetails($user_details);
+            $em->persist($user);
+            $em->flush();
+
+            return $this->redirect($this->generateUrl('marton_topcars_default'));
         }
 
-        if ($old_level<$new_score_info["level"]){
-            $level_change = "up";
-            $progress->setGold($progress->getGold() + $achievementCalculator->calculateGold($progress->getLevel()));
-        }else if($old_level===$new_score_info["level"]){
-            $level_change = "stay";
-        }else{
-            $level_change = "down";
-        }
-
-        $em->flush();
-
-        $response = new Response(json_encode(array(
-            'levelChange' => $level_change,
-            'userLevelInfo' => $new_score_info)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $this->render('MartonTopCarsBundle:Default:Pages/account.html.twig', array(
+            'details_form' => $edit_form->createView(),
+            'user' => $user,
+            'user_details' => $user_details
+        ));
     }
 } 

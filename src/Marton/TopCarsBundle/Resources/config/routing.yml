@@ -40,6 +40,14 @@ marton_topcars_user:
     path: /user/{user}
     defaults: {_controller: MartonTopCarsBundle:User:profile }
 
+marton_topcars_account:
+    path: /account
+    defaults: {_controller: MartonTopCarsBundle:User:account }
+
+marton_topcars_account_update:
+    path: /account/update
+    defaults: {_controller: MartonTopCarsBundle:User:updateAccount }
+
 # SuggestedCar
 marton_topcars_pending:
     path: /pending

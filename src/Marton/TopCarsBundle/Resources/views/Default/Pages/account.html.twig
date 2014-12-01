@@ -1,0 +1,89 @@
+{% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block active_tab_account %} top_header_active{% endblock %}
+
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content shadow">
+    <div class="container user" id="card_game">
+
+        <div class="user_header">
+
+        </div>
+
+        <div class="user_profile">
+
+            <!-- Left Column -->
+            <div class="user_column user_left">
+                <img src="{{ asset('bundles/martontopcars/images/avatar/default.jpg') }}"/>
+                <hr>
+                <div class="user_roles">
+                    {% for role in user.roles %}
+                        {{ role.name }}
+                    {% endfor %}
+                </div>
+                <hr>
+                <h2>Achievements</h2>
+            </div>
+
+            <!-- Right Column -->
+            <div class="user_column user_right">
+
+                <div class="profile_header">
+                    <div class="user_name">
+                        <h3>{{ user.username }}</h3>
+                    </div>
+                    <div class="user_level">
+                        <p class="p_level">Cars owned</p><p class="p_level_val">{{ user.cars | length }}</p>
+                    </div>
+                    <div class="user_level">
+                        <p class="p_level">Level</p><p class="p_level_val">{{ user.progress.level }}</p>
+                    </div>
+                </div>
+
+                <h5>Details</h5>
+
+                <div class="stats_block">
+
+                    <div class="div_form">
+
+                        {{ form_start(details_form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                        <div class="form-error">{{ form_errors(details_form.firstName) }}</div>
+                        {{ form_label(details_form.firstName) }}
+                        {{ form_widget(details_form.firstName) }}
+
+                        <div class="form-error">{{ form_errors(details_form.lastName) }}</div>
+                        {{ form_label(details_form.lastName) }}
+                        {{ form_widget(details_form.lastName) }}
+
+                        <div class="form-error">{{ form_errors(details_form.profilePicturePath) }}</div>
+                        {{ form_label(details_form.profilePicturePath) }}
+                        {{ form_widget(details_form.profilePicturePath) }}
+
+                        <div class="form-error">{{ form_errors(details_form.country) }}</div>
+                        {{ form_label(details_form.country) }}
+                        {{ form_widget(details_form.country) }}
+
+                        <div class="form-error">{{ form_errors(details_form.about) }}</div>
+                        {{ form_label(details_form.about) }}
+                        {{ form_widget(details_form.about) }}
+
+                        {{ form_end(details_form) }}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block background %}{% endblock %}
