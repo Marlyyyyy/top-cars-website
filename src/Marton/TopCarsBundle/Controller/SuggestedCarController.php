@@ -254,20 +254,8 @@ class SuggestedCarController extends Controller{
 
             $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
 
-            if (file_exists($old_path)){
-
-                $image_file = new File($old_path);
-
-                if (is_writable($image_file)){
-
-                    unlink($image_file);
-                }else{
-
-                    array_push($error, "You do not have permission to remove files");
-                }
-            }else{
-                array_push($error, "Such file does not exist");
-            }
+            $file_helper = new FileHelper();
+            $file_helper->removeFile($old_path);
 
             $image_file = null;
         }
@@ -350,6 +338,8 @@ class SuggestedCarController extends Controller{
 
         if ($form->isValid()){
 
+            $file_helper = new FileHelper();
+
             $image_file = $suggested_car->getImageFile();
 
             // Check if the user has uploaded any image
@@ -357,30 +347,22 @@ class SuggestedCarController extends Controller{
 
                 $image_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/';
 
-                // Remove previous image
+                // Remove previous image unless it's the default one
                 if ($suggested_default_image !== 'default.png'){
 
                     $old_path = $image_dir_path.$suggested_default_image;
 
-                    // TODO: factor out this check
-                    if (file_exists($old_path)){
-
-                        $old_image_file = new File($old_path);
-
-                        if (is_writable($old_image_file)){
-
-                            unlink($old_image_file);
-                        }
-                    }
+                    $file_helper->removeFile($old_path);
                 }
 
-                $file_helper = new FileHelper();
                 $file_name = $file_helper->makeUniqueName($user->getId(), $image_file->getClientOriginalName());
 
                 $image_file->move($image_dir_path, $file_name);
 
                 $suggested_car->setImage($file_name);
+
             }else{
+
                 $suggested_car->setImage($suggested_default_image);
             }
 

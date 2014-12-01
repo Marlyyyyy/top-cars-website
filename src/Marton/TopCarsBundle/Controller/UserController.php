@@ -15,6 +15,7 @@ use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserDetails;
 use Marton\TopCarsBundle\Entity\UserProgress;
+use Marton\TopCarsBundle\Classes\FileHelper;
 use Marton\TopCarsBundle\Form\Type\UserDetailsType;
 use Marton\TopCarsBundle\Repository\UserProgressRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -115,10 +116,12 @@ class UserController extends Controller{
 
             $new_user_details = $edit_form->getData();
 
-            // Rename and Move the image the user has uploaded
             $image_file = $new_user_details->getImageFile();
 
+            // Check if the user has actually uploaded an image
             if($image_file != null){
+
+                $file_helper = new FileHelper();
 
                 $avatar_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/';
 
@@ -126,27 +129,15 @@ class UserController extends Controller{
                 if ($user_details->getProfilePicturePath() !== 'default.jpg'){
 
                     $old_path = $avatar_dir_path.$user_details->getProfilePicturePath();
-
-                    if (file_exists($old_path)){
-
-                        $old_image_file = new File($old_path);
-
-                        if (is_writable($old_image_file)){
-
-                            unlink($old_image_file);
-                        }
-                    }
+                    $file_helper->removeFile($old_path);
                 }
 
-
                 // Renaming the image to avoid user clash
-                $file_name = $user->getId() . $image_file->getClientOriginalName();
-                $new_file_name = $user->getId().'_'.$file_name;
+                $new_file_name = $file_helper->makeUniqueName($user->getId(), $image_file->getClientOriginalName());
+                $new_user_details->setProfilePicturePath($new_file_name);
 
                 // Moving the image to the "avatar" directory
                 $image_file->move($avatar_dir_path, $new_file_name);
-
-                $new_user_details->setProfilePicturePath($new_file_name);
             }
 
             $image_file = null;
@@ -178,40 +169,26 @@ class UserController extends Controller{
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
+        $file_helper = new FileHelper();
+
         // Delete the user's profile picture
         if ($user->getDetails()->getProfilePicturePath() !== 'default.jpg'){
 
             $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
 
-            if (file_exists($old_path)){
-
-                $old_image_file = new File($old_path);
-
-                if (is_writable($old_image_file)){
-
-                    unlink($old_image_file);
-                }
-            }
+            $file_helper->removeFile($image_path);
         }
 
-        // Delete all the images the user has uploaded for her suggested cars
         $suggested_cars = $user->getSuggestedCars();
 
+        // Delete all the images the user has uploaded for her suggested cars
         foreach($suggested_cars as $car){
 
             if ($car->getImage() !== 'default.jpg'){
 
                 $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$car->getImage();
 
-                if (file_exists($image_path)){
-
-                    $image_file = new File($image_path);
-
-                    if (is_writable($image_file)){
-
-                        unlink($image_file);
-                    }
-                }
+                $file_helper->removeFile($image_path);
             }
         }
 
