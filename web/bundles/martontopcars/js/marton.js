@@ -1194,12 +1194,13 @@ $(document).ready(function(){
 
 var GarageModule = function(){
 
-    var selectAjaxPath;
+    var selectAjaxPath, counterText;
 
     function init(selectAjax){
 
         selectAjaxPath = selectAjax;
         registerEventListeners();
+        counterText = document.getElementById("selected-car-counter");
     }
 
     function registerEventListeners(){
@@ -1209,6 +1210,8 @@ var GarageModule = function(){
 
     function selectCar(){
 
+        LoadingModule.init().show();
+
         var carId = this.dataset.car;
 
         var data = {item:carId};
@@ -1217,11 +1220,13 @@ var GarageModule = function(){
 
         var success = function(response){
 
+            LoadingModule.hide();
+
             console.log(response);
 
             if (response.error.length !== 0){
 
-                // Display errors
+                // TODO: Display errors
             }else{
 
                 switch(response.change){
@@ -1235,8 +1240,13 @@ var GarageModule = function(){
                         break;
                 }
 
+                counterText.innerText = response.no_of_cars;
+
+                if(response.is_full){
+                    // TODO: Show animation for full
+                }
             }
-        }
+        };
 
         postToServer(selectAjaxPath, data, success);
     }

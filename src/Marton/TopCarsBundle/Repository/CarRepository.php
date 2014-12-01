@@ -106,4 +106,16 @@ class CarRepository extends EntityRepository {
 
         return $result;
     }
+
+    public function countAllCars(){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $query = $qb ->select('COUNT(c.id)')
+                     ->from('MartonTopCarsBundle:Car', 'c')
+                     ->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
 } 

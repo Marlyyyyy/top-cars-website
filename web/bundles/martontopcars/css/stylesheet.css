@@ -1076,14 +1076,18 @@ input{
     margin: 5px;
     padding: 15px;
     display: inline-block;
-    border: 3px solid rgba(179, 179, 179, 0.25);
+    border: 1px solid rgba(179, 179, 179, 0.25);
     vertical-align: top;
     background: rgba(255, 255, 255, 1);
     cursor: pointer;
     transition: 0.15s all ease-out;
 }
 
-.card_frame:hover{
+.garage-card{
+    border: 3px solid rgba(179, 179, 179, 0.25);
+}
+
+.garage-card:hover{
     border: 3px solid rgba(40, 40, 40, 0.25);
     box-shadow: inset 0 0 5px rgba(40, 40, 40, 0.25);
     opacity: 0.9;
