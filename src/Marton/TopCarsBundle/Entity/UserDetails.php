@@ -48,6 +48,11 @@ class UserDetails {
      */
     protected $about;
 
+    /**
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
+
     public function setAbout($about)
     {
         $this->about = $about;
@@ -103,5 +108,13 @@ class UserDetails {
         return $this->profilePicturePath;
     }
 
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
 
+    public function getUser()
+    {
+        return $this->user;
+    }
 } 

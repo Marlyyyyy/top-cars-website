@@ -66,6 +66,11 @@ class User implements UserInterface, \Serializable{
     private $progress;
 
     /**
+     * @ORM\OneToOne(targetEntity="UserDetails", cascade={"remove"})
+     */
+    private $details;
+
+    /**
      * @ORM\ManyToMany(targetEntity="Role", inversedBy="users")
      * @ORM\JoinTable(name="user_role",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
@@ -167,6 +172,22 @@ class User implements UserInterface, \Serializable{
     public function getProgress()
     {
         return $this->progress;
+    }
+
+    /**
+     * @param mixed $details
+     */
+    public function setDetails($details)
+    {
+        $this->details = $details;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDetails()
+    {
+        return $this->details;
     }
 
     /**
