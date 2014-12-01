@@ -15,6 +15,7 @@ use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Classes\FileHelper;
 use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
 use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -373,7 +374,8 @@ class SuggestedCarController extends Controller{
                     }
                 }
 
-                $file_name = $user->getId() . $image_file->getClientOriginalName();
+                $file_helper = new FileHelper();
+                $file_name = $file_helper->makeUniqueName($user->getId(), $image_file->getClientOriginalName());
 
                 $image_file->move($image_dir_path, $file_name);
 
