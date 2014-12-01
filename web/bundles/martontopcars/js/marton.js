@@ -1586,6 +1586,8 @@ var ErrorModule = (function(){
 
     function displayErrors(errors){
 
+        hideErrors();
+
         for (key in errors){
             if (errors.hasOwnProperty(key)){
 
