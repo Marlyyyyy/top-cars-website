@@ -113,40 +113,45 @@ class UserController extends Controller{
 
         if ($edit_form->isValid()) {
 
-            $user_details = $edit_form->getData();
+            $new_user_details = $edit_form->getData();
 
-            // Check if the user has uploaded any image
-            $image_file = $user_details->getImageFile();
+            // Rename and Move the image the user has uploaded
+            $image_file = $new_user_details->getImageFile();
 
             if($image_file != null){
 
-                // Remove previous image // TODO: check if it's the default image!
-                $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
+                $avatar_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/';
 
-                if (file_exists($old_path)){
+                // Remove previous image
+                if ($user_details->getProfilePicturePath() !== 'default.jpg'){
 
-                    $old_image_file = new File($old_path);
+                    $old_path = $avatar_dir_path.$user_details->getProfilePicturePath();
 
-                    if (is_writable($old_image_file)){
+                    if (file_exists($old_path)){
 
-                        unlink($old_image_file);
+                        $old_image_file = new File($old_path);
+
+                        if (is_writable($old_image_file)){
+
+                            unlink($old_image_file);
+                        }
                     }
                 }
+
 
                 // Renaming the image to avoid user clash
                 $file_name = $user->getId() . $image_file->getClientOriginalName();
                 $new_file_name = $user->getId().'_'.$file_name;
 
                 // Moving the image to the "avatar" directory
-                $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar';
-                $image_file->move($new_path, $new_file_name);
+                $image_file->move($avatar_dir_path, $new_file_name);
 
-                $user_details->setProfilePicturePath($new_file_name);
+                $new_user_details->setProfilePicturePath($new_file_name);
             }
 
             $image_file = null;
 
-            $user->setDetails($user_details);
+            $user->setDetails($new_user_details);
             $em->persist($user);
             $em->flush();
 
