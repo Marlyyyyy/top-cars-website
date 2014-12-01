@@ -148,10 +148,22 @@ input{
     background-color: rgb(148, 148, 148);
 }
 
+.button-delete{
+    padding: 8px 14px 8px 14px;;
+    border: 1px solid black;
+    background-color: rgb(195, 81, 81);
+    color: white;
+    cursor: pointer;
+}
+
+.button-delete:hover{
+    background-color: rgb(200, 55, 55);
+}
 /* Forms */
 
 .form-error{
     margin-bottom: 5px;
+    text-align: center;
 }
 
 .form-error ul{
@@ -878,6 +890,13 @@ input{
     z-index:1;
     position:relative;
 }
+.user-details-p{
+    font-size: 12px;
+    color: rgb(73, 73, 73);
+    margin: 0 20px;
+    text-align: left;
+}
+
 .user_column{
     display: inline-block;
 }

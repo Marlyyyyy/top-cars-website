@@ -17,7 +17,7 @@
 
                 <!-- Left Column -->
                 <div class="user_column user_left">
-                    <img src="{{ asset('bundles/martontopcars/images/avatar/default.jpg') }}"/>
+                    <img id="profile-picture" width="160" height="160" src="{{ asset('bundles/martontopcars/images/avatar/' ~ user.details.profilePicturePath) }}"/>
                     <hr>
                     <div class="user_roles">
                         {% for role in user.roles %}
@@ -26,6 +26,24 @@
                     </div>
                     <hr>
                     <h2>Achievements</h2>
+
+                    {% if user.details.firstName is not null %}
+                        <hr>
+                        <h2>Name</h2>
+                        <p class="user-details-p">{{ user.details.firstName }} {{ user.details.lastName }}</p>
+                    {% endif %}
+
+                    {% if user.details.country is not null %}
+                        <hr>
+                        <h2>Country</h2>
+                        <p class="user-details-p">{{ user.details.country }}</p>
+                    {% endif %}
+
+                    {% if user.details.about is not null %}
+                        <hr>
+                        <h2>About {{ user.details.firstName }}</h2>
+                        <p class="user-details-p">{{ user.details.about }}</p>
+                    {% endif %}
                 </div>
 
                 <!-- Right Column -->
