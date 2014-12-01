@@ -7,6 +7,10 @@ marton_topcars_game:
     path:     /game
     defaults: { _controller: MartonTopCarsBundle:Game:game }
 
+marton_topcars_post_score:
+    path:  /game/post_score
+    defaults: { _controller: MartonTopCarsBundle:Game:postUserScore }
+
 # Car
 marton_topcars_garage:
     path: /garage
@@ -35,11 +39,6 @@ marton_topcars_leaderboard:
 marton_topcars_user:
     path: /user/{user}
     defaults: {_controller: MartonTopCarsBundle:User:profile }
-
-# Ajax requests
-marton_topcars_post_score:
-    path:  /ajax/post_score
-    defaults: { _controller: MartonTopCarsBundle:User:postUserScore }
 
 # SuggestedCar
 marton_topcars_pending:
