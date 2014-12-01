@@ -120,7 +120,7 @@ class UserController extends Controller{
 
             if($image_file != null){
 
-                // Remove previous image
+                // Remove previous image // TODO: check if it's the default image!
                 $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
 
                 if (file_exists($old_path)){
@@ -162,5 +162,66 @@ class UserController extends Controller{
             'user' => $user,
             'user_details' => $user_details
         ));
+    }
+
+    public function deleteAccountAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Delete the user's profile picture
+        if ($user->getDetails()->getProfilePicturePath() !== 'default.jpg'){
+
+            $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
+
+            if (file_exists($old_path)){
+
+                $old_image_file = new File($old_path);
+
+                if (is_writable($old_image_file)){
+
+                    unlink($old_image_file);
+                }
+            }
+        }
+
+        // Delete all the images the user has uploaded for her suggested cars
+        $suggested_cars = $user->getSuggestedCars();
+
+        foreach($suggested_cars as $car){
+
+            if ($car->getImage() !== 'default.jpg'){
+
+                $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$car->getImage();
+
+                if (file_exists($image_path)){
+
+                    $image_file = new File($image_path);
+
+                    if (is_writable($image_file)){
+
+                        unlink($image_file);
+                    }
+                }
+            }
+        }
+
+        // Log the user out
+        $this->get('security.context')->setToken(null);
+        $this->get('request')->getSession()->invalidate();
+
+        // Remove the user from the database
+        $em->remove($user);
+        $em->flush();
+
+        $response = new Response(json_encode(array(
+            'error' => '')));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 } 

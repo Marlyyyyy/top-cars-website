@@ -1575,6 +1575,44 @@ var PendingCarModule = (function(){
     }
 })();
 
+var AccountModule = (function(){
+
+    var ajaxDeletePath;
+
+    function init(ajaxDelete){
+
+        ajaxDeletePath = ajaxDelete;
+        registerEventListeners();
+    }
+
+    function registerEventListeners(){
+
+        var deleteButton = document.getElementById("delete-account");
+        deleteButton.addEventListener("click", popupDelete);
+
+        var confirmDeleteButton = document.getElementById("confirm-delete");
+        confirmDeleteButton.addEventListener("click", confirmedDelete);
+    }
+
+    function popupDelete(){
+
+        PopupModule.init().show(document.getElementById("delete-confirm"), "Delete Account");
+    }
+
+    function confirmedDelete(){
+
+        var data = {};
+        var success = function(){
+            location.reload();
+        };
+        postToServer(ajaxDeletePath, data, success);
+    }
+
+    return{
+        init: init
+    }
+})();
+
 var ErrorModule = (function(){
 
     var container;
@@ -1649,6 +1687,7 @@ var PopupModule = (function(){
         popup         = document.getElementById("popup");
 
         registerEventListeners();
+        return this;
     }
 
     function showPopup(element, header){

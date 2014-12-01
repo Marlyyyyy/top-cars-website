@@ -37,7 +37,7 @@
                         <h3>{{ user.username }}</h3>
                     </div>
                     <div class="user_level">
-                        <button class="button-delete">
+                        <button id="delete-account" class="button-delete">
                             Delete Account
                         </button>
                     </div>
@@ -88,6 +88,27 @@
     </div>
 </div>
 
+    <!-- Popups -->
+<div id="popup" class="popup">
+
+    <div class="popup-content shadow">
+
+        <div class="popup-tools"><span class="popup-exit"><img width="20px" height="20px" src="{{ asset('bundles/martontopcars/images/src/exit.png') }}"/></span></div>
+
+        <h1 id="popup-header"></h1>
+
+        <div id="delete-confirm" class="popup-body">
+
+            <p>Are you sure you would like to delete your account for good?</p>
+
+            <button type="button" class="button-cancel popup-exit" id="cancel">No</button>
+            <button type="button" class="button-save" id="confirm-delete">Yes</button>
+
+        </div>
+
+    </div>
+</div>
+
 {% endblock %}
 
 {% block background %}
@@ -95,6 +116,7 @@
     <script>
 
         ImageInputModule.init("userDetails_imageFile", "profile-picture", "profile-picture");
+        AccountModule.init("{{ path('marton_topcars_account_delete') }}");
 
     </script>
 

@@ -48,6 +48,10 @@ marton_topcars_account_update:
     path: /account/update
     defaults: {_controller: MartonTopCarsBundle:User:updateAccount }
 
+marton_topcars_account_delete:
+    path: /account/delete
+    defaults: {_controller: MartonTopCarsBundle:User:deleteAccount }
+
 # SuggestedCar
 marton_topcars_pending:
     path: /pending
