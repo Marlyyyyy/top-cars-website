@@ -39,7 +39,7 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
         $test_user = $user_repository->findOneById(1);
 
-        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:UserProgress');
+        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:User');
         $highscores = $user_progress_repository->findHighscores();
 
         $user_id_array = array();
@@ -57,7 +57,7 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
         $test_user = $user_repository->findOneById(1);
 
-        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:UserProgress');
+        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:User');
         $user_details = $user_progress_repository->findDetailsOfUser($test_user->getUsername());
 
         $this->assertEquals($test_user->getUsername(), $user_details[0]->getUsername());

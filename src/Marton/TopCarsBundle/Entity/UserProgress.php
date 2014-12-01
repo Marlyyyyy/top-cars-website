@@ -11,7 +11,7 @@ namespace Marton\TopCarsBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\UserProgressRepository")
+ * @ORM\Entity(repositoryClass="Marton\TopCarsBundle\Repository\User")
  * @ORM\Table(name="tbl_user_progress")
  */
 

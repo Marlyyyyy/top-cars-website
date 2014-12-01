@@ -13,4 +13,36 @@ use Doctrine\ORM\EntityRepository;
 
 class UserRepository extends EntityRepository{
 
+    public function findHighscores(){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('uprog, partial u.{id, username}')
+            ->from('MartonTopCarsBundle:User', 'u')
+            ->innerJoin('u.progress', 'uprog');
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
+
+    public function findDetailsOfUser($username){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('udet, uprog, partial u.{id, username}')
+            ->from('MartonTopCarsBundle:User', 'u')
+            ->where('u.username = :username')
+            ->innerJoin('u.progress', 'uprog')
+            ->innerJoin('u.details', 'udet')
+            ->setParameter('username', $username);
+
+        $query = $qb->getQuery();
+        $result = $query->getResult();
+
+        return $result;
+    }
 } 
