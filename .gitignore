@@ -26,7 +26,5 @@
 
 !/web/bundles/martontopcars/css/*
 !/web/bundles/martontopcars/js/*
-!/web/bundles/martontopcars/images/avatar/*
-!/web/bundles/martontopcars/images/background/*
 !/web/app.php
 !/web/app_dev.php
