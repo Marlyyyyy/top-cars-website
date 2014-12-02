@@ -26,7 +26,7 @@
 
                 <div class="frame_content">
 
-                    <img class="image" data-element="{{ car.id }}" name="show" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
+                    <img class="image" data-car="{{ car.id }}" name="show" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game_suggest/') ~ car.image }}"/>
 
                     <div class="frame_fade">
                     </div>
@@ -50,9 +50,9 @@
                         <div class="action_div">
                             <img class="no_display" id="l{{ car.id }}" src="{{ asset('bundles/martontopcars/images/src/loading_small.gif') }}">
                             {% if car.upvoted %}
-                                <p class="upvote plus" data-element="{{ car.id }}">+1</p>
+                                <p class="upvote plus" data-car="{{ car.id }}">+1</p>
                             {% else %}
-                                <p class="upvote" data-element="{{ car.id }}">+1</p>
+                                <p class="upvote" data-car="{{ car.id }}">+1</p>
                             {% endif %}
                         </div>
 
@@ -69,11 +69,11 @@
 
                 <div class="admin_tasks">
                     {% if is_admin %}
-                        <span class="accept admin_action" data-element="{{ car.id }}">Accept</span>
+                        <span class="accept admin_action" data-car="{{ car.id }}">Accept</span>
                     {% endif %}
                     {% if (is_admin or car.belongs_to_user) %}
-                        <span class="edit admin_action" data-element="{{ car.id }}">Edit</span>
-                        <span class="delete admin_action" data-element="{{ car.id }}">Delete</span>
+                        <span class="edit admin_action" data-car="{{ car.id }}">Edit</span>
+                        <span class="delete admin_action" data-car="{{ car.id }}">Delete</span>
                     {% endif %}
                 </div>
 
@@ -186,7 +186,7 @@
 
 {% endblock %}
 
-{% block background %}
+{% block javascript %}
         <script>
             var ajaxPath = {
                 upvote:"{{ path('marton_topcars_pending_vote') }}",
