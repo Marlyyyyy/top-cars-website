@@ -255,7 +255,7 @@ var GameModule = (function(){
 
     // Default settings
     var setting = {
-        "players" : 2,
+        "players" : 3,
         "imgFolder": "",
         "imgFormat":".png",
         "ajaxPostScore":"",
@@ -282,8 +282,6 @@ var GameModule = (function(){
 
             self.cards.len   = self.cards.deck.length;
 
-            console.log(self.cards.deck);
-
             return this;
         };
 
@@ -307,7 +305,6 @@ var GameModule = (function(){
                 }
             }
 
-            console.log(deck);
             return this;
         };
 
@@ -320,10 +317,9 @@ var GameModule = (function(){
 
                 if (self.player.opponent.hasOwnProperty(key)){
 
-                    // TODO: simplify cards.deck...
                     var deck = self.cards.deck;
 
-                    for (var i=1; i<10; i++){
+                    for (var i=0; i<10; i++){
 
                         var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
                         var randomCard = deck[random];
@@ -423,7 +419,6 @@ var GameModule = (function(){
             self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
 
             self.player.host.hasTurn = true;
-            console.log(self.player.user.hasTurn);
 
             return this;
         };
@@ -524,7 +519,6 @@ var GameModule = (function(){
                 var property = field.getAttribute("name");
 
                 // Assign cards to the opponents
-                // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
                 self.assignCardsToPlayers();
 
                 var playerQueue = Object.create(self.player.opponent);
@@ -541,7 +535,7 @@ var GameModule = (function(){
 
                     for (key in newPlayerQueue){
                         if (newPlayerQueue.hasOwnProperty(key)){
-                            var subscore = calculateSubscore(property, currentPlayer.getCard(property), newPlayerQueue[key].getCard(property));
+                            var subscore = calculateSubscore(property, currentPlayer.getCardProperty(property), newPlayerQueue[key].getCardProperty(property));
 
                             currentPlayer.roundScore -= subscore;
                             newPlayerQueue[key].roundScore += subscore;
@@ -569,14 +563,10 @@ var GameModule = (function(){
                     }
                 }
 
-                console.log("Draw counter: " + drawCounter);
-
                 var foundWinner = false;
 
-                // Add the round score to the players' overall score
+                // Add the round score to the players' overall score and find the winner (if there's any)
                 for (var i=0;i<playerQueue.length;i++){
-
-                    console.log("Draw counter: " + drawCounter);
 
                     // Avoid negative score
                     if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
@@ -591,14 +581,18 @@ var GameModule = (function(){
                         playerQueue[i].streak = 0;
                     }else if (drawCounter > 0){
                         // Draw
-                        // TODO: fix what happens on draw
                         drawCounter--;
                         playerQueue[i].viewHolder[property].className = "card_row row_draw";
                         playerQueue[i].roundResult = "draw";
                         if (drawCounter === 0){
 
                             foundWinner = true;
-                            self.reorganisePlayers(self.player.host);
+                            // If the user was the host before the draw, let him be the host again. Otherwise let one of the players.
+                            if (self.player.user.roundResult === "draw"){
+                                self.reorganisePlayers(self.player.user);
+                            }else{
+                                self.reorganisePlayers(playerQueue[i]);
+                            }
                         }
                     }else{
                         // Win
@@ -617,7 +611,7 @@ var GameModule = (function(){
                 AnimateModule.createStreakCount(uiContainer.streakText, self.player.user.roundResult, self.player.user.streak);
 
                 // Deciding game state: WIN/DRAW or LOSE and acting accordingly
-                if (self.player.host.roundResult === "lose"){
+                if (self.player.user.roundResult === "lose"){
 
                     self.loseAction();
                 }else{
@@ -796,11 +790,31 @@ var GameModule = (function(){
 
             function updateCardIndicator(noOfCards, box){
 
-                for (var i=0; i<noOfCards; i++){
+                // First remove all mini-cards
 
-                    var miniCard = document.createElement("span");
-                    box.appendChild(miniCard);
+                while (box.firstChild) {
+                    box.removeChild(box.firstChild);
                 }
+
+                // Because of the lack of space, do not print every mini-card individually above 5
+                if (noOfCards > 15){
+
+                    drawMiniCard(box, noOfCards);
+
+                }else{
+
+                    for (var i=0; i<noOfCards; i++){
+
+                        drawMiniCard(box, i+1);
+                    }
+                }
+            }
+
+            function drawMiniCard(box, number){
+
+                var miniCard = document.createElement("span");
+                miniCard.innerText = number;
+                box.appendChild(miniCard);
             }
 
             return {
@@ -932,15 +946,13 @@ var GameModule = (function(){
         Player.prototype = {
 
             constructor: Player,
-            getCard: function(property){
+            getCardProperty: function(property){
 
                 var self = this;
 
                 return self.card[property];
             },
             setCard: function(newCard){
-
-                console.log(newCard);
 
                 var self = this;
 
@@ -1108,6 +1120,28 @@ var GameModule = (function(){
     ClassicGame.prototype = new Game();
     ClassicGame.prototype.constructor = ClassicGame;
 
+    ClassicGame.prototype.updateAllPlayersCardIndicators = function(){
+
+        var self = this;
+
+        console.log("user");
+        console.log(self.player.user);
+
+        console.log("winner");
+        console.log(self.player.host);
+        self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
+
+        for (key in self.player.opponent){
+            if (self.player.opponent.hasOwnProperty(key)){
+
+                console.log("loser");
+                console.log(self.player.opponent[key]);
+
+                self.ProgressModule.updateCardIndicator(self.player.opponent[key].deck.length, self.player.opponent[key].viewHolder.indicator)
+            }
+        }
+    };
+
     ClassicGame.prototype.start = function(){
 
         var self = this;
@@ -1118,21 +1152,20 @@ var GameModule = (function(){
 
         self.player.host.hasTurn = true;
 
-        // Create and Fill up additional UI elements
+        // Create and Fill up additional mini-card progress indicators
         self.player.host.viewHolder.indicator =
             self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
-
-        // TODO: put updateIndicator calls to a separate method
-        self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
 
         for (key in self.player.opponent){
             if (self.player.opponent.hasOwnProperty(key)){
 
+
                 self.player.opponent[key].viewHolder.indicator =
                     self.ProgressModule.createCardIndicator(self.player.opponent[key].viewHolder.fragment);
-                self.ProgressModule.updateCardIndicator(10, self.player.opponent[key].viewHolder.indicator)
             }
         }
+
+        self.updateAllPlayersCardIndicators();
 
         self.isPaused      = false;
         self.isEnded       = false;
@@ -1152,14 +1185,46 @@ var GameModule = (function(){
 
 
         self.player.opponent.push(self.player.host);
+        self.player.host = null;
         self.player.host = player;
 
-        self.player.host.hasTurn = true;
+        console.log(self.player.opponent.length);
 
+        // Remove winner from the array of opponents
         var index = self.player.opponent.indexOf(player);
         if (index > -1){
             self.player.opponent.splice(index, 1);
         }
+
+
+
+        // Reorganise cards
+        var winningDeck = [];
+
+        winningDeck.push(self.player.host.deck.shift());
+
+        for (key in self.player.opponent){
+
+            if(self.player.opponent.hasOwnProperty(key)){
+
+                winningDeck.push(self.player.opponent[key].deck.shift());
+            }
+        }
+
+        for (key in winningDeck){
+
+            if(winningDeck.hasOwnProperty(key)){
+
+                self.player.host.deck.push(winningDeck[key]);
+            }
+        }
+
+        console.log("host's deck: " + self.player.host.deck.length);
+        console.log("opponent's deck: " + self.player.opponent[0].deck.length);
+
+        self.updateAllPlayersCardIndicators();
+
+        self.player.host.hasTurn = true;
     };
 
     ClassicGame.prototype.assignCardsToPlayers = function(){
@@ -1171,10 +1236,12 @@ var GameModule = (function(){
 
             // Except for the main player - since she already received a card
             if(self.player.opponent[i] !== self.player.user){
-                self.player.opponent[i].setCard(self.getRandomCard(self.player.opponent[i].deck)).showCard();
+
+                self.player.opponent[i].setCard(self.player.opponent[i].deck[0]).showCard();
             }
         }
     };
+
 
     ClassicGame.prototype.newRound = function () {
 
@@ -1190,6 +1257,7 @@ var GameModule = (function(){
 
         // Hide opponent cars
         for (var i=0;i<self.player.opponent.length;i++){
+
             self.player.opponent[i].hideCard();
         }
 
@@ -1197,7 +1265,7 @@ var GameModule = (function(){
 
             // The game should move on with the user being the host
             self.player.host.hideCard(function(){
-                self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
+                self.player.host.setCard(self.player.host.deck[0]).showCard();
             });
         } else {
 
@@ -1207,10 +1275,10 @@ var GameModule = (function(){
             self.player.host.hideCard(function(){
 
                 // Assign new card for user
-                self.player.user.setCard(self.getRandomCard(self.player.user.deck)).showCard(function(){
+                self.player.user.setCard(self.player.user.deck[0]).showCard(function(){
 
                     // TODO: Count-down
-                    self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard(function(){
+                    self.player.host.setCard(self.player.host.deck[0]).showCard(function(){
 
                         // TODO: Choice algorithm
                         self.selectField(self.player.host.viewHolder.speed);
@@ -1226,7 +1294,6 @@ var GameModule = (function(){
 
         // TODO: Check for winning
 
-
         // Data to post to the server
         var data = {
             score:       self.player.user.score,
@@ -1235,6 +1302,7 @@ var GameModule = (function(){
         };
 
         var success = function(data){
+
             var levelChange    = data.levelChange;
             var userLevelInfo = data.userLevelInfo;
 
