@@ -90,6 +90,19 @@
     </div>
 
     <!-- Optional Background -->
-    {% block background %}{% endblock %}
+    {% block background %}
+
+        <script>
+            var images = ["{{ asset('bundles/martontopcars/images/background/IMG_2763.jpg') }}"];
+            preloadImages(images).done(function(){
+                ImageRotator.init(images).create().shade().start().pause();
+            });
+        </script>
+
+    {% endblock %}
+
+    {% block javascript %}
+
+    {% endblock %}
 
 {% endblock %}
