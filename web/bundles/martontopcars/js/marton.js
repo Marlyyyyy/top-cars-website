@@ -496,10 +496,11 @@ function Game(){
 
     this.selectField = function(field){
 
-        if (!game.hasRoundEnded && game.hostsTurn){
+        if (!game.hasRoundEnded && game.player.host.hasTurn){
 
             // Prevent player from selecting multiple times in one round
             game.hasRoundEnded = true;
+            game.player.host.hasTurn = false;
 
             // Detect clicked property
             var property = field.getAttribute("name");
@@ -544,13 +545,20 @@ function Game(){
                         if (drawCounter > 0) drawCounter++;
                         break;
                     }
+                }else{
+                    if (drawCounter > 0) drawCounter++;
+                    break;
                 }
             }
+
+            console.log("Draw counter: " + drawCounter);
 
             var foundWinner = false;
 
             // Add the round score to the players' overall score
             for (var i=0;i<playerQueue.length;i++){
+
+                console.log("Draw counter: " + drawCounter);
 
                 // Avoid negative score
                 if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
@@ -565,10 +573,15 @@ function Game(){
                     playerQueue[i].streak = 0;
                 }else if (drawCounter > 0){
                     // Draw
+                    // TODO: fix what happens on draw
                     drawCounter--;
                     playerQueue[i].viewHolder[property].className = "card_row row_draw";
                     playerQueue[i].roundResult = "draw";
-                    if (drawCounter === 0) foundWinner = true;
+                    if (drawCounter === 0){
+
+                        foundWinner = true;
+                        game.reorganisePlayers(game.player.host);
+                    }
                 }else{
                     // Win
                     playerQueue[i].viewHolder[property].className = "card_row row_green";
@@ -893,6 +906,8 @@ function Game(){
         this.score = 0;
 
         this.streak = 0;
+
+        this.hasTurn = false;
     }
 
     Player.prototype = {
@@ -1079,13 +1094,15 @@ ClassicGame.prototype.start = function(){
 
     // Set players' cards
     self.setUserCards(self.userCards);
-
     self.setOpponentCards();
+
+    self.player.host.hasTurn = true;
 
     // Create and Fill up additional UI elements
     self.player.host.viewHolder.indicator =
         self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
 
+    // TODO: put updateIndicator calls to a separate method
     self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
 
     for (key in self.player.opponent){
@@ -1111,8 +1128,14 @@ ClassicGame.prototype.reorganisePlayers = function(player){
 
     var self = this;
 
+    //TODO: fix that only the host must be able to pick a new field
+
+
     self.player.opponent.push(self.player.host);
     self.player.host = player;
+
+    self.player.host.hasTurn = true;
+    console.log(self.player.user.hasTurn);
 
     var index = self.player.opponent.indexOf(player);
     if (index > -1){
@@ -1153,7 +1176,6 @@ ClassicGame.prototype.newRound = function () {
 
     if (self.player.host == self.player.user) {
 
-        // TODO: Instead of getting a random card from the players, get one in order (queue)
         // The game should move on with the user being the host
         self.player.host.hideCard(function(){
             self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
