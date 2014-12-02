@@ -29,5 +29,9 @@ class PageController extends Controller {
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
     }
 
-    // TODO: About page
+    // About page
+    public function aboutAction(){
+
+        return $this->render('MartonTopCarsBundle:Default:Pages/about.html.twig');
+    }
 } 
