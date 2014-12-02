@@ -249,982 +249,1096 @@ var ImageInputModule = function(){
 
 }();
 
+var GameModule = (function(){
 
-function Game(){
-
-    var game = this;
+    var game, menu, userInfo;
 
     // Default settings
-    this.setting = {
-        "players" : 4,
+    var setting = {
+        "players" : 2,
         "imgFolder": "",
         "imgFormat":".png",
         "ajaxPostScore":"",
+        "ajaxFreeForAll":"",
+        "ajaxClassic":"",
         "gameContainer": document.getElementById("card_game")
     };
 
-    // Stores progress details about the logged in user
-    var userInfo;
-    this.setUserInfo = function(info){
-        userInfo = info;
-    };
-
-    // Whole deck of cards
-    this.cards = {};
-    this.setCards = function (deck){
-
-        game.cards.deck = [];
-        for (key in deck){
-            if (deck.hasOwnProperty(key)){
-                game.cards.deck.push(deck[key]);
-            }
-        }
-
-        game.cards.len   = game.cards.deck.length;
-
-        return this;
-    };
-
-    this.userCards = {};
-
-    // Gives 10 cards to the user by default
-    this.setUserCards = function(deck){
-
-        for (key in deck){
-            if (deck.hasOwnProperty(key)){
-                game.player.user.deck.push(deck[key]);
-            }
-        }
-
-        console.log(deck);
-        return this;
-    };
-
-    // Gives 10 unique random cards to the opponents by default
-    this.setOpponentCards = function(){
+    // Original Game (Free For All)
+    function Game(){
 
         var self = this;
 
-        for (key in self.player.opponent){
+        // Whole deck of cards
+        this.cards = {};
+        this.setCards = function (deck){
 
-            if (self.player.opponent.hasOwnProperty(key)){
-
-                var deck = self.cards.deck;
-
-                for (var i=1; i<10; i++){
-
-                    var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
-                    var randomCard = deck[random];
-
-                    self.player.opponent[key].deck.push(randomCard);
-
-                    deck.slice(random, 1);
+            self.cards.deck = [];
+            for (key in deck){
+                if (deck.hasOwnProperty(key)){
+                    self.cards.deck.push(deck[key]);
                 }
             }
+
+            self.cards.len   = self.cards.deck.length;
+
+            console.log(self.cards.deck);
+
+            return this;
+        };
+
+        // Deck of 10 belonging to the user
+        this.userCards = {};
+        this.setUserCards = function(deck){
+
+            for (key in deck){
+                if (deck.hasOwnProperty(key)){
+                    self.userCards[key] = deck[key];
+                }
+            }
+        };
+
+        // Gives 10 cards to the user from her deck of cards
+        this.giveCardsToUser = function(deck){
+
+            for (key in deck){
+                if (deck.hasOwnProperty(key)){
+                    self.player.user.deck.push(deck[key]);
+                }
+            }
+
+            console.log(deck);
+            return this;
+        };
+
+        // Gives 10 unique random cards to the opponents
+        this.giveCardsToOpponents = function(){
+
+            var self = this;
+
+            for (key in self.player.opponent){
+
+                if (self.player.opponent.hasOwnProperty(key)){
+
+                    // TODO: simplify cards.deck...
+                    var deck = self.cards.deck;
+
+                    for (var i=1; i<10; i++){
+
+                        var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
+                        var randomCard = deck[random];
+
+                        self.player.opponent[key].deck.push(randomCard);
+
+                        deck.slice(random, 1);
+                    }
+                }
+            }
+        };
+
+        // Returns a random card from the deck
+        this.getRandomCard = function(deck){
+
+            var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
+            return deck[random];
+        };
+
+        this.preloadImages = function(callback){
+
+            if (typeof callback === "undefined") callback = function(){};
+            var arr = [];
+            for (var i=0; i<self.cards.len;i++){
+                arr.push(setting.imgFolder + self.cards.deck[i].image + setting.imgFormat);
+            }
+            preloadImages(arr).done(callback);
+        };
+
+        var defaultField =  {
+            speed:{
+                label:"Speed:",
+                unit:"km/h",
+                columnName:"speed"
+            },
+            power:{
+                label:"Power:",
+                unit:"hp",
+                columnName:"power"
+            },
+            torque:{
+                label:"Torque:",
+                unit:"Nm",
+                columnName:"torque"
+            },
+            acceleration:{
+                label:"Acceleration:",
+                unit:"s",
+                columnName:"acceleration"
+            },
+            weight:{
+                label:"Weight:",
+                unit:"kg",
+                columnName:"weight"
+            }
+        };
+
+        var uiContainer = {};
+        this.previousActiveRows = [];
+
+        this.topPanel = null;
+        function getTopPanel(){
+            return self.topPanel;
         }
-    };
 
-    // Returns a random card from the deck
-    this.getRandomCard = function(deck){
-
-        var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
-        return deck[random];
-    };
-
-    this.preloadImages = function(callback){
-
-        if (typeof callback === "undefined") callback = function(){};
-        var arr = [];
-        for (var i=0; i<game.cards.len;i++){
-            arr.push(game.setting.imgFolder + game.cards.deck[i].image + game.setting.imgFormat);
-        }
-        preloadImages(arr).done(callback);
-    };
-
-    var defaultField =  {
-        speed:{
-            label:"Speed:",
-            unit:"km/h",
-            columnName:"speed"
-        },
-        power:{
-            label:"Power:",
-            unit:"hp",
-            columnName:"power"
-        },
-        torque:{
-            label:"Torque:",
-            unit:"Nm",
-            columnName:"torque"
-        },
-        acceleration:{
-            label:"Acceleration:",
-            unit:"s",
-            columnName:"acceleration"
-        },
-        weight:{
-            label:"Weight:",
-            unit:"kg",
-            columnName:"weight"
-        }
-    };
-
-    var uiContainer = {};
-    this.previousActiveRows = [];
-
-    this.topPanel = null;
-    function getTopPanel(){
-        return game.topPanel;
-    }
-
-    // Containing agents of the game
-    this.player = {
+        // Containing agents of the game
+        this.player = {
             user:null,
             host:null,
             opponent:[]
-    };
+        };
 
-    // States of the game
-    this.isPaused        = false; // Normally changed when opening settings
-    this.hasRoundEnded   = false; // Normally changed after each select
-    this.isEnded         = true; // Normally changed when losing or restarting
-    this.hostsTurn       = true; // Normally changed before and after the opponents selected.
+        // States of the game
+        this.isPaused        = false; // Normally changed when opening settings
+        this.hasRoundEnded   = false; // Normally changed after each select
+        this.isEnded         = true; // Normally changed when losing or restarting
+        this.hostsTurn       = true; // Normally changed before and after the opponents selected.
 
-    // To be overridden
-    this.loseAction = function(){
-        game.isEnded = true;
-        game.roundControls.newGame();
-    };
+        // To be overridden
+        this.loseAction = function(){
+            self.isEnded = true;
+            self.RoundControls.newGame();
+        };
 
-    // To be overridden
-    this.winAction = function(){
-        game.roundControls.nextRound();
-    };
+        // To be overridden
+        this.winAction = function(){
+            self.RoundControls.nextRound();
+        };
 
-    // To be overridden
-    this.start = function(){
+        // To be overridden
+        this.start = function(){
 
-        game.isPaused      = false;
-        game.isEnded       = false;
-        game.hasRoundEnded = false;
+            self.isPaused      = false;
+            self.isEnded       = false;
+            self.hasRoundEnded = false;
 
-        game.player.host.setCard(game.getRandomCard(game.cards.deck)).showCard();
+            self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
+
+            self.player.host.hasTurn = true;
+            console.log(self.player.user.hasTurn);
+
+            return this;
+        };
+
+        // To be overridden
+        this.restart = function(){
+
+            if (self.isEnded && self.hasRoundEnded){
+
+                self.isEnded = false;
+                self.hasRoundEnded = false;
+
+                AnimateModule.createStreakCount(uiContainer.streakText, "new", "0");
+
+                self.newRound();
+            }
+        };
+
+        // To be overridden
+        this.endOfRoundAction = function(){
+
+            // Data to post to the server
+            var data = {
+                score:       self.player.user.score,
+                streak:      self.player.user.streak,
+                roundResult: self.player.user.roundResult
+            };
+
+            var success = function(data){
+                var levelChange    = data.levelChange;
+                var userLevelInfo = data.userLevelInfo;
+
+                self.topPanel.update(levelChange, userLevelInfo);
+            };
+
+            // Ajax call
+            postToServer(setting.ajaxPostScore, data, success);
+        };
+
+        // To be overridden
+        this.nextRound = function(){
+
+            if (self.hasRoundEnded){
+
+                self.hasRoundEnded = false;
+
+                self.newRound();
+            }
+        };
+
+        // To be overridden
+        this.newRound = function(){
+
+            // In this game mode always the user selects first
+            self.player.user.hasTurn = true;
+
+            // Hide Cards and Generate new card for host
+            self.player.host.hideCard(function(){
+                self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
+            });
+
+            for (var i=0;i<self.player.opponent.length;i++){
+                self.player.opponent[i].hideCard();
+            }
+
+            for (var i=0;i<self.previousActiveRows.length;i++){
+                self.previousActiveRows[i].className = "card_row";
+            }
+
+            self.previousActiveRows = [];
+
+            self.RoundControls.reset();
+        };
+
+        // To be overridden
+        this.reorganisePlayers = function(player){
+            // No need to change the host in the default version of the game
+        };
+
+        // To be overridden
+        this.assignCardsToPlayers = function(){
+
+            // Assign cards to all opponents
+            for (var i=0;i<self.player.opponent.length;i++){
+                self.player.opponent[i].setCard(self.getRandomCard(self.cards.deck)).showCard();
+            }
+        };
+
+        this.selectField = function(field){
+
+            if (!self.hasRoundEnded && self.player.host.hasTurn){
+
+                // Prevent player from selecting multiple times in one round
+                self.hasRoundEnded = true;
+                self.player.host.hasTurn = false;
+
+                // Detect clicked property
+                var property = field.getAttribute("name");
+
+                // Assign cards to the opponents
+                // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
+                self.assignCardsToPlayers();
+
+                var playerQueue = Object.create(self.player.opponent);
+
+                playerQueue.push(self.player.host);
+
+                // Make a copy of the players array
+                var newPlayerQueue = playerQueue.slice();
+
+                // Compare each player with everyone once
+                for (var i=0;i<playerQueue.length;i++){
+
+                    var currentPlayer = newPlayerQueue.shift();
+
+                    for (key in newPlayerQueue){
+                        if (newPlayerQueue.hasOwnProperty(key)){
+                            var subscore = calculateSubscore(property, currentPlayer.getCard(property), newPlayerQueue[key].getCard(property));
+
+                            currentPlayer.roundScore -= subscore;
+                            newPlayerQueue[key].roundScore += subscore;
+                        }
+                    }
+                }
+
+                // Sort players in terms of score
+                playerQueue.sort(compare);
+
+                // Count draws on the first place
+                var drawCounter = 0;
+
+                for (var i=0;i<playerQueue.length;i++){
+                    if (typeof playerQueue[i+1] !== 'undefined'){
+                        if (playerQueue[i].roundScore === playerQueue[i+1].roundScore){
+                            drawCounter++;
+                        }else{
+                            if (drawCounter > 0) drawCounter++;
+                            break;
+                        }
+                    }else{
+                        if (drawCounter > 0) drawCounter++;
+                        break;
+                    }
+                }
+
+                console.log("Draw counter: " + drawCounter);
+
+                var foundWinner = false;
+
+                // Add the round score to the players' overall score
+                for (var i=0;i<playerQueue.length;i++){
+
+                    console.log("Draw counter: " + drawCounter);
+
+                    // Avoid negative score
+                    if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
+                    var newClass = (playerQueue[i].roundScore > 0 ? " score_green" : " score_red");
+                    AnimateModule.createFloatingText(playerQueue[i].viewHolder[property], playerQueue[i].roundScore, newClass);
+                    self.previousActiveRows.push(playerQueue[i].viewHolder[property]);
+
+                    if (foundWinner){
+                        // Lose
+                        playerQueue[i].viewHolder[property].className = "card_row row_red";
+                        playerQueue[i].roundResult = "lose";
+                        playerQueue[i].streak = 0;
+                    }else if (drawCounter > 0){
+                        // Draw
+                        // TODO: fix what happens on draw
+                        drawCounter--;
+                        playerQueue[i].viewHolder[property].className = "card_row row_draw";
+                        playerQueue[i].roundResult = "draw";
+                        if (drawCounter === 0){
+
+                            foundWinner = true;
+                            self.reorganisePlayers(self.player.host);
+                        }
+                    }else{
+                        // Win
+                        playerQueue[i].viewHolder[property].className = "card_row row_green";
+                        playerQueue[i].roundResult = "win";
+                        foundWinner = true;
+                        playerQueue[i].streak += setting.players-1;
+
+                        // Make sure we know which player won the round
+                        self.reorganisePlayers(playerQueue[i]);
+                    }
+
+                    playerQueue[i].roundScore = 0;
+                }
+
+                AnimateModule.createStreakCount(uiContainer.streakText, self.player.user.roundResult, self.player.user.streak);
+
+                // Deciding game state: WIN/DRAW or LOSE and acting accordingly
+                if (self.player.host.roundResult === "lose"){
+
+                    self.loseAction();
+                }else{
+
+                    self.winAction();
+                }
+
+                self.endOfRoundAction();
+            }
+        };
+
+        // Helper function to calculate the score of players
+        var calculateSubscore = function(property, p1val, p2val){
+
+            var subscore = 0;
+
+            if (property === defaultField.acceleration.columnName){
+
+                subscore = Math.round(500*(p1val - p2val));
+
+            } else if (property === defaultField.weight.columnName){
+
+                subscore = p1val - p2val;
+
+            }else{
+
+                subscore = p2val - p1val;
+            }
+
+            return subscore;
+        };
+
+        // Helper function to sort player objects
+        var compare = function(p1,p2){
+            if (p1.roundScore < p2.roundScore)
+                return 1;
+            if (p1.roundScore > p2.roundScore)
+                return -1;
+            return 0;
+        };
+
+        function createUI(){
+
+            // Start by allocating the container of the game
+            uiContainer.container = setting.gameContainer;
+
+            // Create top panel
+            self.topPanel = new TopPanel();
+            self.topPanel.setContainer(uiContainer);
+            self.topPanel.createUI();
+
+            // Create elements that don't belong to anyone
+            var battlefield = new Battlefield();
+            uiContainer.battlefield = battlefield.create();
+
+            // Main player
+            var host = new Player();
+            var card = new Card();
+            var elements = card.create(defaultField);
+            uiContainer.battlefield.appendChild(elements.cardFragment);
+
+            // Control Panel
+            self.RoundControls.init(uiContainer.battlefield);
+            uiContainer.streakText = self.RoundControls.getStreakText();
+
+            host.viewField = elements.fieldHolder;
+            host.viewHolder = elements.viewHolder;
+            self.player.host = host;
+            self.player.user = self.player.host;
+
+            // Opponents
+            for (var i=0;i<setting.players-1;i++){
+
+                var opponent = new Player();
+                card = new Card();
+                elements = card.create(defaultField);
+                opponent.viewField = elements.fieldHolder;
+                opponent.viewHolder = elements.viewHolder;
+                uiContainer.battlefield.appendChild(elements.cardFragment);
+                self.player.opponent.push(opponent);
+            }
+
+            return this;
+        }
+
+        function removeUI(){
+
+            while (setting.gameContainer.firstChild) {
+                setting.gameContainer.removeChild(setting.gameContainer.firstChild);
+            }
+        }
+
+        // Module responsible for re-appearing buttons after each round.
+        this.RoundControls = (function(){
+
+            var container;
+            var streakContainer;
+            var streakText;
+            var buttonContainer;
+
+            var init = function(view){
+                container = makeContainer(view);
+                return this;
+            };
+
+            function makeContainer(view){
+
+                var controlPanel = document.createElement("div");
+                controlPanel.className = "player_controls";
+                controlPanel.id = "control_panel";
+                view.appendChild(controlPanel);
+
+                streakContainer = document.createElement("div");
+                streakContainer.className = "streak_container";
+                streakText = document.createElement("p");
+                streakText.innerText  = "0";
+                streakContainer.appendChild(streakText);
+                controlPanel.appendChild(streakContainer);
+
+                buttonContainer = document.createElement("div");
+                buttonContainer.className = "button_container";
+                controlPanel.appendChild(buttonContainer);
+
+                return controlPanel;
+            }
+
+            function makeNextButton(){
+
+                var button = document.createElement("div");
+                button.className = "bt_nextRound bt";
+                button.addEventListener("click",self.nextRound);
+                buttonContainer.appendChild(button);
+                var t = document.createTextNode("Next");
+                button.appendChild(t);
+                $(button).fadeIn(100);
+            }
+
+            function makeNewGameButton(){
+
+                var button = document.createElement("div");
+                button.className = "bt_new_game bt";
+                button.addEventListener("click",self.restart);
+                buttonContainer.appendChild(button);
+                var t = document.createTextNode("Restart");
+                button.appendChild(t);
+                $(button).fadeIn(100);
+            }
+
+            function removeAllButtons(){
+                while (buttonContainer.firstChild) {
+                    buttonContainer.removeChild(buttonContainer.firstChild);
+                }
+            }
+
+            return {
+                init: init,
+                nextRound: makeNextButton,
+                newGame: makeNewGameButton,
+                reset: removeAllButtons,
+                getStreakText: function(){
+                    return streakText;
+                }
+            }
+        })();
+
+        // Creates mini cards indicating the stand of the game (Classic Game)
+        this.ProgressModule = function(){
+
+            function createCardIndicator(container){
+
+                var box = document.createElement("div");
+                box.className = "indicator-box";
+                container.insertBefore(box, container.firstChild);
+                return box;
+            }
+
+            function updateCardIndicator(noOfCards, box){
+
+                for (var i=0; i<noOfCards; i++){
+
+                    var miniCard = document.createElement("span");
+                    box.appendChild(miniCard);
+                }
+            }
+
+            return {
+                createCardIndicator: createCardIndicator,
+                updateCardIndicator: updateCardIndicator
+            }
+        }();
+
+        this.test = function(){
+            createUI();
+            self.start();
+            getTopPanel().update("default", userInfo);
+            self.player.host.score += userInfo.score;
+        };
+
+        // Classes
+
+        function Card(){}
+
+        Card.prototype = {
+
+            constructor: Card,
+            create: function(defaultField){
+
+                var fieldHolder = {};
+                var viewHolder = {};
+
+                var cardFragment = document.createElement("div");
+                cardFragment.className = "card_fragment";
+                viewHolder.fragment = cardFragment;
+
+                // Card
+                var cardBlock = document.createElement("div");
+                cardBlock.className = "card_block";
+                cardFragment.appendChild(cardBlock);
+
+                var playerCard = document.createElement("div");
+                playerCard.className = "player_card";
+                cardBlock.appendChild(playerCard);
+                viewHolder.card = playerCard;
+
+                // Card Name
+                var cardName = document.createElement("div");
+                cardName.className = "card_name";
+                playerCard.appendChild(cardName);
+
+                fieldHolder.model = cardName;
+                viewHolder.model = cardName;
+
+                // Card Image
+                var cardImage = document.createElement("div");
+                cardImage.className = "card_image";
+                playerCard.appendChild(cardImage);
+
+                var img = document.createElement("img");
+                cardImage.appendChild(img);
+
+                fieldHolder.image = img;
+                viewHolder.image = cardImage;
+
+
+                // Rest
+                var cardRow, rowLabel, t;
+
+                for(key in defaultField){
+                    if(defaultField.hasOwnProperty(key)){
+                        cardRow = document.createElement("div");
+                        cardRow.className = "card_row";
+                        cardRow.setAttribute("name",key);
+                        cardRow.addEventListener("click",function(){
+                            self.selectField(this);
+                        });
+                        playerCard.appendChild(cardRow);
+                        viewHolder[key] = cardRow;
+
+                        rowLabel = document.createElement("span");
+                        rowLabel.className = "row_label";
+                        cardRow.appendChild(rowLabel);
+
+                        t = document.createTextNode(defaultField[key].label);
+                        rowLabel.appendChild(t);
+
+                        // Changing field
+                        rowLabel = document.createElement("span");
+                        cardRow.appendChild(rowLabel);
+                        fieldHolder[key] = rowLabel;
+
+                        rowLabel = document.createElement("span");
+                        rowLabel.className = "row_unit";
+                        cardRow.appendChild(rowLabel);
+
+                        t = document.createTextNode(defaultField[key].unit);
+                        rowLabel.appendChild(t);
+                    }
+                }
+
+                return {
+                    fieldHolder: fieldHolder,
+                    viewHolder: viewHolder,
+                    cardFragment: cardFragment
+                };
+            }
+        };
+
+        function Player(){
+
+            // DOM Fields
+            this.viewField = {};
+
+            // DOM Rows and Elements
+            this.viewHolder = {};
+
+            // Values
+            this.card = {};
+
+            // Deck
+            this.deck = [];
+
+            this.roundScore  = 0;
+            this.roundResult = 0;
+
+            this.score = 0;
+
+            this.streak = 0;
+
+            this.hasTurn = false;
+        }
+
+        Player.prototype = {
+
+            constructor: Player,
+            getCard: function(property){
+
+                var self = this;
+
+                return self.card[property];
+            },
+            setCard: function(newCard){
+
+                console.log(newCard);
+
+                var self = this;
+
+                self.card = newCard;
+
+                for(key in self.card){
+                    if(self.card.hasOwnProperty(key) && key != "id" && key != "price"){
+                        if (key !== "image"){
+                            self.viewField[key].innerHTML = self.card[key];
+                        }else{
+                            self.viewField[key].src = setting.imgFolder + self.card[key] + setting.imgFormat;
+                        }
+                    }
+                }
+
+                return this;
+            },
+            showCard: function(callback){
+
+                var self = this;
+
+                if (typeof callback === 'undefined') callback = function(){};
+                $(self.viewHolder.card).fadeIn(150, callback);
+                return this;
+            },
+            hideCard: function(callback){
+
+                var self = this;
+
+                if (typeof callback === 'undefined') callback = function(){};
+                $(self.viewHolder.card).fadeOut(150, callback);
+                return this;
+            }
+        };
+
+        function TopPanel(){
+
+            var container;
+            this.setContainer = function(c){
+                container = c;
+            };
+
+            var attribute = {
+                score: 0,
+                lowScoreLimit: 0,
+                highScoreLimit: 0
+            };
+
+            var ui = {};
+
+            this.createUI = function(){
+
+                container.topPanel = document.getElementById("top_panel");
+
+                // Filled bar of Score
+                ui.fill = document.getElementById("s_fill");
+
+                // Text of Score
+                ui.score = document.getElementById("s_score");
+            };
+
+            this.update = function(levelChange, userLevelInfo){
+                // userLevelInfo is an object with attributes: "low_score_limit", "high_score_limit", "level", "score"
+
+                var previousScore = attribute.score;
+
+                switch (levelChange){
+                    case "up":
+
+                        // Animation till the top
+                        AnimateModule.animateIncrement(previousScore, attribute.highScoreLimit, ui.score);
+                        animateFill(previousScore, attribute.highScoreLimit, function(){
+
+                            // TODO: level up graphics
+                            setAttributes(userLevelInfo);
+
+                            setUI();
+
+                            // Animation till new score
+                            AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, ui.score);
+                            animateFill(attribute.lowScoreLimit, attribute.score);
+
+                        });
+
+                        break;
+
+                    case "down":
+
+                        // Animation till the bottom
+                        AnimateModule.animateIncrement(previousScore, attribute.lowScoreLimit, ui.score);
+                        animateFill(previousScore, attribute.lowScoreLimit, function(){
+
+                            // TODO: level up graphics
+                            setAttributes(userLevelInfo);
+
+                            setUI();
+
+                            // Animation till new score
+                            AnimateModule.animateIncrement(attribute.highScoreLimit, attribute.score, ui.score);
+                            animateFill(attribute.highScoreLimit, attribute.score);
+
+                        });
+
+                        break;
+
+                    default:
+
+                        setAttributes(userLevelInfo);
+
+                        setUI();
+
+                        AnimateModule.animateIncrement(previousScore, attribute.score, ui.score);
+                        animateFill(previousScore, attribute.score);
+
+                        break;
+                }
+
+
+                return this;
+
+                function setAttributes(userLevelInfo){
+
+                    attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
+                    attribute.score             = userLevelInfo.score;
+                    attribute.highScoreLimit  = userLevelInfo.high_score_limit;
+                }
+
+                function setUI(){
+
+                    //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
+                    //ui.highScoreLimit.innerHTML = attribute.highScoreLimit - attribute.score + " until next level";
+                }
+
+                function animateFill (oldScore, newScore, callback){
+
+                    callback = typeof callback !== 'undefined' ? callback : function(){};
+
+                    var oldWidth = Math.round(100*(oldScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
+                    $(ui.fill).css({"width":oldWidth+"%"});
+
+                    var newWidth = Math.round(100*(newScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
+                    if (newWidth>100) newWidth = 100;
+
+                    $(ui.fill).promise().done(function(){
+                        // 200  - 400 ms
+                        $(this).animate({"width":newWidth+"%"}, 200, callback);
+                    });
+                }
+            }
+        }
+
+        function Battlefield(){
+
+            this.create = function(){
+
+                var battlefield = document.getElementById("battlefield");
+                return battlefield;
+            }
+        }
+    }
+
+    // Classic Game
+    function ClassicGame(){}
+
+    ClassicGame.prototype = new Game();
+    ClassicGame.prototype.constructor = ClassicGame;
+
+    ClassicGame.prototype.start = function(){
+
+        var self = this;
+
+        // Set players' cards
+        self.giveCardsToUser(self.userCards);
+        self.giveCardsToOpponents();
+
+        self.player.host.hasTurn = true;
+
+        // Create and Fill up additional UI elements
+        self.player.host.viewHolder.indicator =
+            self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
+
+        // TODO: put updateIndicator calls to a separate method
+        self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
+
+        for (key in self.player.opponent){
+            if (self.player.opponent.hasOwnProperty(key)){
+
+                self.player.opponent[key].viewHolder.indicator =
+                    self.ProgressModule.createCardIndicator(self.player.opponent[key].viewHolder.fragment);
+                self.ProgressModule.updateCardIndicator(10, self.player.opponent[key].viewHolder.indicator)
+            }
+        }
+
+        self.isPaused      = false;
+        self.isEnded       = false;
+        self.hasRoundEnded = false;
+
+        self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
 
         return this;
     };
 
-    // To be overridden
-    this.restart = function(){
+    ClassicGame.prototype.reorganisePlayers = function(player){
+        // Takes the winner as an argument
 
-        if (game.isEnded && game.hasRoundEnded){
+        var self = this;
 
-            game.isEnded = false;
-            game.hasRoundEnded = false;
+        //TODO: fix that only the host must be able to pick a new field
 
-            AnimateModule.createStreakCount(uiContainer.streakText, "new", "0");
 
-            game.newRound();
+        self.player.opponent.push(self.player.host);
+        self.player.host = player;
+
+        self.player.host.hasTurn = true;
+
+        var index = self.player.opponent.indexOf(player);
+        if (index > -1){
+            self.player.opponent.splice(index, 1);
         }
     };
 
-    // To be overridden
-    this.endOfRoundAction = function(){
+    ClassicGame.prototype.assignCardsToPlayers = function(){
+
+        var self = this;
+
+        // Assign cards to all opponents
+        for (var i=0;i<self.player.opponent.length;i++){
+
+            // Except for the main player - since she already received a card
+            if(self.player.opponent[i] !== self.player.user){
+                self.player.opponent[i].setCard(self.getRandomCard(self.player.opponent[i].deck)).showCard();
+            }
+        }
+    };
+
+    ClassicGame.prototype.newRound = function () {
+
+        var self = this;
+
+        for (var i=0;i<self.previousActiveRows.length;i++){
+            self.previousActiveRows[i].className = "card_row";
+        }
+
+        self.previousActiveRows = [];
+
+        self.RoundControls.reset();
+
+        // Hide opponent cars
+        for (var i=0;i<self.player.opponent.length;i++){
+            self.player.opponent[i].hideCard();
+        }
+
+        if (self.player.host == self.player.user) {
+
+            // The game should move on with the user being the host
+            self.player.host.hideCard(function(){
+                self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
+            });
+        } else {
+
+            // The game should move on with the computer being the host
+
+            // Assign new card for host
+            self.player.host.hideCard(function(){
+
+                // Assign new card for user
+                self.player.user.setCard(self.getRandomCard(self.player.user.deck)).showCard(function(){
+
+                    // TODO: Count-down
+                    self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard(function(){
+
+                        // TODO: Choice algorithm
+                        self.selectField(self.player.host.viewHolder.speed);
+                    });
+                })
+            });
+        }
+    };
+
+    ClassicGame.prototype.endOfRoundAction = function(){
+
+        var self = this;
+
+        // TODO: Check for winning
+
 
         // Data to post to the server
         var data = {
-            score:       game.player.user.score,
-            streak:      game.player.user.streak,
-            roundResult: game.player.user.roundResult
+            score:       self.player.user.score,
+            streak:      self.player.user.streak,
+            roundResult: self.player.user.roundResult
         };
 
         var success = function(data){
             var levelChange    = data.levelChange;
             var userLevelInfo = data.userLevelInfo;
 
-            game.topPanel.update(levelChange, userLevelInfo);
+            self.topPanel.update(levelChange, userLevelInfo);
         };
 
         // Ajax call
-        postToServer(game.setting.ajaxPostScore, data, success);
+        postToServer(setting.ajaxPostScore, data, success);
     };
 
-    // To be overridden
-    this.nextRound = function(){
+    // TODO: this module should represent a shell for the game. Also it should contain the settings
+    // TODO: question to Allan: am I doing prototype inheritance wrong? How should I structure my code?
 
-        if (game.hasRoundEnded){
 
-            game.hasRoundEnded = false;
+    function init(ajaxPostScore, ajaxFreeForAll, ajaxClassic, imgFolder){
 
-            game.newRound();
-        }
-    };
+        setting.ajaxPostScore = ajaxPostScore;
+        setting.ajaxFreeForAll = ajaxFreeForAll;
+        setting.ajaxClassic = ajaxClassic;
+        setting.imgFolder = imgFolder;
 
-    // To be overridden
-    this.newRound = function(){
+        registerEventListeners();
 
-        // Hide Cards and Generate new card for host
-        game.player.host.hideCard(function(){
-            game.player.host.setCard(game.getRandomCard(game.cards.deck)).showCard();
-        });
-
-        for (var i=0;i<game.player.opponent.length;i++){
-            game.player.opponent[i].hideCard();
-        }
-
-        for (var i=0;i<game.previousActiveRows.length;i++){
-            game.previousActiveRows[i].className = "card_row";
-        }
-
-        game.previousActiveRows = [];
-
-        game.roundControls.reset();
-    };
-
-    // To be overridden
-    this.reorganisePlayers = function(player){
-        // No need to change the host in the default version of the game
-    };
-
-    // To be overridden
-    this.assignCardsToPlayers = function(){
-
-        // Assign cards to all opponents
-        for (var i=0;i<game.player.opponent.length;i++){
-            game.player.opponent[i].setCard(game.getRandomCard(game.cards.deck)).showCard();
-        }
-    };
-
-    this.selectField = function(field){
-
-        if (!game.hasRoundEnded && game.player.host.hasTurn){
-
-            // Prevent player from selecting multiple times in one round
-            game.hasRoundEnded = true;
-            game.player.host.hasTurn = false;
-
-            // Detect clicked property
-            var property = field.getAttribute("name");
-
-            // Assign cards to the opponents
-            // TODO: separate this into a public function and make sure that the user doesn't get a new card assigned.
-            game.assignCardsToPlayers();
-
-            var playerQueue = Object.create(game.player.opponent);
-
-            playerQueue.push(game.player.host);
-
-            // Make a copy of the players array
-            var newPlayerQueue = playerQueue.slice();
-
-            // Compare each player with everyone once
-            for (var i=0;i<playerQueue.length;i++){
-
-                var currentPlayer = newPlayerQueue.shift();
-
-                for (key in newPlayerQueue){
-                    if (newPlayerQueue.hasOwnProperty(key)){
-                        var subscore = calculateSubscore(property, currentPlayer.getCard(property), newPlayerQueue[key].getCard(property));
-
-                        currentPlayer.roundScore -= subscore;
-                        newPlayerQueue[key].roundScore += subscore;
-                    }
-                }
-            }
-
-            // Sort players in terms of score
-            playerQueue.sort(compare);
-
-            // Count draws on the first place
-            var drawCounter = 0;
-
-            for (var i=0;i<playerQueue.length;i++){
-                if (typeof playerQueue[i+1] !== 'undefined'){
-                    if (playerQueue[i].roundScore === playerQueue[i+1].roundScore){
-                        drawCounter++;
-                    }else{
-                        if (drawCounter > 0) drawCounter++;
-                        break;
-                    }
-                }else{
-                    if (drawCounter > 0) drawCounter++;
-                    break;
-                }
-            }
-
-            console.log("Draw counter: " + drawCounter);
-
-            var foundWinner = false;
-
-            // Add the round score to the players' overall score
-            for (var i=0;i<playerQueue.length;i++){
-
-                console.log("Draw counter: " + drawCounter);
-
-                // Avoid negative score
-                if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
-                var newClass = (playerQueue[i].roundScore > 0 ? " score_green" : " score_red");
-                AnimateModule.createFloatingText(playerQueue[i].viewHolder[property], playerQueue[i].roundScore, newClass);
-                game.previousActiveRows.push(playerQueue[i].viewHolder[property]);
-
-                if (foundWinner){
-                    // Lose
-                    playerQueue[i].viewHolder[property].className = "card_row row_red";
-                    playerQueue[i].roundResult = "lose";
-                    playerQueue[i].streak = 0;
-                }else if (drawCounter > 0){
-                    // Draw
-                    // TODO: fix what happens on draw
-                    drawCounter--;
-                    playerQueue[i].viewHolder[property].className = "card_row row_draw";
-                    playerQueue[i].roundResult = "draw";
-                    if (drawCounter === 0){
-
-                        foundWinner = true;
-                        game.reorganisePlayers(game.player.host);
-                    }
-                }else{
-                    // Win
-                    playerQueue[i].viewHolder[property].className = "card_row row_green";
-                    playerQueue[i].roundResult = "win";
-                    foundWinner = true;
-                    playerQueue[i].streak += game.setting.players-1;
-
-                    // Make sure we know which player won the round
-                    game.reorganisePlayers(playerQueue[i]);
-                }
-
-                playerQueue[i].roundScore = 0;
-            }
-
-            AnimateModule.createStreakCount(uiContainer.streakText, game.player.user.roundResult, game.player.user.streak);
-
-            // Deciding game state: WIN/DRAW or LOSE and acting accordingly
-            if (game.player.host.roundResult === "lose"){
-
-                game.loseAction();
-            }else{
-
-                game.winAction();
-            }
-
-            game.endOfRoundAction();
-        }
-    };
-
-    // Helper function to calculate the score of players
-    var calculateSubscore = function(property, p1val, p2val){
-
-        var subscore = 0;
-
-        if (property === defaultField.acceleration.columnName){
-
-            subscore = Math.round(500*(p1val - p2val));
-
-        } else if (property === defaultField.weight.columnName){
-
-            subscore = p1val - p2val;
-
-        }else{
-
-            subscore = p2val - p1val;
-        }
-
-        return subscore;
-    };
-
-    // Helper function to sort player objects
-    var compare = function(p1,p2){
-        if (p1.roundScore < p2.roundScore)
-            return 1;
-        if (p1.roundScore > p2.roundScore)
-            return -1;
-        return 0;
-    };
-
-    function createUI(){
-
-        // Start by allocating the container of the game
-        uiContainer.container = game.setting.gameContainer;
-
-        // Create top panel
-        game.topPanel = new TopPanel();
-        game.topPanel.setContainer(uiContainer);
-        game.topPanel.createUI();
-
-        // Create elements that don't belong to anyone
-        var battlefield = new Battlefield();
-        uiContainer.battlefield = battlefield.create();
-
-        // Main player
-        var host = new Player();
-        var card = new Card();
-        var elements = card.create(defaultField);
-        uiContainer.battlefield.appendChild(elements.cardFragment);
-
-        // Control Panel
-        game.roundControls.init(uiContainer.battlefield);
-        uiContainer.streakText = game.roundControls.getStreakText();
-
-        host.viewField = elements.fieldHolder;
-        host.viewHolder = elements.viewHolder;
-        game.player.host = host;
-        game.player.user = game.player.host;
-
-        // Opponents
-        for (var i=0;i<game.setting.players-1;i++){
-
-            var opponent = new Player();
-            card = new Card();
-            elements = card.create(defaultField);
-            opponent.viewField = elements.fieldHolder;
-            opponent.viewHolder = elements.viewHolder;
-            uiContainer.battlefield.appendChild(elements.cardFragment);
-            game.player.opponent.push(opponent);
-        }
-
-        return this;
+        menu = document.getElementById("main-menu");
     }
 
-    function removeUI(){
+    function registerEventListeners(){
 
-        while (game.setting.gameContainer.firstChild) {
-            game.setting.gameContainer.removeChild(game.setting.gameContainer.firstChild);
-        }
+        var freeForAllButton = document.getElementById("free-for-all");
+        freeForAllButton.addEventListener("click", startFreeForAll);
+
+        var classicButton = document.getElementById("classic");
+        classicButton.addEventListener("click", startClassic);
     }
 
-    // Module responsible for re-appearing buttons after each round.
-    this.roundControls = (function(){
+    function startFreeForAll(){
 
-        var container;
-        var streakContainer;
-        var streakText;
-        var buttonContainer;
+        hideMenu(function(){
 
-        var init = function(view){
-            container = makeContainer(view);
-            return this;
-        };
+            var data = {};
 
-        function makeContainer(view){
+            var success = function(response){
 
-            var controlPanel = document.createElement("div");
-            controlPanel.className = "player_controls";
-            controlPanel.id = "control_panel";
-            view.appendChild(controlPanel);
+                game = new Game();
+                game.setCards(JSON.parse(response.deck));
+                userInfo = JSON.parse(response.user_level_info);
 
-            streakContainer = document.createElement("div");
-            streakContainer.className = "streak_container";
-            streakText = document.createElement("p");
-            streakText.innerText  = "0";
-            streakContainer.appendChild(streakText);
-            controlPanel.appendChild(streakContainer);
+                console.log(userInfo);
 
-            buttonContainer = document.createElement("div");
-            buttonContainer.className = "button_container";
-            controlPanel.appendChild(buttonContainer);
+                game.preloadImages(function(){
+                    game.test();
+                });
 
-            return controlPanel;
-        }
-
-        function makeNextButton(){
-
-            var button = document.createElement("div");
-            button.className = "bt_nextRound bt";
-            button.addEventListener("click",game.nextRound);
-            buttonContainer.appendChild(button);
-            var t = document.createTextNode("Next");
-            button.appendChild(t);
-            $(button).fadeIn(100);
-        }
-
-        function makeNewGameButton(){
-
-            var button = document.createElement("div");
-            button.className = "bt_new_game bt";
-            button.addEventListener("click",game.restart);
-            buttonContainer.appendChild(button);
-            var t = document.createTextNode("Restart");
-            button.appendChild(t);
-            $(button).fadeIn(100);
-        }
-
-        function removeAllButtons(){
-            while (buttonContainer.firstChild) {
-                buttonContainer.removeChild(buttonContainer.firstChild);
-            }
-        }
-
-        return {
-            init: init,
-            nextRound: makeNextButton,
-            newGame: makeNewGameButton,
-            reset: removeAllButtons,
-            getStreakText: function(){
-                return streakText;
-            }
-        }
-    })();
-
-    this.ProgressModule = function(){
-
-        function createCardIndicator(container){
-
-            var box = document.createElement("div");
-            box.className = "indicator-box";
-            container.insertBefore(box, container.firstChild);
-            return box;
-        }
-
-        function updateCardIndicator(noOfCards, box){
-
-            for (var i=0; i<noOfCards; i++){
-
-                var miniCard = document.createElement("span");
-                box.appendChild(miniCard);
-            }
-        }
-
-        return {
-            createCardIndicator: createCardIndicator,
-            updateCardIndicator: updateCardIndicator
-        }
-    }();
-
-    this.test = function(){
-        createUI();
-        game.start();
-        getTopPanel().update("default", userInfo);
-        game.player.host.score += userInfo.score;
-    };
-
-    // Classes
-
-    function Card(){}
-
-    Card.prototype = {
-
-        constructor: Card,
-        create: function(defaultField){
-
-            var fieldHolder = {};
-            var viewHolder = {};
-
-            var cardFragment = document.createElement("div");
-            cardFragment.className = "card_fragment";
-            viewHolder.fragment = cardFragment;
-
-            // Card
-            var cardBlock = document.createElement("div");
-            cardBlock.className = "card_block";
-            cardFragment.appendChild(cardBlock);
-
-            var playerCard = document.createElement("div");
-            playerCard.className = "player_card";
-            cardBlock.appendChild(playerCard);
-            viewHolder.card = playerCard;
-
-            // Card Name
-            var cardName = document.createElement("div");
-            cardName.className = "card_name";
-            playerCard.appendChild(cardName);
-
-            fieldHolder.model = cardName;
-            viewHolder.model = cardName;
-
-            // Card Image
-            var cardImage = document.createElement("div");
-            cardImage.className = "card_image";
-            playerCard.appendChild(cardImage);
-
-            var img = document.createElement("img");
-            cardImage.appendChild(img);
-
-            fieldHolder.image = img;
-            viewHolder.image = cardImage;
-
-
-            // Rest
-            var cardRow, rowLabel, t;
-
-            for(key in defaultField){
-                if(defaultField.hasOwnProperty(key)){
-                    cardRow = document.createElement("div");
-                    cardRow.className = "card_row";
-                    cardRow.setAttribute("name",key);
-                    cardRow.addEventListener("click",function(){
-                        game.selectField(this);
-                    });
-                    playerCard.appendChild(cardRow);
-                    viewHolder[key] = cardRow;
-
-                    rowLabel = document.createElement("span");
-                    rowLabel.className = "row_label";
-                    cardRow.appendChild(rowLabel);
-
-                    t = document.createTextNode(defaultField[key].label);
-                    rowLabel.appendChild(t);
-
-                    // Changing field
-                    rowLabel = document.createElement("span");
-                    cardRow.appendChild(rowLabel);
-                    fieldHolder[key] = rowLabel;
-
-                    rowLabel = document.createElement("span");
-                    rowLabel.className = "row_unit";
-                    cardRow.appendChild(rowLabel);
-
-                    t = document.createTextNode(defaultField[key].unit);
-                    rowLabel.appendChild(t);
-                }
-            }
-
-            return {
-                fieldHolder: fieldHolder,
-                viewHolder: viewHolder,
-                cardFragment: cardFragment
             };
-        }
-    };
 
-    function Player(){
-
-        // DOM Fields
-        this.viewField = {};
-
-        // DOM Rows and Elements
-        this.viewHolder = {};
-
-        // Values
-        this.card = {};
-
-        // Deck
-        this.deck = [];
-
-        this.roundScore  = 0;
-        this.roundResult = 0;
-
-        this.score = 0;
-
-        this.streak = 0;
-
-        this.hasTurn = false;
-    }
-
-    Player.prototype = {
-
-        constructor: Player,
-        getCard: function(property){
-
-            var self = this;
-
-            return self.card[property];
-        },
-        setCard: function(newCard){
-
-            var self = this;
-
-            self.card = newCard;
-
-            for(key in self.card){
-                if(self.card.hasOwnProperty(key) && key != "id" && key != "price"){
-                    if (key !== "image"){
-                        self.viewField[key].innerHTML = self.card[key];
-                    }else{
-                        self.viewField[key].src = game.setting.imgFolder + self.card[key] + game.setting.imgFormat;
-                    }
-                }
-            }
-
-            return this;
-        },
-        showCard: function(callback){
-
-            var self = this;
-
-            if (typeof callback === 'undefined') callback = function(){};
-            $(self.viewHolder.card).fadeIn(150, callback);
-            return this;
-        },
-        hideCard: function(callback){
-
-            var self = this;
-
-            if (typeof callback === 'undefined') callback = function(){};
-            $(self.viewHolder.card).fadeOut(150, callback);
-            return this;
-        }
-    };
-
-    function TopPanel(){
-
-        var container;
-        this.setContainer = function(c){
-            container = c;
-        };
-
-        var attribute = {
-            score: 0,
-            lowScoreLimit: 0,
-            highScoreLimit: 0
-        };
-
-        var ui = {};
-
-        this.createUI = function(){
-
-            container.topPanel = document.getElementById("top_panel");
-
-            // Filled bar of Score
-            ui.fill = document.getElementById("s_fill");
-
-            // Text of Score
-            ui.score = document.getElementById("s_score");
-        };
-
-        this.update = function(levelChange, userLevelInfo){
-            // userLevelInfo is an object with attributes: "lowScoreLimit", "highScoreLimit", "level", "score"
-
-            var previousScore = attribute.score;
-
-            switch (levelChange){
-                case "up":
-
-                    // Animation till the top
-                    AnimateModule.animateIncrement(previousScore, attribute.highScoreLimit, ui.score);
-                    animateFill(previousScore, attribute.highScoreLimit, function(){
-
-                        // TODO: level up graphics
-                        setAttributes(userLevelInfo);
-
-                        setUI();
-
-                        // Animation till new score
-                        AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, ui.score);
-                        animateFill(attribute.lowScoreLimit, attribute.score);
-
-                    });
-
-                    break;
-
-                case "down":
-
-                    // Animation till the bottom
-                    AnimateModule.animateIncrement(previousScore, attribute.lowScoreLimit, ui.score);
-                    animateFill(previousScore, attribute.lowScoreLimit, function(){
-
-                        // TODO: level up graphics
-                        setAttributes(userLevelInfo);
-
-                        setUI();
-
-                        // Animation till new score
-                        AnimateModule.animateIncrement(attribute.highScoreLimit, attribute.score, ui.score);
-                        animateFill(attribute.highScoreLimit, attribute.score);
-
-                    });
-
-                    break;
-
-                default:
-
-                    setAttributes(userLevelInfo);
-
-                    setUI();
-
-                    AnimateModule.animateIncrement(previousScore, attribute.score, ui.score);
-                    animateFill(previousScore, attribute.score);
-
-                    break;
-            }
-
-
-            return this;
-
-            function setAttributes(userLevelInfo){
-
-                attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
-                attribute.score             = userLevelInfo.score;
-                attribute.highScoreLimit  = userLevelInfo.high_score_limit;
-            }
-
-            function setUI(){
-
-                //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
-                //ui.highScoreLimit.innerHTML = attribute.highScoreLimit - attribute.score + " until next level";
-            }
-
-            function animateFill (oldScore, newScore, callback){
-
-                callback = typeof callback !== 'undefined' ? callback : function(){};
-
-                var oldWidth = Math.round(100*(oldScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
-                $(ui.fill).css({"width":oldWidth+"%"});
-
-                var newWidth = Math.round(100*(newScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
-                if (newWidth>100) newWidth = 100;
-
-                $(ui.fill).promise().done(function(){
-                    // 200  - 400 ms
-                    $(this).animate({"width":newWidth+"%"}, 200, callback);
-                });
-            }
-        }
-    }
-
-    function Battlefield(){
-
-        this.create = function(){
-
-            var battlefield = document.getElementById("battlefield");
-            return battlefield;
-        }
-    }
-}
-
-// Classic Version of the game
-
-function ClassicGame(){}
-
-ClassicGame.prototype = new Game();
-ClassicGame.prototype.constructor = ClassicGame;
-
-ClassicGame.prototype.start = function(){
-
-    var self = this;
-
-    // Set players' cards
-    self.setUserCards(self.userCards);
-    self.setOpponentCards();
-
-    self.player.host.hasTurn = true;
-
-    // Create and Fill up additional UI elements
-    self.player.host.viewHolder.indicator =
-        self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
-
-    // TODO: put updateIndicator calls to a separate method
-    self.ProgressModule.updateCardIndicator(self.player.host.deck.length, self.player.host.viewHolder.indicator);
-
-    for (key in self.player.opponent){
-        if (self.player.opponent.hasOwnProperty(key)){
-
-            self.player.opponent[key].viewHolder.indicator =
-            self.ProgressModule.createCardIndicator(self.player.opponent[key].viewHolder.fragment);
-            self.ProgressModule.updateCardIndicator(10, self.player.opponent[key].viewHolder.indicator)
-        }
-    }
-
-    self.isPaused      = false;
-    self.isEnded       = false;
-    self.hasRoundEnded = false;
-
-    self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
-
-    return this;
-};
-
-ClassicGame.prototype.reorganisePlayers = function(player){
-    // Takes the winner as an argument
-
-    var self = this;
-
-    //TODO: fix that only the host must be able to pick a new field
-
-
-    self.player.opponent.push(self.player.host);
-    self.player.host = player;
-
-    self.player.host.hasTurn = true;
-    console.log(self.player.user.hasTurn);
-
-    var index = self.player.opponent.indexOf(player);
-    if (index > -1){
-        self.player.opponent.splice(index, 1);
-    }
-};
-
-ClassicGame.prototype.assignCardsToPlayers = function(){
-
-    var self = this;
-
-    // Assign cards to all opponents
-    for (var i=0;i<self.player.opponent.length;i++){
-
-        // Except for the main player - since she already received a card
-        if(self.player.opponent[i] !== self.player.user){
-            self.player.opponent[i].setCard(self.getRandomCard(self.player.opponent[i].deck)).showCard();
-        }
-    }
-};
-
-ClassicGame.prototype.newRound = function () {
-
-    var self = this;
-
-    for (var i=0;i<self.previousActiveRows.length;i++){
-        self.previousActiveRows[i].className = "card_row";
-    }
-
-    self.previousActiveRows = [];
-
-    self.roundControls.reset();
-
-    // Hide opponent cars
-    for (var i=0;i<self.player.opponent.length;i++){
-        self.player.opponent[i].hideCard();
-    }
-
-    if (self.player.host == self.player.user) {
-
-        // The game should move on with the user being the host
-        self.player.host.hideCard(function(){
-            self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
-        });
-    } else {
-
-        // The game should move on with the computer being the host
-
-        // Assign new card for host
-        self.player.host.hideCard(function(){
-
-            // Assign new card for user
-            self.player.user.setCard(self.getRandomCard(self.player.user.deck)).showCard(function(){
-
-                // TODO: Count-down
-                self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard(function(){
-
-                    // TODO: Choice algorithm
-                    self.selectField(self.player.host.viewHolder.speed);
-                });
-            })
+            postToServer(setting.ajaxFreeForAll, data, success);
         });
     }
-};
 
-ClassicGame.prototype.endOfRoundAction = function(){
+    function startClassic(){
 
-    var self = this;
+        hideMenu(function(){
 
-    // TODO: Check for winning
+            var data = {};
 
+            var success = function(response){
 
-    // Data to post to the server
-    var data = {
-        score:       self.player.user.score,
-        streak:      self.player.user.streak,
-        roundResult: self.player.user.roundResult
-    };
+                game = new ClassicGame();
+                game.setCards(JSON.parse(response.deck));
+                userInfo = JSON.parse(response.user_level_info);
 
-    var success = function(data){
-        var levelChange    = data.levelChange;
-        var userLevelInfo = data.userLevelInfo;
+                console.log(userInfo);
 
-        self.topPanel.update(levelChange, userLevelInfo);
-    };
+                game.setUserCards(JSON.parse(response.selected_cars));
 
-    // Ajax call
-    postToServer(self.setting.ajaxPostScore, data, success);
-};
+                game.test();
+
+            };
+
+            postToServer(setting.ajaxClassic, data, success);
+        });
+    }
+
+    function hideMenu(callback){
+
+        $(menu).fadeOut(150, callback);
+    }
+
+    function showMenu(callback){
+
+        $(menu).fadeIn(150, callback);
+    }
+
+    function openSettings(){
+    }
+
+    function closeSettings(){
+    }
+
+    return{
+        init:init
+    }
+
+})();
 
 var AnimateModule = function(){
 
