@@ -4,7 +4,7 @@
 
 function preloadImages(array, el){
 
-    var newImages = [], loadedImages = 0, arrLength = array.length, background_2, loadingContainer, progressP;
+    var newImages = [], loadedImages = 0, arrLength = array.length, loadingContainer, progressP;
     var container = (typeof el === "undefined" ? document.body : el);
 
     var postAction = function(){};
@@ -61,6 +61,148 @@ function preloadImages(array, el){
         }
     }
 }
+
+var ImageRotator = (function(){
+
+    var settings = {
+        "fade_speed"        : 500,
+        "slide_duration"    : 5000
+    };
+
+    var imageArr;                              // stores all the images
+    var imageArrLength;
+    var position = 0;                  // initially start from the beginning
+    var counter = true;                        // clock
+    var background1, background2, backgroundContainer;
+
+    var mainContainer;
+
+    var intervalID;
+
+    function init(images){
+
+        imageArr = images;
+        imageArrLength = images.length;
+        mainContainer = $(".mainContainer");
+        return this;
+    }
+
+    function create(){
+
+        backgroundContainer        = document.createElement('div');
+        backgroundContainer.className  = "background_container";
+
+        background1            = document.createElement('div');
+        background1.className  = "background_pic";
+        background1.id         = "background_pic_01";
+
+        background2            = document.createElement('div');
+        background2.className  = "background_pic";
+        background2.id         = "background_pic_02";
+
+        backgroundContainer.appendChild(background1);
+        backgroundContainer.appendChild(background2);
+
+        document.body.appendChild(backgroundContainer);
+        return this;
+    }
+
+    function remove(){
+
+        document.body.removeChild(backgroundContainer);
+        return this;
+    }
+
+    // Change between backgrounds
+    function move(){
+
+        if (counter){
+            // show top layer
+            changeBackground(background1, "url("+imageArr[position]+")", function(){$(background1).finish().fadeIn(settings.fade_speed)});
+        }else{
+            // show bottom layer
+            changeBackground(background2, "url("+imageArr[position]+")", function(){$(background1).finish().fadeOut(settings.fade_speed)});
+        }
+
+        function changeBackground(obj, background, callback){
+            $(obj).css({"background-image":background});
+            callback();
+        }
+
+        counter = !counter;
+    }
+
+    function start(){
+
+        move();
+        intervalID =   window.setInterval(function(){
+            position = (position + 1) % imageArrLength;
+            move();
+        }, settings.slide_duration);
+        return this;
+    }
+
+    function pause(){
+        clearInterval(intervalID);
+        return this;
+    }
+
+    function stepForward(){
+        pause();
+        position++;
+        position = position % imageArrLength;
+        move();
+        return this;
+    }
+
+    function stepBackward(){
+        pause();
+        position--;
+        position = position % imageArrLength;
+        if (position < 0) position += imageArrLength;
+        move();
+        return this;
+    }
+
+    function jumpTo(pos){
+        pause();
+        position = pos;
+        move();
+        return this;
+    }
+
+    function focus(){
+        create();
+        $(mainContainer).fadeOut(100);
+        return this;
+    }
+
+    function blur(){
+        remove();
+        $(mainContainer).fadeIn(100);
+        return this;
+    }
+
+    function lowerOpacity(){
+
+        $(backgroundContainer).addClass("blur");
+        return this;
+    }
+
+    return {
+        init:init,
+        create:create,
+        shade:lowerOpacity,
+        focus:focus,
+        blur:blur,
+        start:start,
+        pause:pause,
+        stepForward:stepForward,
+        stepBackward:stepBackward,
+        jumpTo:jumpTo
+    }
+
+})();
 
 var ImageInputModule = function(){
 
