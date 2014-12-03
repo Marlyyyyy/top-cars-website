@@ -81,7 +81,7 @@ class User implements UserInterface, \Serializable{
     private $roles;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Car", inversedBy="users", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity="Car", inversedBy="users")
      * @ORM\JoinTable(name="user_car",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="car_id", referencedColumnName="id")}
@@ -97,7 +97,7 @@ class User implements UserInterface, \Serializable{
     private $suggestedCars;
 
     /**
-     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="upVotedUsers", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity="SuggestedCar", inversedBy="upVotedUsers")
      * @ORM\JoinTable(name="upVotedUser_suggestedCar",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="suggestedCar_id", referencedColumnName="id")}
@@ -107,7 +107,7 @@ class User implements UserInterface, \Serializable{
     private $votedSuggestedCars;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Car", inversedBy="selectedOwners", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity="Car", inversedBy="selectedOwners")
      * @ORM\JoinTable(name="user_selectedCar",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="car_id", referencedColumnName="id")}
