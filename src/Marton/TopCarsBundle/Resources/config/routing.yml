@@ -61,18 +61,6 @@ marton_topcars_user:
     path: /user/{user}
     defaults: {_controller: MartonTopCarsBundle:User:profile }
 
-marton_topcars_account:
-    path: /account
-    defaults: {_controller: MartonTopCarsBundle:User:account }
-
-marton_topcars_account_update:
-    path: /account/update
-    defaults: {_controller: MartonTopCarsBundle:User:updateAccount }
-
-marton_topcars_account_delete:
-    path: /account/delete
-    defaults: {_controller: MartonTopCarsBundle:User:deleteAccount }
-    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 # SuggestedCar
 marton_topcars_pending:
@@ -117,6 +105,19 @@ marton_topcars_register:
 marton_topcars_create_account:
     path:     /register/create
     defaults: { _controller: MartonTopCarsBundle:Account:create }
+
+marton_topcars_delete_account:
+    path:     /account/delete
+    defaults: {_controller: MartonTopCarsBundle:Account:deleteAccount }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
+
+marton_topcars_account:
+    path: /account
+    defaults: {_controller: MartonTopCarsBundle:Account:account }
+
+marton_topcars_account_update:
+    path: /account/update
+    defaults: {_controller: MartonTopCarsBundle:Account:updateAccount }
 
 # Users should be automatically redirected when they have to login
 marton_topcars_login:
