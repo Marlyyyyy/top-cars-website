@@ -39,7 +39,7 @@ class CarController extends Controller{
         $priceCalculator = new PriceCalculator();
 
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/dealership.html.twig', array(
-            "cars" => $priceCalculator->assignPrices($cars),
+            "cars" => $cars,
             "user" => $user,
             "empty" => count($cars) === 0 ? true : false,
             "option" => $option,
@@ -249,7 +249,6 @@ class CarController extends Controller{
             $user->removeSelectedCars($car);
         }
 
-        $em->persist($user);
         $em->flush();
 
         $response = new Response(json_encode(array(

@@ -7,24 +7,23 @@
 
 {% block subpage %}
 
-
-    <div class="submenu">
-        <a class="button-blue{{ available_active }}" href="{{ path('marton_topcars_dealership', {'option':'available'}) }}" >Available</a>
-        <a class="button-blue{{ all_active }}" href="{{ path('marton_topcars_dealership', {'option':'all'}) }}">All</a>
-    </div>
-
-    {% if empty %}
-        <div class="info_dialog">There's nothing to buy :(</div>
-    {% endif %}
-
     <div class="cars">
+
+        <div class="tool-bar center">
+            <a href="{{ path('marton_topcars_dealership', {'option':'available'}) }}"><button class="button-blue{{ available_active }}">Available</button></a>
+            <a href="{{ path('marton_topcars_dealership', {'option':'all'}) }}"><button class="button-blue{{ all_active }}">All</button></a>
+        </div>
+
+        {% if empty %}
+            <div class="info_dialog">There's nothing to buy :(</div>
+        {% endif %}
 
         {% for car in cars %}
 
             <div class="card_frame">
                 <div class="frame_model">{{ car.model }}</div>
                 <div class="frame_content">
-                    <img class="frame_image" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}.png"/>
+                    <img class="frame_image" width="230" height ="153" src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}"/>
                     <div class="frame_fade">
                         <div class="frame_price">
 

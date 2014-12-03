@@ -21,7 +21,7 @@
                         <p>Your selected cars</p>
                         {% set img_path = asset('bundles/martontopcars/images/card_game/') %}
                         {% for car in selected_cars %}
-                            <img class="mini-image" width="60px" src="{{ img_path ~ car.image ~ '.png' }}"/>
+                            <img class="mini-image" width="60px" src="{{ img_path ~ car.image }}"/>
                         {% endfor %}
                     {% endif %}
 
