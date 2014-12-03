@@ -251,7 +251,7 @@ var ImageInputModule = function(){
 
 var GameModule = (function(){
 
-    var game, menu, userInfo;
+    var game, menu, gameContainer, userInfo;
 
     // Default settings
     var setting = {
@@ -260,8 +260,7 @@ var GameModule = (function(){
         "imgFormat":".png",
         "ajaxPostScore":"",
         "ajaxFreeForAll":"",
-        "ajaxClassic":"",
-        "gameContainer": document.getElementById("card_game")
+        "ajaxClassic":""
     };
 
     // Original Game (Free For All)
@@ -381,9 +380,6 @@ var GameModule = (function(){
         this.previousActiveRows = [];
 
         this.topPanel = null;
-        function getTopPanel(){
-            return self.topPanel;
-        }
 
         // Containing agents of the game
         this.player = {
@@ -395,25 +391,27 @@ var GameModule = (function(){
         // States of the game
         this.isPaused        = false; // Normally changed when opening settings
         this.hasRoundEnded   = false; // Normally changed after each select
-        this.isEnded         = true; // Normally changed when losing or restarting
+        this.hasGameEnded         = true; // Normally changed when losing or restarting
         this.hostsTurn       = true; // Normally changed before and after the opponents selected.
 
         // To be overridden
-        this.loseAction = function(){
-            self.isEnded = true;
+        this.loseRoundAction = function(){
+            self.hasGameEnded = true;
             self.RoundControls.newGame();
         };
 
         // To be overridden
-        this.winAction = function(){
+        this.winRoundAction = function(){
             self.RoundControls.nextRound();
         };
 
         // To be overridden
         this.start = function(){
 
+            self.createUI();
+
             self.isPaused      = false;
-            self.isEnded       = false;
+            self.hasGameEnded       = false;
             self.hasRoundEnded = false;
 
             self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
@@ -426,9 +424,9 @@ var GameModule = (function(){
         // To be overridden
         this.restart = function(){
 
-            if (self.isEnded && self.hasRoundEnded){
+            if (self.hasGameEnded && self.hasRoundEnded){
 
-                self.isEnded = false;
+                self.hasGameEnded = false;
                 self.hasRoundEnded = false;
 
                 AnimateModule.createStreakCount(uiContainer.streakText, "new", "0");
@@ -451,7 +449,7 @@ var GameModule = (function(){
                 var levelChange    = data.levelChange;
                 var userLevelInfo = data.userLevelInfo;
 
-                self.topPanel.update(levelChange, userLevelInfo);
+                self.TopPanelModule.update(levelChange, userLevelInfo);
             };
 
             // Ajax call
@@ -613,10 +611,10 @@ var GameModule = (function(){
                 // Deciding game state: WIN/DRAW or LOSE and acting accordingly
                 if (self.player.user.roundResult === "lose"){
 
-                    self.loseAction();
+                    self.loseRoundAction();
                 }else{
 
-                    self.winAction();
+                    self.winRoundAction();
                 }
 
                 self.endOfRoundAction();
@@ -653,15 +651,13 @@ var GameModule = (function(){
             return 0;
         };
 
-        function createUI(){
+        this.createUI = function(){
 
             // Start by allocating the container of the game
-            uiContainer.container = setting.gameContainer;
+            uiContainer.container = gameContainer;
 
             // Create top panel
-            self.topPanel = new TopPanel();
-            self.topPanel.setContainer(uiContainer);
-            self.topPanel.createUI();
+            self.TopPanelModule.init();
 
             // Create elements that don't belong to anyone
             var battlefield = new Battlefield();
@@ -695,14 +691,14 @@ var GameModule = (function(){
             }
 
             return this;
-        }
+        };
 
-        function removeUI(){
+        this.removeUI = function(){
 
-            while (setting.gameContainer.firstChild) {
-                setting.gameContainer.removeChild(setting.gameContainer.firstChild);
+            while (uiContainer.container.firstChild) {
+                uiContainer.container.removeChild(uiContainer.container.firstChild);
             }
-        }
+        };
 
         // Module responsible for re-appearing buttons after each round.
         this.RoundControls = (function(){
@@ -823,10 +819,109 @@ var GameModule = (function(){
             }
         }();
 
+        // Module responsible for handling the panel which displays the user's score and level.
+        this.TopPanelModule = (function(){
+
+            var fillBar, scoreText;
+
+            var attribute = {
+                score: 0,
+                lowScoreLimit: 0,
+                highScoreLimit: 0
+            };
+
+            function init(){
+
+                // Filled bar of Score
+                fillBar = document.getElementById("s_fill");
+                // Text of Score
+                scoreText = document.getElementById("s_score");
+            }
+
+            function update(levelChange, userLevelInfo){
+
+                // userLevelInfo is an object with attributes: "low_score_limit", "high_score_limit", "level", "score"
+
+                var previousScore = attribute.score;
+
+                switch (levelChange){
+                    case "up":
+
+                        // Animation till the top
+                        AnimateModule.animateIncrement(previousScore, attribute.highScoreLimit, scoreText);
+                        AnimateModule.animateFill(fillBar, previousScore, attribute.highScoreLimit, attribute.lowScoreLimit, attribute.highScoreLimit, function(){
+
+                            // TODO: level up graphics
+                            setAttributes(userLevelInfo);
+
+                            setUI();
+
+                            // Animation till new score
+                            AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, scoreText);
+                            AnimateModule.animateFill(fillBar, attribute.lowScoreLimit, attribute.score, attribute.lowScoreLimit, attribute.highScoreLimit);
+
+                        });
+
+                        break;
+
+                    case "down":
+
+                        // Animation till the bottom
+                        AnimateModule.animateIncrement(previousScore, attribute.lowScoreLimit, scoreText);
+                        AnimateModule.animateFill(fillBar, previousScore, attribute.lowScoreLimit, attribute.lowScoreLimit, attribute.highScoreLimit, function(){
+
+                            // TODO: level up graphics
+                            setAttributes(userLevelInfo);
+
+                            setUI();
+
+                            // Animation till new score
+                            AnimateModule.animateIncrement(attribute.highScoreLimit, attribute.score, scoreText);
+                            AnimateModule.animateFill(fillBar, attribute.highScoreLimit, attribute.score, attribute.lowScoreLimit, attribute.highScoreLimit);
+
+                        });
+
+                        break;
+
+                    default:
+
+                        setAttributes(userLevelInfo);
+                        setUI();
+
+                        AnimateModule.animateIncrement(previousScore, attribute.score, scoreText);
+                        AnimateModule.animateFill(fillBar, previousScore, attribute.score, attribute.lowScoreLimit, attribute.highScoreLimit);
+
+                        break;
+                }
+
+                return this;
+            }
+
+            // This is meant to print the limits of the current level
+            function setUI(){
+
+                //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
+                //ui.highScoreLimit.innerHTML = attribute.highScoreLimit - attribute.score + " until next level";
+            }
+
+            function setAttributes(userLevelInfo){
+
+                attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
+                attribute.score             = userLevelInfo.score;
+                attribute.highScoreLimit  = userLevelInfo.high_score_limit;
+            }
+
+            return{
+                init:init,
+                update:update
+            }
+
+        })();
+
         this.test = function(){
-            createUI();
+
             self.start();
-            getTopPanel().update("default", userInfo);
+            self.TopPanelModule.update("default", userInfo);
             self.player.host.score += userInfo.score;
         };
 
@@ -988,122 +1083,6 @@ var GameModule = (function(){
             }
         };
 
-        function TopPanel(){
-
-            var container;
-            this.setContainer = function(c){
-                container = c;
-            };
-
-            var attribute = {
-                score: 0,
-                lowScoreLimit: 0,
-                highScoreLimit: 0
-            };
-
-            var ui = {};
-
-            this.createUI = function(){
-
-                container.topPanel = document.getElementById("top_panel");
-
-                // Filled bar of Score
-                ui.fill = document.getElementById("s_fill");
-
-                // Text of Score
-                ui.score = document.getElementById("s_score");
-            };
-
-            this.update = function(levelChange, userLevelInfo){
-                // userLevelInfo is an object with attributes: "low_score_limit", "high_score_limit", "level", "score"
-
-                var previousScore = attribute.score;
-
-                switch (levelChange){
-                    case "up":
-
-                        // Animation till the top
-                        AnimateModule.animateIncrement(previousScore, attribute.highScoreLimit, ui.score);
-                        animateFill(previousScore, attribute.highScoreLimit, function(){
-
-                            // TODO: level up graphics
-                            setAttributes(userLevelInfo);
-
-                            setUI();
-
-                            // Animation till new score
-                            AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, ui.score);
-                            animateFill(attribute.lowScoreLimit, attribute.score);
-
-                        });
-
-                        break;
-
-                    case "down":
-
-                        // Animation till the bottom
-                        AnimateModule.animateIncrement(previousScore, attribute.lowScoreLimit, ui.score);
-                        animateFill(previousScore, attribute.lowScoreLimit, function(){
-
-                            // TODO: level up graphics
-                            setAttributes(userLevelInfo);
-
-                            setUI();
-
-                            // Animation till new score
-                            AnimateModule.animateIncrement(attribute.highScoreLimit, attribute.score, ui.score);
-                            animateFill(attribute.highScoreLimit, attribute.score);
-
-                        });
-
-                        break;
-
-                    default:
-
-                        setAttributes(userLevelInfo);
-
-                        setUI();
-
-                        AnimateModule.animateIncrement(previousScore, attribute.score, ui.score);
-                        animateFill(previousScore, attribute.score);
-
-                        break;
-                }
-
-
-                return this;
-
-                function setAttributes(userLevelInfo){
-
-                    attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
-                    attribute.score             = userLevelInfo.score;
-                    attribute.highScoreLimit  = userLevelInfo.high_score_limit;
-                }
-
-                function setUI(){
-
-                    //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
-                    //ui.highScoreLimit.innerHTML = attribute.highScoreLimit - attribute.score + " until next level";
-                }
-
-                function animateFill (oldScore, newScore, callback){
-
-                    callback = typeof callback !== 'undefined' ? callback : function(){};
-
-                    var oldWidth = Math.round(100*(oldScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
-                    $(ui.fill).css({"width":oldWidth+"%"});
-
-                    var newWidth = Math.round(100*(newScore-attribute.lowScoreLimit)/(attribute.highScoreLimit - attribute.lowScoreLimit));
-                    if (newWidth>100) newWidth = 100;
-
-                    $(ui.fill).promise().done(function(){
-                        // 200  - 400 ms
-                        $(this).animate({"width":newWidth+"%"}, 200, callback);
-                    });
-                }
-            }
-        }
-
         function Battlefield(){
 
             this.create = function(){
@@ -1146,6 +1125,8 @@ var GameModule = (function(){
 
         var self = this;
 
+        self.createUI();
+
         // Set players' cards
         self.giveCardsToUser(self.userCards);
         self.giveCardsToOpponents();
@@ -1168,7 +1149,7 @@ var GameModule = (function(){
         self.updateAllPlayersCardIndicators();
 
         self.isPaused      = false;
-        self.isEnded       = false;
+        self.hasGameEnded       = false;
         self.hasRoundEnded = false;
 
         self.player.host.setCard(self.getRandomCard(self.player.host.deck)).showCard();
@@ -1242,7 +1223,6 @@ var GameModule = (function(){
         }
     };
 
-
     ClassicGame.prototype.newRound = function () {
 
         var self = this;
@@ -1280,6 +1260,7 @@ var GameModule = (function(){
                     // TODO: Count-down
                     self.player.host.setCard(self.player.host.deck[0]).showCard(function(){
 
+                        // Let the computer pick a field
                         // TODO: Choice algorithm
                         self.selectField(self.player.host.viewHolder.speed);
                     });
@@ -1288,11 +1269,25 @@ var GameModule = (function(){
         }
     };
 
+    ClassicGame.prototype.winRoundAction = function(){
+
+    };
+
+    ClassicGame.prototype.loseRoundAction = function(){
+
+    };
+    
+    ClassicGame.prototype.winGameAction = function(){
+
+    };
+    
+    ClassicGame.prototype.loseGameAction = function(){
+        
+    };
+
     ClassicGame.prototype.endOfRoundAction = function(){
 
         var self = this;
-
-        // TODO: Check for winning
 
         // Data to post to the server
         var data = {
@@ -1306,11 +1301,22 @@ var GameModule = (function(){
             var levelChange    = data.levelChange;
             var userLevelInfo = data.userLevelInfo;
 
-            self.topPanel.update(levelChange, userLevelInfo);
+            self.TopPanelModule.update(levelChange, userLevelInfo);
         };
 
         // Ajax call
         postToServer(setting.ajaxPostScore, data, success);
+
+        // TODO: Check for winning or losing
+        // Check if the user has won or lost
+        if (self.player.user.deck.length === 0){
+
+
+        }
+
+        // Check if any players apart from the user have lost. If yes, remove them.
+
+        self.RoundControls.nextRound();
     };
 
     // TODO: this module should represent a shell for the game. Also it should contain the settings
@@ -1327,6 +1333,7 @@ var GameModule = (function(){
         registerEventListeners();
 
         menu = document.getElementById("main-menu");
+        gameContainer = document.getElementById("battlefield");
     }
 
     function registerEventListeners(){
@@ -1336,6 +1343,9 @@ var GameModule = (function(){
 
         var classicButton = document.getElementById("classic");
         classicButton.addEventListener("click", startClassic);
+
+        var menuButton = document.getElementById("main-menu-button");
+        menuButton.addEventListener("click", showMenu);
     }
 
     function startFreeForAll(){
@@ -1391,9 +1401,13 @@ var GameModule = (function(){
         $(menu).fadeOut(150, callback);
     }
 
-    function showMenu(callback){
+    function showMenu(){
 
-        $(menu).fadeIn(150, callback);
+        if (game !== "undefined"){
+            game.removeUI();
+            game = null;
+            $(menu).fadeIn(150);
+        }
     }
 
     function openSettings(){
@@ -1483,10 +1497,27 @@ var AnimateModule = function(){
         }
     }
 
+    //Helper function to change the width of a bar
+    function animateFill (fillBar, oldScore, newScore, lowScoreLimit, highScoreLimit, callback){
+
+        callback = typeof callback !== 'undefined' ? callback : function(){};
+
+        var oldWidth = Math.round(100*(oldScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
+        $(fillBar).css({"width":oldWidth+"%"});
+
+        var newWidth = Math.round(100*(newScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
+        if (newWidth>100) newWidth = 100;
+
+        $(fillBar).promise().done(function(){
+            $(this).animate({"width":newWidth+"%"}, 200, callback);
+        });
+    }
+
     return{
         createFloatingText : createFloatingText,
         createStreakCount  : animateStreakCount,
-        animateIncrement   : animateIncrement
+        animateIncrement   : animateIncrement,
+        animateFill        : animateFill
     }
 }();
 
