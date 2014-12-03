@@ -9,6 +9,7 @@
 !/app/config/security.yml
 !/app/Resources/views/base.html.twig
 
+!/src/Marton/TopCarsBundle/Test/*
 !/src/Marton/TopCarsBundle/Classes/*
 !/src/Marton/TopCarsBundle/Controller/*
 !/src/Marton/TopCarsBundle/Entity/*
