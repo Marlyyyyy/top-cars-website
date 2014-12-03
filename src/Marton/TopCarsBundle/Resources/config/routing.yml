@@ -14,14 +14,17 @@ marton_topcars_game:
 marton_topcars_post_score:
     path:  /game/post_score
     defaults: { _controller: MartonTopCarsBundle:Game:postUserScore }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_free_for_all:
     path:  /game/check/free_for_all
     defaults: { _controller: MartonTopCarsBundle:Game:checkFreeForAll }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_classic:
     path:  /game/check/classic
     defaults: { _controller: MartonTopCarsBundle:Game:checkClassic }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 # Car
 marton_topcars_garage:
@@ -37,15 +40,17 @@ marton_topcars_dealership:
 marton_topcars_purchase_car:
     path: /car/purchase
     defaults: { _controller: MartonTopCarsBundle:Car:purchase }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_select_car:
     path: /car/select
     defaults: { _controller:MartonTopCarsBundle:Car:select }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_unselect_all:
     path: /car/unselect_all
     defaults: { _controller:MartonTopCarsBundle:Car:unselectAll }
-
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 # User
 marton_topcars_leaderboard:
@@ -67,6 +72,7 @@ marton_topcars_account_update:
 marton_topcars_account_delete:
     path: /account/delete
     defaults: {_controller: MartonTopCarsBundle:User:deleteAccount }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 # SuggestedCar
 marton_topcars_pending:
@@ -76,26 +82,32 @@ marton_topcars_pending:
 marton_topcars_create_suggestedCar:
     path: /suggest/create
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:create }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_pending_vote:
     path:  /pending/vote
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:vote }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_pending_accept:
     path:  /pending/accept
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:accept }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_pending_delete:
     path:  /pending/delete
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:delete }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_pending_edit_or_create:
     path:  /pending/edit
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:editOrCreate }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 marton_topcars_pending_query:
     path: /pending/query
     defaults: { _controller: MartonTopCarsBundle:SuggestedCar:query }
+    condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 
 # Account
 marton_topcars_register:
