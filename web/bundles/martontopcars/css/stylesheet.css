@@ -506,7 +506,30 @@ input{
     font-weight: normal;
 }
 
+#global-error{
+    position:relative;
+}
+
+#global-error .error{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 30%;
+    height: 5%;
+    z-index: 5;
+    list-style: none;
+    font-size: 14px;
+    padding: 2px 5px 2px 5px;
+    border: 1px solid rgba(157, 28, 28, 0.77);
+    background: rgba(236, 185, 185, 0.8);
+    color: rgb(147, 0, 0);
+    font-weight: bold;
+    border-radius: 2px;
+    margin-bottom: 5px;
+}
+
 .error{
+    cursor:pointer;
     list-style: none;
     font-size: 14px;
     padding: 2px 5px 2px 5px;
@@ -515,14 +538,53 @@ input{
     color: rgb(223, 0, 0);
     font-weight: bold;
     border-radius: 2px;
-    margin-botom: 5px;
+    margin-bottom: 5px;
+}
+
+.error:hover{
+    opacity:0.8;
 }
 
 /* Game Page */
 
+.game-container{
+    min-height: 650px;
+}
+
 .game_header{
     z-index: 1;
     position: relative;
+    background: rgba(0, 0, 0, 0.65);
+    height: 60px;
+    text-align: left;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.game_header div{
+    display: inline-block;
+    text-align: center;
+    width: 75%;
+}
+
+.game_header p{
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+}
+
+.game_header img{
+    opacity: 0.8;
+}
+
+.game_header img:hover{
+    opacity: 1;
+}
+.menu-button{
+    padding: 15px 20px 15px 20px !important;
+    vertical-align: bottom;
+    margin: auto 0 4px auto;
+    background: rgba(100, 100, 100, 0.8);
 }
 
 .settings{
@@ -579,12 +641,8 @@ input{
     background: rgba(128, 128, 128, 0.80);
 }
 
-.battlefield{
-}
-
 .top_panel{
-    margin: 40px auto 10px auto;
-    width: 80%;
+    width: 100%;
     height: 50px;
     text-align: center;
     position: relative;
@@ -597,11 +655,13 @@ input{
 .level_score{
     display: inline-block;
     z-index: 5;
-    line-height: 30px;
+    line-height: 50px;
     vertical-align: top;
     color: white;
+    text-shadow: 1px 1px 20px rgba(0, 0, 0, 0.27);
     font-weight: bold;
     font-size: 30px;
+    position: absolute;
 }
 .text_left{
     text-align: left;
@@ -612,15 +672,15 @@ input{
 }
 
 .score_bar{
-    height:20px;
-    width:600px;
+    height: 35px;
+    width: 100%;
     text-align: left;
     position: absolute;
     left: 0;
     right: 0;
-    top: 15px;
-    margin-left:auto;
-    margin-right:auto;
+    top: 7px;
+    margin-left: auto;
+    margin-right: auto;
     background: rgba(160, 160, 160, 0.21);
 }
 .score_bar .fill{
@@ -631,6 +691,77 @@ input{
     display: inline-block;
     vertical-align: top;
 }
+
+#main-menu{
+    margin-top: 25px;
+}
+
+.game-type-locked{
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    filter: grayscale(100%);
+}
+
+.game-type{
+    vertical-align: top;
+    background-repeat: no-repeat;
+    background-clip: border-box;
+    background-position: center;
+    background-size: 200px;
+    display:inline-block;
+    opacity: 0.7;
+    width:200px;
+    height:300px;
+    cursor:pointer;
+    background:green;
+    transition: 0.15s all ease-out;
+}
+
+.game-type-unlocked:hover{
+    background-size: 204px;
+    opacity: 1;
+    width:204px;
+    height:306px;
+}
+
+.game-type-unlocked:hover p{
+    font-size: 30px;
+}
+
+.game-type p{
+    font-weight: bold;
+    font-size: 15px;
+    text-align: right;
+    margin: 5px;
+    transition: 0.15s all ease-out;
+}
+
+
+
+.indicator-box{
+    height: 20px;
+    width: 90%;
+    margin: auto;
+    background: white;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.indicator-box span{
+    width: 12px;
+    height: 18px;
+    border: 1px solid rgba(0, 61, 218, 0.43);
+    display: inline-block;
+    border-radius: 2px;
+    margin-right: 2px;
+    color: grey;
+    text-align: center;
+    font-size: 10px;
+    line-height: 18px;
+    vertical-align: top;
+}
+
 .card_block{
     display:inline-block;
     vertical-align: top;
@@ -1364,10 +1495,19 @@ input{
 
 .tool-bar{
     text-align: right;
-    padding: 5px 0px 5px 0px;
+    padding: 5px 0 5px 0;
     border-top: 1px solid rgb(226, 226, 226);
     border-bottom: 1px solid rgb(226, 226, 226);
     background: rgba(255, 255, 255, 0.49);
+}
+
+.tool-bar p{
+    display: inline-block;
+    font-weight: bold;
+    color: grey;
+    font-size: 18px;
+    text-align: center;
+    width: 79%;
 }
 
 .author{
