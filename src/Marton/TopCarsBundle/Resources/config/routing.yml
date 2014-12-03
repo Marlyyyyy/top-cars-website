@@ -15,6 +15,14 @@ marton_topcars_post_score:
     path:  /game/post_score
     defaults: { _controller: MartonTopCarsBundle:Game:postUserScore }
 
+marton_topcars_free_for_all:
+    path:  /game/check/free_for_all
+    defaults: { _controller: MartonTopCarsBundle:Game:checkFreeForAll }
+
+marton_topcars_classic:
+    path:  /game/check/classic
+    defaults: { _controller: MartonTopCarsBundle:Game:checkClassic }
+
 # Car
 marton_topcars_garage:
     path: /garage

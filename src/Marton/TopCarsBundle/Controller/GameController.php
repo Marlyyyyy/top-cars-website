@@ -41,6 +41,11 @@ class GameController extends Controller{
 
         // Get cars owned and selected by the user
         $selected_cars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
+        if (count($selected_cars) === 10){
+            $is_classic_unlocked = true;
+        }else{
+            $is_classic_unlocked = false;
+        }
 
         // To calculate score initially
         $achievemetCalculator = new AchievementCalculator();
@@ -52,9 +57,8 @@ class GameController extends Controller{
         //$achievemetCalculator->printLevel();
 
         return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig', array(
-            "deck" => json_encode($cars),
-            "user_deck" => json_encode($selected_cars),
-            "user_level_info" => json_encode($user_level_info)
+            "selected_cars" => $selected_cars,
+            "is_classic_unlocked" => $is_classic_unlocked
         ));
     }
 
@@ -115,6 +119,86 @@ class GameController extends Controller{
             'userLevelInfo' => $new_score_info)));
         $response->headers->set('Content-Type', 'application/json');
 
+        return $response;
+    }
+
+    public function checkFreeForAllAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Get the progress
+        /* @var $user User */
+        /* @var $progress UserProgress */
+        $progress = $user->getProgress();
+        $user_score = $progress->getScore();
+
+        // Get all cars
+        /* @var $repository CarRepository */
+        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+        $cars = $repository-> findAllCarsAsArray();
+
+        // To calculate score initially
+        $achievemetCalculator = new AchievementCalculator();
+        $user_level_info = $achievemetCalculator->calculateLevel($user_score);
+        $user_level_info["score"] = $user_score;
+
+        $response = new Response(json_encode(array(
+            "deck" => json_encode($cars),
+            "user_level_info" => json_encode($user_level_info))));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    public function checkClassicAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        // Get cars owned and selected by the user
+        $selected_cars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
+
+        // Check if the user has enough cars to play the game
+        if(count($selected_cars) === 10){
+
+            // Get the progress
+            /* @var $user User */
+            /* @var $progress UserProgress */
+            $progress = $user->getProgress();
+            $user_score = $progress->getScore();
+
+            // Get all cars
+            /* @var $repository CarRepository */
+            $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+            $cars = $repository-> findAllCarsAsArray();
+
+            // To calculate score initially
+            $achievemetCalculator = new AchievementCalculator();
+            $user_level_info = $achievemetCalculator->calculateLevel($user_score);
+            $user_level_info["score"] = $user_score;
+
+            $response = new Response(json_encode(array(
+                "error" => array(),
+                "deck" => json_encode($cars),
+                "selected_cars" => json_encode($selected_cars),
+                "user_level_info" => json_encode($user_level_info))));
+        }else{
+
+            $response = new Response(json_encode(array(
+                "error" => array("You do not have enough cars selected to play this game mode")
+            )));
+        }
+
+        $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 } 

@@ -1374,26 +1374,31 @@ var GameModule = (function(){
 
     function startClassic(){
 
-        hideMenu(function(){
+        var data = {};
 
-            var data = {};
+        var success = function(response){
 
-            var success = function(response){
+            if (response.error.length === 0){
 
-                game = new ClassicGame();
-                game.setCards(JSON.parse(response.deck));
-                userInfo = JSON.parse(response.user_level_info);
+                hideMenu(function(){
 
-                console.log(userInfo);
+                    game = new ClassicGame();
+                    game.setCards(JSON.parse(response.deck));
+                    userInfo = JSON.parse(response.user_level_info);
 
-                game.setUserCards(JSON.parse(response.selected_cars));
+                    console.log(userInfo);
 
-                game.test();
+                    game.setUserCards(JSON.parse(response.selected_cars));
 
-            };
+                    game.test();
+                });
+            }else{
 
-            postToServer(setting.ajaxClassic, data, success);
-        });
+                ErrorModule.init(document.getElementById("global-error")).displayErrors(response.error);
+            }
+        };
+
+        postToServer(setting.ajaxClassic, data, success);
     }
 
     function hideMenu(callback){
@@ -1403,7 +1408,7 @@ var GameModule = (function(){
 
     function showMenu(){
 
-        if (game !== "undefined"){
+        if (game !== undefined){
             game.removeUI();
             game = null;
             $(menu).fadeIn(150);
@@ -2025,13 +2030,26 @@ var ErrorModule = (function(){
         var p = document.createElement("p");
         p.className = "error";
         p.innerText = errorText;
+        p.addEventListener("click", hideError);
         container.appendChild(p);
+    }
+
+    function hideError(){
+
+        $(this).fadeOut(150, function(){
+
+            container.removeChild(this);
+        });
     }
 
     function hideErrors(){
 
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
+        var children = container.childNodes;
+
+        for (var i=0;i<children.length; i++){
+            if (children[i].className === "error"){
+                container.removeChild(children[i]);
+            }
         }
     }
 

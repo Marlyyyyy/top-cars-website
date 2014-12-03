@@ -10,11 +10,22 @@
 {% block content %}
 
     <div class="content shadow">
-        <div class="container noselect" id="card_game">
+        <div class="container game-container noselect">
 
             <div class="game_header">
-                <button id="bt_settings">Settings</button>
-                <div class="level_score" id="s_score">0</div>
+                <button id="main-menu-button" class="menu-button button-blue">Main Menu</button>
+                <button id="settings" class="menu-button button-blue">Settings</button>
+                <div>
+
+                    {% if is_classic_unlocked %}
+                        <p>Your selected cars</p>
+                        {% set img_path = asset('bundles/martontopcars/images/card_game/') %}
+                        {% for car in selected_cars %}
+                            <img class="mini-image" width="60px" src="{{ img_path ~ car.image ~ '.png' }}"/>
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
             </div>
 
             <div class="settings">
@@ -32,18 +43,28 @@
                 </div>
             </div>
 
-            <div class="user_header">
-            </div>
-
-
-            <!-- Top Panel-->
             <div class="top_panel" id="top_panel">
                 <div class="level_bar">
+
+                    <div class="level_score" id="s_score"></div>
 
                     <div class="score_bar">
                         <div class="fill" id="s_fill"></div>
                     </div>
 
+                </div>
+            </div>
+
+            <!-- Top Panel-->
+
+
+            <!-- Main Menu -->
+            <div id="main-menu">
+                <div class="game-type game-type-unlocked" id="free-for-all" style="background-image: url({{ asset('bundles/martontopcars/images/src/freeforall.jpg') }})">
+                    <p>Free For All</p>
+                </div>
+                <div class="game-type {{ is_classic_unlocked ? 'game-type-unlocked' : 'game-type-locked' }}" id="classic" style="background-image: url({{ asset('bundles/martontopcars/images/src/classic.jpg') }})">
+                    <p>Classic</p>
                 </div>
             </div>
 
@@ -63,30 +84,11 @@
 
         // Card Game
         var IMG_PREFIX = "{{ asset('bundles/martontopcars/images/card_game/') }}";
-        var IMG_FORMAT = ".png";
+        var AJAX_POST_SCORE_PATH = "{{ path('marton_topcars_post_score') }}";
+        var AJAX_FREE_FOR_ALL = "{{ path('marton_topcars_free_for_all') }}";
+        var AJAX_CLASSIC = "{{ path('marton_topcars_classic') }}";
 
-        var cardGame = new ClassicGame();
-
-        cardGame.setting.players = 2;
-        cardGame.setting.imgFolder = IMG_PREFIX;
-        cardGame.setting.imgFormat = IMG_FORMAT;
-        cardGame.setting.ajaxPostScore = "{{ path('marton_topcars_post_score') }}";
-        cardGame.setting.gameContainer = document.getElementById("card_game");
-
-        cardGame.setUserInfo(JSON.parse('{{ user_level_info | raw }}'));
-
-        var userDeck = {{ user_deck | raw }};
-
-        // TODO: set these cards after the players have been created
-        for (key in userDeck){
-            if (userDeck.hasOwnProperty(key)){
-                cardGame.userCards[key] = userDeck[key];
-            }
-        }
-
-        cardGame.setCards({{ deck | raw }}).preloadImages(function(){
-            cardGame.test();
-        });
+        GameModule.init(AJAX_POST_SCORE_PATH, AJAX_FREE_FOR_ALL, AJAX_CLASSIC, IMG_PREFIX);
 
     </script>
 
