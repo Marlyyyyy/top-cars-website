@@ -8,7 +8,7 @@
 
 namespace Marton\TopCarsBundle\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Marton\TopCarsBundle\Test\WebTestCase;
 
 class AccountControllerTest extends WebTestCase{
 
@@ -38,27 +38,12 @@ class AccountControllerTest extends WebTestCase{
             0,
             $crawler->filter('html:contains("Login")')->count()
         );
-
     }
 
     // Test creating an account
     public function testCreateAction(){
 
-        $client = static::createClient();
-        $client->followRedirects();
-
-        // Register
-        $crawler = $client->request('GET', '/register');
-
-        $form = $crawler->selectButton('registration_register')->form();
-
-        $form['registration[user][username]'] = 'TestUser';
-        $form['registration[user][email]'] = 'test@test.com';
-        $form['registration[user][password][password]'] = 'testpw';
-        $form['registration[user][password][confirm]'] = 'testpw';
-        $form['registration[terms]']->tick();
-
-        $client->submit($form);
+        $client = $this->registerClient();
 
         // Check if the user has been created
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
@@ -76,40 +61,51 @@ class AccountControllerTest extends WebTestCase{
         $this->assertTrue($securityContext->isGranted('IS_AUTHENTICATED_ANONYMOUSLY'));
     }
 
-    // Test logging in and deleting an account
-    public function testLoginAndDeleteAction(){
+    // Test for loading the Account page
+    public function testAccountAction(){
 
-        $client = static::createClient();
-        $client->followRedirects();
+        $client = $this->loginClient();
 
-        // Login
-        $crawler = $client->request('GET', '/login');
+        $crawler = $client->request('GET', '/account');
 
-        $form = $crawler->selectButton('button-login')->form();
+        $this->assertGreaterThan(
+            0,
+            $crawler->filter('html:contains("Delete Account")')->count()
+        );
+    }
 
-        $form['_username'] = 'test@test.com';
-        $form['_password'] = 'testpw';
+    // Test updating the account through a form
+    public function testUpdateAccountAction(){
+
+        $client = $this->loginClient();
+
+        $crawler = $client->request('GET', '/account');
+
+        $form = $crawler->selectButton('userDetails_save')->form();
+
+        $form['userDetails[country]'] = "Austria";
 
         $client->submit($form);
+
+        // Check if the user's details have been updated
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+
+        $this->assertEquals("Austria", $user[0]->getDetails()->getCountry());
+    }
+
+    // Test authorisation and deleting an account
+    public function testLoginAndDeleteAction(){
+
+        $client = $this->loginClient();
 
         // Check if the user is logged in
         $container = $client->getContainer();
         $securityContext = $container->get('security.context');
         $this->assertTrue($securityContext->isGranted('ROLE_USER'));
 
-
         // Now delete the user
-        $client->request(
-            'GET',
-            '/account/delete',
-            array(),
-            array(),
-            array(
-                'CONTENT_TYPE'          => 'application/json',
-                'HTTP_REFERER'          => '/account',
-                'HTTP_X-Requested-With' => 'XMLHttpRequest',
-            )
-        );
+        $this->deleteClient($client);
 
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
