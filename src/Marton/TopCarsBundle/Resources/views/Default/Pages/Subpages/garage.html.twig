@@ -9,7 +9,10 @@
 
     <div class="cars">
 
-        <h5>{{ cars | length }}/{{ all_cars_count }} cars collected</h5>
+        <div class="tool-bar">
+            <p><span id="selected-car-counter">{{ selected_cars_count }}</span><span>/10 cars selected</span></p>
+            <button id="unselect-cars" class="button-save">Unselect All</button>
+        </div>
 
         {% for car in cars %}
 
@@ -37,8 +40,7 @@
 
     <div class="user_footer">
         <div class="user_level">
-            <span id="selected-car-counter">{{ selected_cars_count }}</span>
-            <span>/10 cars selected</span>
+            <span>{{ cars | length }} / {{ all_cars_count }} cars collected</span>
         </div>
     </div>
 
@@ -48,7 +50,7 @@
 
     <script>
 
-        GarageModule.init("{{ path('marton_topcars_select_car') }}");
+        GarageModule.init("{{ path('marton_topcars_select_car') }}", "{{ path('marton_topcars_unselect_all') }}");
 
     </script>
 

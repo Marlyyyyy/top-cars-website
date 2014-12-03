@@ -42,6 +42,10 @@ marton_topcars_select_car:
     path: /car/select
     defaults: { _controller:MartonTopCarsBundle:Car:select }
 
+marton_topcars_unselect_all:
+    path: /car/unselect_all
+    defaults: { _controller:MartonTopCarsBundle:Car:unselectAll }
+
 
 # User
 marton_topcars_leaderboard:

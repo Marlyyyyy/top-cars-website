@@ -231,4 +231,31 @@ class CarController extends Controller{
 
         return $response;
     }
+
+    // Ajax call to unselect all cars
+    public function unselectAllAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        // Get user entity
+        /* @var $user User */
+        $user= $this->get('security.context')->getToken()->getUser();
+
+        $selected_cars = $user->getSelectedCars();
+
+        foreach($selected_cars as $car){
+
+            $user->removeSelectedCars($car);
+        }
+
+        $em->persist($user);
+        $em->flush();
+
+        $response = new Response(json_encode(array(
+           )));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 } 

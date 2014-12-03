@@ -1576,11 +1576,12 @@ $(document).ready(function(){
 
 var GarageModule = function(){
 
-    var selectAjaxPath, counterText;
+    var selectAjaxPath, unselectAllAjaxPath, counterText;
 
-    function init(selectAjax){
+    function init(selectAjax, unselectAllAjax){
 
         selectAjaxPath = selectAjax;
+        unselectAllAjaxPath = unselectAllAjax
         registerEventListeners();
         counterText = document.getElementById("selected-car-counter");
     }
@@ -1588,6 +1589,8 @@ var GarageModule = function(){
     function registerEventListeners(){
 
         $(".card_frame").click(selectCar);
+        var unselectButton = document.getElementById("unselect-cars");
+        unselectButton.addEventListener("click", unselectAll);
     }
 
     function selectCar(){
@@ -1604,11 +1607,13 @@ var GarageModule = function(){
 
             LoadingModule.hide();
 
-            console.log(response);
 
             if (response.error.length !== 0){
 
-                // TODO: Display errors
+                ErrorModule.init(document.getElementById("global-error")).displayErrors(response.error);
+                if(response.is_full){
+                    // TODO: Show animation for full
+                }
             }else{
 
                 switch(response.change){
@@ -1623,14 +1628,23 @@ var GarageModule = function(){
                 }
 
                 counterText.innerText = response.no_of_cars;
-
-                if(response.is_full){
-                    // TODO: Show animation for full
-                }
             }
         };
 
         postToServer(selectAjaxPath, data, success);
+    }
+
+    function unselectAll(){
+
+        var  data = {};
+
+        var success = function(){
+
+            $(".card_frame").removeClass("selected-card");
+            counterText.innerText = 0;
+        };
+
+        postToServer(unselectAllAjaxPath, data, success);
     }
 
     return{
@@ -1681,10 +1695,11 @@ var Market = function(){
             };
             postToServer(ajaxPath, data, success);
         }else{
-            console.log("Not enough money");
+            var errors = ["You don't have enough money to purchase this car :("];
+            ErrorModule.init(document.getElementById("global-error")).displayErrors(errors);
         }
 
-        function success(data){
+        function success(response){
 
             var frameContent   = $(previousElement).closest(".frame_content");
             var image           = $(frameContent).find(".frame_image");
@@ -1698,9 +1713,15 @@ var Market = function(){
             el = document.getElementById("user_gold");
             AnimateModule.createFloatingText(el, price, " score_red");
 
-            slideFrame(previousElement, "-200%");
-            previousElement = null;
             $(image).addClass("sold_frame");
+
+            slideFrame(previousElement, "-200%").done(function(){
+                var cardFrame = $(previousElement).closest(".card_frame");
+                setTimeout(function(){
+                    $(cardFrame).fadeOut(150);
+                }, 2000);
+            });
+            previousElement = null;
         }
     }
 
@@ -1710,8 +1731,17 @@ var Market = function(){
     }
 
     function slideFrame(el, margin_left){
+
+        var callback = function(){};
+
         var frame = $(el).closest(".frame_buy");
         $(frame).animate({"margin-left":margin_left},150);
+        return{
+            done: function(f){
+                callback = f || callback;
+                callback();
+            }
+        }
     }
 
     return {
