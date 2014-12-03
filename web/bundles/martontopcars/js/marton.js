@@ -257,7 +257,6 @@ var GameModule = (function(){
     var setting = {
         "players" : 3,
         "imgFolder": "",
-        "imgFormat":".png",
         "ajaxPostScore":"",
         "ajaxFreeForAll":"",
         "ajaxClassic":""
@@ -343,7 +342,7 @@ var GameModule = (function(){
             if (typeof callback === "undefined") callback = function(){};
             var arr = [];
             for (var i=0; i<self.cards.len;i++){
-                arr.push(setting.imgFolder + self.cards.deck[i].image + setting.imgFormat);
+                arr.push(setting.imgFolder + self.cards.deck[i].image);
             }
             preloadImages(arr).done(callback);
         };
@@ -1058,7 +1057,7 @@ var GameModule = (function(){
                         if (key !== "image"){
                             self.viewField[key].innerHTML = self.card[key];
                         }else{
-                            self.viewField[key].src = setting.imgFolder + self.card[key] + setting.imgFormat;
+                            self.viewField[key].src = setting.imgFolder + self.card[key];
                         }
                     }
                 }
@@ -1776,6 +1775,8 @@ var PendingCarModule = (function(){
         // Accept & Delete
         popupElements.accept_form   = document.getElementById("accept_form");
         popupElements.delete_form   = document.getElementById("delete_form");
+        // Error messages
+        ErrorModule.init(document.getElementById("error-block-edit"))
     }
 
     function registerEventListeners(){
@@ -1845,7 +1846,9 @@ var PendingCarModule = (function(){
 
     function popupAccept(){
 
+        ErrorModule.hideErrors();
         PopupModule.show(popupElements.accept_form, "Accept");
+        selectedCar = this.dataset.car;
     }
 
     function accept(){
@@ -1854,13 +1857,13 @@ var PendingCarModule = (function(){
 
         var success = function(response){
 
-            switch(response.result){
-                case "success":
-                    $("#cf-"+selectedCar).fadeOut(150);
-                    PopupModule.hide();
-                    break;
-                case "fail":
-                    break;
+            if (response.error.length !== 0){
+
+                ErrorModule.displayErrors(response.error);
+            }else{
+
+                $("#cf-"+selectedCar).fadeOut(150);
+                PopupModule.hide();
             }
         };
 
@@ -1869,7 +1872,7 @@ var PendingCarModule = (function(){
 
     function popupDelete(){
 
-        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
+        ErrorModule.hideErrors();
         selectedCar = this.dataset.car;
         PopupModule.show(popupElements.delete_form, "Delete");
     }
@@ -1898,7 +1901,7 @@ var PendingCarModule = (function(){
 
     function popupCreate(){
 
-        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
+        ErrorModule.hideErrors();
         PopupModule.show(popupElements.form, "Create new card");
         popupElements.form.dataset.car = -1;
         popupElements.inputModel.value = "";
@@ -1909,13 +1912,12 @@ var PendingCarModule = (function(){
         popupElements.inputAcceleration.value = "";
         popupElements.inputWeight.value  = "";
         popupElements.inputComment.value = "";
-
     }
 
     function popupEdit(){
 
-        ErrorModule.init(document.getElementById("error-block-edit")).hideErrors();
         LoadingModule.show();
+        ErrorModule.hideErrors();
         var carId = this.dataset.car;
         var data = {
             carId: carId
@@ -2077,6 +2079,7 @@ var ErrorModule = (function(){
         var children = container.childNodes;
 
         for (var i=0;i<children.length; i++){
+
             if (children[i].className === "error"){
                 container.removeChild(children[i]);
             }

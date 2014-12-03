@@ -130,7 +130,7 @@ marton_topcars_logout:
     path: /logout
 
 marton_topcars_admin_execute:
-    path: /admin/execute/{task}
+    path: /admin/execute
     defaults: { _controller: MartonTopCarsBundle:Data:oneTimeTask }
 
 
