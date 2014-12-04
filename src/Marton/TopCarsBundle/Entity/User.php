@@ -229,7 +229,7 @@ class User implements UserInterface, \Serializable{
      */
     public function addSuggestedCar(\Marton\TopCarsBundle\Entity\SuggestedCar $suggestedCar) {
         $this->suggestedCars[] = $suggestedCar;
-        $suggestedCar->addUpVotedUsers($this);
+        $suggestedCar->setUser($this);
 
         return $this;
     }

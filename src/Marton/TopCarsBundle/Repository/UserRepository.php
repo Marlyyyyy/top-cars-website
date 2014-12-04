@@ -41,7 +41,11 @@ class UserRepository extends EntityRepository{
             ->setParameter('username', $username);
 
         $query = $qb->getQuery();
-        $result = $query->getResult();
+        try{
+            $result = $query->getSingleResult();
+        }catch (\Doctrine\ORM\NoResultException $e){
+            $result = array();
+        }
 
         return $result;
     }

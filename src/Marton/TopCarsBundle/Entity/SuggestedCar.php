@@ -108,7 +108,7 @@ class SuggestedCar implements JsonSerializable{
     private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity="User", mappedBy="votedSuggestedCars", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="votedSuggestedCars")
      *
      */
     private $upVotedUsers;

@@ -146,7 +146,7 @@ class AccountController extends Controller{
         // Delete all the images the user has uploaded for her suggested cars
         foreach($suggested_cars as $car){
 
-            if ($car->getImage() !== 'default.jpg'){
+            if (($car->getImage() !== 'default.jpg') and ($car->getImage() !== 'default.png')){
 
                 $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$car->getImage();
 
