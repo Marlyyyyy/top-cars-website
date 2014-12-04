@@ -14,7 +14,7 @@
 
             <div class="game_header">
                 <button id="main-menu-button" class="menu-button button-blue">Main Menu</button>
-                <button id="settings" class="menu-button button-blue">Settings</button>
+                <button id="settings-button" class="menu-button button-blue">Settings</button>
                 <div>
 
                     {% if is_classic_unlocked %}
@@ -28,21 +28,7 @@
                 </div>
             </div>
 
-            <div class="settings">
-                <div class="settings_content">
-                    <h2>Settings</h2>
-                    <hr>
-                    <div class="setting_label">Number of players:</div>
-                    <div class="setting_input">
-                        <input type="text" min="2" max="10"/>
-                    </div>
-                    <div class="setting_action">
-                        <button id="save">Save</button>
-                        <button id="cancel">Cancel</button>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Top Panel-->
             <div class="top_panel" id="top_panel">
                 <div class="level_bar">
 
@@ -54,9 +40,6 @@
 
                 </div>
             </div>
-
-            <!-- Top Panel-->
-
 
             <!-- Main Menu -->
             <div id="main-menu">
@@ -73,6 +56,41 @@
 
             </div>
 
+        </div>
+    </div>
+
+    <!-- Popups -->
+    <div id="popup" class="popup">
+
+        <div class="popup-content shadow">
+
+            <div class="popup-tools">
+                <span class="popup-exit"><img width="20px" height="20px" src="{{ asset('bundles/martontopcars/images/src/exit.png') }}"/>
+                </span>
+            </div>
+
+            <h1 id="popup-header"></h1>
+
+            <div id="error-block"></div>
+
+            <div id="settings-block" class="popup-body">
+
+                <div class="settings-row">
+
+                    <div class="player-option active" id="player-option-2" data-players="2">
+                        2 Players
+                    </div>
+
+                    <div class="player-option" id="player-option-2" data-players="3">
+                        3 Players
+                    </div>
+
+                </div>
+
+                <button type="button" class="button-cancel popup-exit">Cancel</button>
+                <button type="button" class="button-save" id="settings-save">Save</button>
+
+            </div>
         </div>
     </div>
 

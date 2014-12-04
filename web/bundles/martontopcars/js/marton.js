@@ -255,12 +255,13 @@ var GameModule = (function(){
 
     // Default settings
     var setting = {
-        "players" : 3,
+        "players" : 2,
         "imgFolder": "",
         "ajaxPostScore":"",
         "ajaxFreeForAll":"",
         "ajaxClassic":""
     };
+    var settingTmp = Object.create(setting);
 
     // Original Game (Free For All)
     function Game(){
@@ -1318,10 +1319,6 @@ var GameModule = (function(){
         self.RoundControls.nextRound();
     };
 
-    // TODO: this module should represent a shell for the game. Also it should contain the settings
-    // TODO: question to Allan: am I doing prototype inheritance wrong? How should I structure my code?
-
-
     function init(ajaxPostScore, ajaxFreeForAll, ajaxClassic, imgFolder){
 
         setting.ajaxPostScore = ajaxPostScore;
@@ -1333,6 +1330,8 @@ var GameModule = (function(){
 
         menu = document.getElementById("main-menu");
         gameContainer = document.getElementById("battlefield");
+
+        PopupModule.init(discardSettings);
     }
 
     function registerEventListeners(){
@@ -1345,6 +1344,14 @@ var GameModule = (function(){
 
         var menuButton = document.getElementById("main-menu-button");
         menuButton.addEventListener("click", showMenu);
+
+        var settingsButton = document.getElementById("settings-button");
+        settingsButton.addEventListener("click", openSettings);
+
+        $(".player-option").click(changeNumberOfPlayers);
+
+        var settingsSaveButton = document.getElementById("settings-save");
+        settingsSaveButton.addEventListener("click", saveSettings);
     }
 
     function startFreeForAll(){
@@ -1409,15 +1416,42 @@ var GameModule = (function(){
 
         if (game !== undefined){
             game.removeUI();
-            game = null;
+            game = undefined;
             $(menu).fadeIn(150);
         }
     }
 
     function openSettings(){
+
+        showMenu();
+        PopupModule.show(document.getElementById("settings-block"), "Settings");
     }
 
-    function closeSettings(){
+    function changeNumberOfPlayers(){
+
+        $(".player-option").removeClass("active");
+        $(this).addClass("active");
+
+        settingTmp.players = this.dataset.players;
+    }
+
+    // Overwrite the original setting object
+    function saveSettings(){
+
+        for (key in settingTmp){
+            if (settingTmp.hasOwnProperty(key)){
+                setting[key] = settingTmp[key];
+            }
+        }
+
+        PopupModule.hide();
+    }
+
+    // Remove temporarily changed styles
+    function discardSettings(){
+
+        $(".player-option").removeClass("active");
+        $("#player-option-"+setting.players).addClass("active");
     }
 
     return{
@@ -1763,7 +1797,7 @@ var PendingCarModule = (function(){
     function registerElements(){
 
         // Edit
-        popupElements.form          = document.getElementById("edit_form");
+        popupElements.form          = document.getElementById("edit-block");
         popupElements.inputModel    = document.getElementById("suggestedCar_model");
         popupElements.imgImage      = document.getElementById("v_image");
         popupElements.inputSpeed    = document.getElementById("suggestedCar_speed");
@@ -1773,10 +1807,10 @@ var PendingCarModule = (function(){
         popupElements.inputWeight   = document.getElementById("suggestedCar_weight");
         popupElements.inputComment  = document.getElementById("suggestedCar_comment");
         // Accept & Delete
-        popupElements.accept_form   = document.getElementById("accept_form");
-        popupElements.delete_form   = document.getElementById("delete_form");
+        popupElements.acceptBlock   = document.getElementById("accept-block");
+        popupElements.deleteBlock   = document.getElementById("delete-block");
         // Error messages
-        ErrorModule.init(document.getElementById("error-block-edit"))
+        ErrorModule.init(document.getElementById("error-block"))
     }
 
     function registerEventListeners(){
@@ -1847,7 +1881,7 @@ var PendingCarModule = (function(){
     function popupAccept(){
 
         ErrorModule.hideErrors();
-        PopupModule.show(popupElements.accept_form, "Accept");
+        PopupModule.show(popupElements.acceptBlock, "Accept");
         selectedCar = this.dataset.car;
     }
 
@@ -1874,7 +1908,7 @@ var PendingCarModule = (function(){
 
         ErrorModule.hideErrors();
         selectedCar = this.dataset.car;
-        PopupModule.show(popupElements.delete_form, "Delete");
+        PopupModule.show(popupElements.deleteBlock, "Delete");
     }
 
     function deleteCard(){
@@ -1920,7 +1954,7 @@ var PendingCarModule = (function(){
         ErrorModule.hideErrors();
         var carId = this.dataset.car;
         var data = {
-            carId: carId
+            car_id: carId
         };
         var success = function(response){
 
@@ -2099,22 +2133,25 @@ var PopupModule = (function(){
     var popup;
     var popupHeader;
     var popupBodies;
+    var onClose;
 
     function registerEventListeners(){
 
-        $(popup).click(PopupModule.hide);
+        $(popup).click(discardPopup);
         $(".popup-content").click(function(event){
             event.stopPropagation();
         });
-        $(".popup-exit").click(PopupModule.hide);
+        $(".popup-exit").click(discardPopup);
     }
 
-    function init(){
+    function init(onCloseCallback){
         popupHeader = document.getElementById("popup-header");
         popupBodies    = document.getElementsByClassName("popup-body");
         popup         = document.getElementById("popup");
 
         registerEventListeners();
+
+        onClose = onCloseCallback || function(){};
         return this;
     }
 
@@ -2123,18 +2160,25 @@ var PopupModule = (function(){
         // Show popup with its given main container
         $(element).show();
         $(popup).fadeIn(150);
-        popup.style.overflow = "scroll";
-        document.body.style.overflow = "hidden";
+        popup.style.overflowY = "scroll";
+        document.body.style.overflowY = "hidden";
 
         popupHeader.innerText = header;
     }
 
+    function discardPopup(){
+
+        onClose();
+        hidePopup();
+    }
+
     function hidePopup(){
+
         // Hide popup and all its main containers
         $(popup).fadeOut(150, function(){
             $(popupBodies).hide();
-            popup.style.overflow = "hidden";
-            document.body.style.overflow = "scroll";
+            popup.style.overflowY = "hidden";
+            document.body.style.overflowY = "scroll";
         });
     }
 
