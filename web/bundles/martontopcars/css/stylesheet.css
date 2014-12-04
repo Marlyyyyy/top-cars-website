@@ -18,6 +18,10 @@ body{
     user-select: none;
 }
 
+.center{
+    text-align: center !important;
+}
+
 a{
     color:#333;
     text-decoration: none;
@@ -89,7 +93,6 @@ input{
 
 .button-blue:hover, .button-blue.active{
     background: rgba(91, 161, 219, 0.8);
-    border: 1px solid rgb(102, 102, 102);
 }
 
 .button-yellow{
@@ -407,6 +410,10 @@ input{
     text-align: left !important;
 }
 
+.float-left{
+    float:left !important;
+}
+
 .container{
     background: #f4f4f4;
 }
@@ -713,7 +720,6 @@ input{
     width:200px;
     height:300px;
     cursor:pointer;
-    background:green;
     transition: 0.15s all ease-out;
 }
 
@@ -924,61 +930,70 @@ input{
 
 /* Leaderboard Page*/
 
-.card_table{
+.leaderboard-container{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.leaderboard{
     border-radius: 2px;
-    margin: auto;
+    margin: 20px auto auto auto;
     width: 90%;
     border-collapse: collapse;
     border-spacing: 0;
 }
 
-.card_table .avatar{
+.leaderboard .avatar{
     display: inline-block;
     height:100%;
     vertical-align: middle;
 }
-.card_table .avatar a{
+.leaderboard .avatar a{
     display: block;
 }
-.card_table img{
+.leaderboard img{
     display: block;
 }
-.card_table .avatar{
+.leaderboard .avatar{
     opacity:0.8;
 }
-.card_table tr:hover .avatar{
+.leaderboard tr:hover .avatar{
     opacity: 1;
 }
-.card_table tr:hover{
+.leaderboard tr:hover{
     background: rgba(0, 136, 250, 0.05);
 }
 
-.card_table a{
+.leaderboard a{
     color: rgba(0, 0, 0, 0.75) !important;
     font-weight: bold;
     display:inline-block;
 }
 
-.card_table a:hover{
+.leaderboard a:hover{
     color: rgba(0, 0, 0, 1) !important;
 }
 
-.card_table .tr_header{
+.leaderboard .tr_header{
     background:transparent !important;
 }
-.card_table tbody, tr{
+.leaderboard tbody, tr{
     width:100%;
     line-height: 100%;
 }
 
-.card_table th{
+.leaderboard th{
     text-align: center;
     font-size: 14px;
     color: grey;
     padding:5px;
 }
 
-.card_table td{
+.leaderboard th.active{
+    background: rgba(0, 136, 250, 0.05);
+}
+
+.leaderboard td{
     text-align: center;
     padding:5px;
     border-right: 1px solid #E8E8E8;

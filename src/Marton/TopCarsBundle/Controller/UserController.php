@@ -17,12 +17,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class UserController extends Controller{
 
     // Renders Leaderboard page
-    public function leaderboardAction(){
+    public function leaderboardAction($sort){
 
         // Get all highscores
         /* @var $repository UserRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
-        $users = $repository-> findHighscores();
+        $users = $repository-> findHighscores($sort);
 
         foreach ($users as $user){
             $statisticsCalculator = new StatisticsCalculator($user);
@@ -31,7 +31,8 @@ class UserController extends Controller{
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/leaderboard.html.twig', array(
-            'users' => $users
+            'users' => $users,
+            'sort' => $sort
         ));
     }
 
@@ -43,17 +44,17 @@ class UserController extends Controller{
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
         $user_details = $repository-> findDetailsOfUser($user);
 
-        $statisticsCalculator = new StatisticsCalculator($user_details[0]);
-        $user_details[0]->setStatistics($statisticsCalculator->getStatistics());
+        $statisticsCalculator = new StatisticsCalculator($user_details);
+        $user_details->setStatistics($statisticsCalculator->getStatistics());
 
-        $cars = $user_details[0]->getCars();
+        $cars = $user_details->getCars();
         $cars_value = 0;
         foreach($cars as $car){
             $cars_value += $car->getPrice();
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/user.html.twig', array(
-            'user' => $user_details[0],
+            'user' => $user_details,
             'cars' => $cars,
             'cars_value' => $cars_value
         ));

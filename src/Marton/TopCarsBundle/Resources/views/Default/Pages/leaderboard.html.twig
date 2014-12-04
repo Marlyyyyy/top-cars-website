@@ -9,16 +9,23 @@
 {% block content %}
 
     <div class="content shadow">
-        <div class="container" id="card_game">
+        <div class="container leaderboard-container" id="card_game">
 
-            <table class="card_table">
+            <div class="tool-bar">
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'level'}) }}"><button class="button-blue {{ sort == 'level' ? ' active' : '' }}">Level</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'score'}) }}"><button class="button-blue {{ sort == 'score' ? ' active' : '' }}">Score</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'roundWin'}) }}"><button class="button-blue {{ sort == 'roundWin' ? ' active' : '' }}">RoundWin</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'streak'}) }}"><button class="button-blue {{ sort == 'streak' ? ' active' : '' }}">Streak</button></a>
+            </div>
+
+            <table class="leaderboard">
                 <tr class="tr_header">
                     <th class="left">Player</th>
-                    <th>Level</th>
-                    <th>Score</th>
-                    <th>Win</th>
+                    <th class="{{ sort == 'level' ? 'active' : '' }}">Level</th>
+                    <th class="{{ sort == 'score' ? 'active' : '' }}">Score</th>
+                    <th class="{{ sort == 'roundWin' ? 'active' : '' }}">Win</th>
                     <th>W/L ratio</th>
-                    <th>Streak</th>
+                    <th class="{{ sort == 'streak' ? 'active' : '' }}">Streak</th>
                 </tr>
                 {% for user in users %}
 

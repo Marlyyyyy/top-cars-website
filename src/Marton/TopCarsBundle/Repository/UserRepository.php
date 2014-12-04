@@ -13,14 +13,17 @@ use Doctrine\ORM\EntityRepository;
 
 class UserRepository extends EntityRepository{
 
-    public function findHighscores(){
+    public function findHighscores($sort = 'score'){
 
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
 
         $qb ->select('uprog, partial u.{id, username}')
             ->from('MartonTopCarsBundle:User', 'u')
-            ->innerJoin('u.progress', 'uprog');
+            ->innerJoin('u.progress', 'uprog')
+            ->addOrderBy('uprog.'.$sort, 'DESC')
+            ->addOrderBy('uprog.score', 'DESC')
+            ->setMaxResults( 100 );;
 
         $query = $qb->getQuery();
         $result = $query->getResult();
