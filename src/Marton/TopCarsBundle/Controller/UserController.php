@@ -13,16 +13,17 @@ use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends Controller{
 
     // Renders Leaderboard page
-    public function leaderboardAction($sort){
+    public function leaderboardAction($sort, $username){
 
         // Get all highscores
         /* @var $repository UserRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
-        $users = $repository-> findHighscores($sort);
+        $users = $repository-> findHighscores($sort, $username);
 
         foreach ($users as $user){
             $statisticsCalculator = new StatisticsCalculator($user);
@@ -32,8 +33,18 @@ class UserController extends Controller{
 
         return $this->render('MartonTopCarsBundle:Default:Pages/leaderboard.html.twig', array(
             'users' => $users,
-            'sort' => $sort
+            'sort' => $sort,
+            'username' => $username
         ));
+    }
+
+    // Handles submitted form
+    public function searchAction(Request $request){
+
+        $post_data = $request->request->all();
+        $username = $post_data['username'];
+
+        return $this->redirect($this->generateUrl('marton_topcars_leaderboard', array('username' => $username)));
     }
 
     // Renders User profile page

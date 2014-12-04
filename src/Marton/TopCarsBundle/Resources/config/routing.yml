@@ -54,10 +54,15 @@ marton_topcars_unselect_all:
 
 # User
 marton_topcars_leaderboard:
-    path: /leaderboard/{sort}
-    defaults: { _controller: MartonTopCarsBundle:User:leaderboard, sort: "score" }
+    path: /leaderboard/{sort}/{username}
+    defaults: { _controller: MartonTopCarsBundle:User:leaderboard, sort: "score", username: "" }
     requirements:
            sort:  score|level|roundWin|streak
+
+marton_topcars_user_search:
+    path: /search/user
+    defaults: { _controller:MartonTopCarsBundle:User:search }
+    methods:  [POST]
 
 marton_topcars_user:
     path: /user/{user}
