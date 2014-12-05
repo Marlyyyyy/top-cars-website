@@ -12,9 +12,9 @@
         <div class="container leaderboard-container" id="card_game">
 
 
-            <form class="search-form" action="{{ path('marton_topcars_user_search') }}" method="post">
+            <form class="search-form" action="{{ path('marton_topcars_user_search', {'sort': sort}) }}" method="post">
                 <input type="text" id="username" name="username" value="{{ username }}" placeholder="Player"/>
-
+                <input type="hidden" id="sort" name="sort" value="{{ sort }}"/>
                 <button class="button-save" type="submit" id="button-search">Search</button>
             </form>
 
@@ -45,7 +45,7 @@
                         <td class="left">
                             <div class="avatar">
                                 <a href="{{ path('marton_topcars_user', { 'user': user.username }) }}">
-                                    <img src="{{ asset('bundles/martontopcars/images/avatar/default_tn.jpg') }}" width="40px" height="40px"/>
+                                    <img src="{{ asset('bundles/martontopcars/images/avatar/') ~ user.details.profilePicturePath }}" width="40px" height="40px"/>
                                 </a>
                             </div>
                             <a href="{{ path('marton_topcars_user', { 'user': user.username }) }}">{{ user.username }}</a>

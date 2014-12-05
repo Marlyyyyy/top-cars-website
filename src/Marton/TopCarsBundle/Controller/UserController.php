@@ -38,13 +38,14 @@ class UserController extends Controller{
         ));
     }
 
-    // Handles submitted form
+    // Handles submitted form for search
     public function searchAction(Request $request){
 
         $post_data = $request->request->all();
         $username = $post_data['username'];
+        $sort = $post_data['sort'];
 
-        return $this->redirect($this->generateUrl('marton_topcars_leaderboard', array('username' => $username)));
+        return $this->redirect($this->generateUrl('marton_topcars_leaderboard', array('username' => $username, 'sort' => $sort)));
     }
 
     // Renders User profile page
