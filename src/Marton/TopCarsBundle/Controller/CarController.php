@@ -10,7 +10,6 @@ namespace Marton\TopCarsBundle\Controller;
 
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Repository\CarRepository;
@@ -35,8 +34,6 @@ class CarController extends Controller{
         }else{
             $cars = $repository-> findAllNotUserCarsWherePriceLessThan($user->getProgress()->getGold(), $user->getCars());
         }
-
-        $priceCalculator = new PriceCalculator();
 
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/dealership.html.twig', array(
             "cars" => $cars,

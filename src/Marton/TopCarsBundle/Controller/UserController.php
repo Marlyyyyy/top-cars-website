@@ -8,8 +8,6 @@
 
 namespace Marton\TopCarsBundle\Controller;
 
-
-use Marton\TopCarsBundle\Classes\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,7 +24,8 @@ class UserController extends Controller{
         $users = $repository-> findHighscores($sort, $username);
 
         foreach ($users as $user){
-            $statisticsCalculator = new StatisticsCalculator($user);
+            $statisticsCalculator =  $this->get('statistics_calculator');
+            $statisticsCalculator->init($user);
             /* @var $user User */
             $user->setStatistics($statisticsCalculator->getStatistics());
         }
@@ -56,7 +55,8 @@ class UserController extends Controller{
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:User');
         $user_details = $repository-> findDetailsOfUser($user);
 
-        $statisticsCalculator = new StatisticsCalculator($user_details);
+        $statisticsCalculator =  $this->get('statistics_calculator');
+        $statisticsCalculator->init($user_details);
         $user_details->setStatistics($statisticsCalculator->getStatistics());
 
         $cars = $user_details->getCars();

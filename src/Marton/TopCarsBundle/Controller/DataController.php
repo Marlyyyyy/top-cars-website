@@ -9,7 +9,6 @@
 namespace Marton\TopCarsBundle\Controller;
 
 
-use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -29,7 +28,7 @@ class DataController extends Controller{
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
         $cars = $repository-> findAllCars();
 
-        $priceCalculator = new PriceCalculator();
+        $priceCalculator = $this->get('price_calculator');;
 
         foreach($cars as $car){
 

@@ -9,7 +9,7 @@
 namespace Marton\TopCarsBundle\Tests\Classes;
 
 
-use Marton\TopCarsBundle\Classes\StatisticsCalculator;
+use Marton\TopCarsBundle\Services\StatisticsCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 
@@ -32,7 +32,8 @@ class StatisticsCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
         $test_user->setProgress($test_user_progress);
 
         /* @var $statistics_calculator StatisticsCalculator */
-        $statistics_calculator = new StatisticsCalculator($test_user);
+        $statistics_calculator = new StatisticsCalculator();
+        $statistics_calculator->init($test_user);
         $statistics = $statistics_calculator->getStatistics();
 
         $this->assertEquals(5, $statistics['level']);

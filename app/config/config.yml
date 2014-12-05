@@ -55,7 +55,7 @@ doctrine:
 
         # SQLite settings
         driver: pdo_sqlite
-        path: "%kernel.root_dir%/dbselp.db"
+        path: "%kernel.root_dir%/testdbselp.db"
         charset:  UTF8
         # if using pdo_sqlite as your database driver, add the path in parameters.yml
         # e.g. database_path: "%kernel.root_dir%/data/data.db3"
@@ -72,3 +72,14 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+services:
+    achievement_calculator:
+        class:        Marton\TopCarsBundle\Services\AchievementCalculator
+    price_calculator:
+        class:        Marton\TopCarsBundle\Services\PriceCalculator
+    file_helper:
+        class:        Marton\TopCarsBundle\Services\FileHelper
+    statistics_calculator:
+        class:        Marton\TopCarsBundle\Services\StatisticsCalculator
+

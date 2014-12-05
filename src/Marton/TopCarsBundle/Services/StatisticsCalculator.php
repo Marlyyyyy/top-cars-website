@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: Marci
- * Date: 31/10/14
- * Time: 23:35
+ * Date: 05/12/14
+ * Time: 13:21
  */
 
-namespace Marton\TopCarsBundle\Classes;
+namespace Marton\TopCarsBundle\Services;
 
 
 use Marton\TopCarsBundle\Entity\User;
@@ -18,18 +18,23 @@ class StatisticsCalculator {
     // what data this class should use, one would only have to change code in this class and within the template
     // - instead of in this class, in the template and in each controller as well.
 
+    /**
+     * @var User
+     */
     private $user;
     /**
      * @var UserProgress
      */
     private $userProgress;
 
-    function __construct(User $user){
+    public function init(User $user){
+
         $this->user = $user;
         $this->userProgress = $user->getProgress();
     }
 
     private function calculateWLRatio(){
+
         $roundWin = $this->userProgress->getRoundWin();
         $roundLose = $this->userProgress->getRoundLose();
         if ($roundLose == 0){
@@ -45,6 +50,7 @@ class StatisticsCalculator {
     }
 
     private function getDraws(){
+
         $allRound   = $this->userProgress->getAllRound();
         $roundWin   = $this->userProgress->getRoundWin();
         $roundLose  = $this->userProgress->getRoundLose();
@@ -53,6 +59,7 @@ class StatisticsCalculator {
     }
 
     private function calculateScorePerRound(){
+
         $allRound = $this->userProgress->getAllRound();
         if ($allRound === 0){
             return 0;
@@ -63,6 +70,7 @@ class StatisticsCalculator {
 
     private function calculateScorePerRoundPercentage($scorePerRound){
 
+        // TODO: refine
         return round(50 + ( 10 * (1 - pow(M_E, -(log(abs($scorePerRound), 10))))));
     }
 

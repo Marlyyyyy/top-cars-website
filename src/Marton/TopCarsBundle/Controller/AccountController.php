@@ -11,7 +11,6 @@ namespace Marton\TopCarsBundle\Controller;
 
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Entity\UserDetails;
-use Marton\TopCarsBundle\Classes\FileHelper;
 use Marton\TopCarsBundle\Form\Model\Registration;
 use Marton\TopCarsBundle\Form\Type\RegistrationType;
 use Marton\TopCarsBundle\Form\Type\UserDetailsType;
@@ -131,7 +130,7 @@ class AccountController extends Controller{
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        $file_helper = new FileHelper();
+        $file_helper = $this->get('file_helper');
 
         // Delete the user's profile picture
         if ($user->getDetails()->getProfilePicturePath() !== 'default.jpg'){
@@ -222,7 +221,7 @@ class AccountController extends Controller{
             // Check if the user has actually uploaded an image
             if($image_file != null){
 
-                $file_helper = new FileHelper();
+                $file_helper = $this->get('file_helper');
 
                 $avatar_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/';
 

@@ -2,11 +2,12 @@
 /**
  * Created by PhpStorm.
  * User: Marci
- * Date: 01/12/14
- * Time: 21:34
+ * Date: 05/12/14
+ * Time: 13:14
  */
 
-namespace Marton\TopCarsBundle\Classes;
+namespace Marton\TopCarsBundle\Services;
+
 
 use Symfony\Component\HttpFoundation\File\File;
 
@@ -40,5 +41,4 @@ class FileHelper {
             }
         }
     }
-
 } 

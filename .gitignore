@@ -10,7 +10,7 @@
 !/app/Resources/views/base.html.twig
 
 !/src/Marton/TopCarsBundle/Test/*
-!/src/Marton/TopCarsBundle/Classes/*
+!/src/Marton/TopCarsBundle/Services/*
 !/src/Marton/TopCarsBundle/Controller/*
 !/src/Marton/TopCarsBundle/Entity/*
 !/src/Marton/TopCarsBundle/Form/Model/*

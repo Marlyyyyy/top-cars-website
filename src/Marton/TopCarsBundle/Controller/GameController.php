@@ -9,7 +9,6 @@
 namespace Marton\TopCarsBundle\Controller;
 
 
-use Marton\TopCarsBundle\Classes\AchievementCalculator;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
@@ -19,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GameController extends Controller{
 
+    // Renders Game page
     public function gameAction(){
 
         // Get entity manager
@@ -29,15 +29,8 @@ class GameController extends Controller{
         $user= $this->get('security.context')->getToken()->getUser();
 
         // Get the progress
-        /* @var $user User */
-        /* @var $progress UserProgress */
-        $progress = $user->getProgress();
-        $user_score = $progress->getScore();
-
-        // Get all cars
-        /* @var $repository CarRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
-        $cars = $repository-> findAllCarsAsArray();
+        /* @var $user_progress UserProgress */
+        $user_progress = $user->getProgress();
 
         // Get cars owned and selected by the user
         $selected_cars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
@@ -47,18 +40,10 @@ class GameController extends Controller{
             $is_classic_unlocked = false;
         }
 
-        // To calculate score initially
-        $achievemetCalculator = new AchievementCalculator();
-        $user_level_info = $achievemetCalculator->calculateLevel($user_score);
-        $user_level_info["score"] = $user_score;
-
-        // Test
-        //$achievemetCalculator->printAllLevelScore();
-        //$achievemetCalculator->printLevel();
-
         return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig', array(
             "selected_cars" => $selected_cars,
-            "is_classic_unlocked" => $is_classic_unlocked
+            "is_classic_unlocked" => $is_classic_unlocked,
+            "progress" => $user_progress
         ));
     }
 
@@ -76,7 +61,7 @@ class GameController extends Controller{
         // Score and Level
         $score = (int) $request->request->get('score');
 
-        $achievementCalculator = new AchievementCalculator();
+        $achievementCalculator = $this->get('achievement_calculator');
         $new_score_info = $achievementCalculator->calculateLevel($score);
 
         /* @var $progress UserProgress */
@@ -86,29 +71,52 @@ class GameController extends Controller{
         $progress->setLevel($new_score_info["level"]);
 
         // Streak
-        $streak = (int) $request->request->get('streak');
-        $old_streak = $progress->getStreak();
-        if ($streak > $old_streak) $progress->setStreak($streak);
+        $streak = $progress->getStreak();
+        $new_streak = (int) $request->request->get('streak');
+        if ($new_streak > $streak){
+
+            $progress->setStreak($new_streak);
+            $streak = $new_streak;
+        }
 
         // Round Result
         $roundResult = $request->request->get('roundResult');
-        $old_allRound = $progress->getAllRound();
-        $progress->setAllRound($old_allRound + 1);
+        $allRound = $progress->getAllRound() + 1;
+        $progress->setAllRound($allRound);
+
+        $roundWin = $progress->getRoundWin();
+        $roundLose = $progress->getRoundLose();
         switch ($roundResult){
             case "win":
-                $progress->setRoundWin($progress->getRoundWin()+1);
+                $roundWin ++;
+                $progress->setRoundWin($roundWin);
                 break;
             case "lose":
-                $progress->setRoundLose($progress->getRoundLose()+1);
+                $roundLose ++;
+                $progress->setRoundLose($roundLose);
                 break;
         }
 
+        // Skill
+        $skill = $achievementCalculator->calculateSkill($score, $allRound, $roundWin, $streak);
+        $progress->setSkill($skill);
+
+        // Gold
+        $gold = $progress->getGold();
+
         if ($old_level<$new_score_info["level"]){
+
             $level_change = "up";
-            $progress->setGold($progress->getGold() + $achievementCalculator->calculateGold($progress->getLevel()));
+            $extra_gold = $achievementCalculator->calculateGold($progress->getLevel());
+            $gold += $extra_gold;
+            $progress->setGold($gold);
+
         }else if($old_level===$new_score_info["level"]){
+
             $level_change = "stay";
+
         }else{
+
             $level_change = "down";
         }
 
@@ -116,12 +124,14 @@ class GameController extends Controller{
 
         $response = new Response(json_encode(array(
             'levelChange' => $level_change,
-            'userLevelInfo' => $new_score_info)));
+            'userLevelInfo' => $new_score_info,
+            'gold' => $gold)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
+    // Ajax call to return details needed to initialise Free For All game
     public function checkFreeForAllAction(Request $request){
 
         // Get entity manager
@@ -143,18 +153,20 @@ class GameController extends Controller{
         $cars = $repository-> findAllCarsAsArray();
 
         // To calculate score initially
-        $achievemetCalculator = new AchievementCalculator();
+        $achievemetCalculator = $this->get('achievement_calculator');
         $user_level_info = $achievemetCalculator->calculateLevel($user_score);
         $user_level_info["score"] = $user_score;
+        $user_level_info["gold"] = $progress->getGold();
 
         $response = new Response(json_encode(array(
             "deck" => json_encode($cars),
-            "user_level_info" => json_encode($user_level_info))));
+            "user_level_info" => json_encode($user_level_info),)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
+    // Ajax call to return details needed to initialise Classic game
     public function checkClassicAction(Request $request){
 
         // Get entity manager
@@ -182,9 +194,10 @@ class GameController extends Controller{
             $cars = $repository-> findAllCarsAsArray();
 
             // To calculate score initially
-            $achievemetCalculator = new AchievementCalculator();
+            $achievemetCalculator = $this->get('achievement_calculator');
             $user_level_info = $achievemetCalculator->calculateLevel($user_score);
             $user_level_info["score"] = $user_score;
+            $user_level_info["gold"] = $progress->getGold();
 
             $response = new Response(json_encode(array(
                 "error" => array(),

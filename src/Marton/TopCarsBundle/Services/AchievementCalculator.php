@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: Marci
- * Date: 01/11/14
- * Time: 14:38
+ * Date: 05/12/14
+ * Time: 11:13
  */
 
-namespace Marton\TopCarsBundle\Classes;
+namespace Marton\TopCarsBundle\Services;
 
 
 class AchievementCalculator {
@@ -105,4 +105,4 @@ class AchievementCalculator {
 
         return $skill;
     }
-}
+} 

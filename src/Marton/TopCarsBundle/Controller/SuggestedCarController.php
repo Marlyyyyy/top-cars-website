@@ -11,11 +11,9 @@ namespace Marton\TopCarsBundle\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use Marton\TopCarsBundle\Classes\PriceCalculator;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
-use Marton\TopCarsBundle\Classes\FileHelper;
 use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
 use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -24,20 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class SuggestedCarController extends Controller{
-
-    // Render page for suggesting new cars
-    public function suggestAction(){
-
-        $suggested_car = new SuggestedCar();
-
-        $form = $this->createForm(new SuggestedCarType(), $suggested_car, array(
-                'action' => $this->generateUrl('marton_topcars_create_suggestedCar'))
-        );
-
-        return $this->render('MartonTopCarsBundle:Default:Pages/suggest.html.twig', array(
-            'form' => $form->createView()
-        ));
-    }
 
     // Render page for displaying pending suggested cars
     public function pendingAction(){
@@ -131,9 +115,19 @@ class SuggestedCarController extends Controller{
     // Ajax call for accepting
     public function acceptAction(Request $request){
 
-        $em = $this->getDoctrine()->getManager();
-
         $error = array();
+
+        // Check if the user is not an admin
+        if (!$this->get('security.context')->isGranted('ROLE_ADMIN')) {
+            array_push($error, array("Only administrators can accept pending cars"));
+            $response = new Response(json_encode(array(
+                'error' => $error)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        $em = $this->getDoctrine()->getManager();
 
         // Get car
         $car_id = $request->request->get('car_id');
@@ -151,17 +145,6 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-        // Check if the user is an admin
-        if (!$this->get('security.context')->isGranted('ROLE_ADMIN')) {
-            array_push($error, array("Only administrators can accept pending cars"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
-        }
-
-
         // Move image to the final directory
         if ($suggestedCar->getImage() !== "default.png"){
 
@@ -173,7 +156,7 @@ class SuggestedCarController extends Controller{
 
         }else{
 
-            array_push($error, array("This car doesn't have its own image!"));
+            array_push($error, array("This car doesn't have its own image! Please add one :)"));
             $response = new Response(json_encode(array(
                 'error' => $error)));
             $response->headers->set('Content-Type', 'application/json');
@@ -192,20 +175,26 @@ class SuggestedCarController extends Controller{
         $car->setAcceleration($suggestedCar->getAcceleration());
         $car->setWeight($suggestedCar->getWeight());
 
-        $priceCalculator = new PriceCalculator();
+        $priceCalculator = $this->get('price_calculator');
         $car->setPrice($priceCalculator->calculatePrice($car));
+
+        // Give the car to its suggester as a present
+        /* @var $owner User */
+        $owner = $suggestedCar->getUser();
+        $owner->addCar($car);
+
         try{
+
             $em->persist($car);
             $em->remove($suggestedCar);
             $em->flush();
-
-            $response_msg = "success";
         }catch(Exception $e){
-            $response_msg = "fail";
+
+            array_push($error, "Persisting to the database failed :(");
         }
 
         $response = new Response(json_encode(array(
-            'result' => $response_msg)));
+            'error' => $error)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
@@ -254,15 +243,15 @@ class SuggestedCarController extends Controller{
 
             $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
 
-            $file_helper = new FileHelper();
+            $file_helper = $this->get('file_helper');
             $file_helper->removeFile($old_path);
 
             $image_file = null;
         }
 
 
-       $em->remove($suggestedCar);
-       $em->flush();
+        $em->remove($suggestedCar);
+        $em->flush();
 
         $response = new Response(json_encode(array(
             'error' => $error)));
@@ -293,7 +282,7 @@ class SuggestedCarController extends Controller{
             // Create new suggested car
             $suggested_car = new SuggestedCar();
 
-            $suggested_car->setUser($user);
+            $user->addSuggestedCar($suggested_car);
 
             $suggested_default_image = "default.png";
 
@@ -306,7 +295,7 @@ class SuggestedCarController extends Controller{
             // Check if there exists a car with the given id
             if(sizeof($suggested_car) == 0){
 
-                array_push($error, array("Such car does not exist!"));
+                array_push($error, array("Such car does not exist!" .  $car_id));
                 $response = new Response(json_encode(array(
                     'error' => $error)));
                 $response->headers->set('Content-Type', 'application/json');
@@ -338,7 +327,7 @@ class SuggestedCarController extends Controller{
 
         if ($form->isValid()){
 
-            $file_helper = new FileHelper();
+            $file_helper = $this->get('file_helper');
 
             $image_file = $suggested_car->getImageFile();
 
@@ -368,10 +357,6 @@ class SuggestedCarController extends Controller{
 
             $image_file = null;
 
-            // If it's a new car, then add it to the database
-            if($car_id === -1){
-                $em->persist($suggested_car);
-            }
             $em->flush();
 
             $this->get('session')->getFlashBag()->add(
@@ -403,6 +388,24 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
+    // Ajax call for returning details of a pending suggested car to be edited
+    public function queryAction(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Get car
+        $car_id = $request->request->get('car_id');
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+
+        $response = new Response(json_encode(array(
+            'car' => $suggestedCar)));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    // Helper method to return all error messages within a submitted form
     private function getErrorMessages(\Symfony\Component\Form\Form $form) {
         $errors = array();
 
@@ -419,22 +422,5 @@ class SuggestedCarController extends Controller{
         }
 
         return $errors;
-    }
-
-    // Ajax call for returning details of a pending suggested car to be edited
-    public function queryAction(Request $request){
-
-        $em = $this->getDoctrine()->getManager();
-
-        // Get car
-        $car_id = $request->request->get('carId');
-        /* @var $suggestedCar SuggestedCar */
-        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
-
-        $response = new Response(json_encode(array(
-            'car' => $suggestedCar)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
     }
 } 

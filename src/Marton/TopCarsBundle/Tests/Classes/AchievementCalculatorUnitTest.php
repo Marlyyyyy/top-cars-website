@@ -8,7 +8,7 @@
 
 namespace Marton\TopCarsBundle\Tests\Classes;
 
-use Marton\TopCarsBundle\Classes\AchievementCalculator;
+use Marton\TopCarsBundle\Services\AchievementCalculator;
 
 class AchievementCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
 

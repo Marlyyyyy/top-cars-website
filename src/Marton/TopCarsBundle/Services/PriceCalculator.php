@@ -2,26 +2,16 @@
 /**
  * Created by PhpStorm.
  * User: Marci
- * Date: 31/10/14
- * Time: 00:07
+ * Date: 05/12/14
+ * Time: 13:11
  */
 
-namespace Marton\TopCarsBundle\Classes;
+namespace Marton\TopCarsBundle\Services;
+
 
 use Marton\TopCarsBundle\Entity\Car;
 
 class PriceCalculator {
-
-    public function assignPrices(array $cards){
-
-        /* @var $card Car */
-        foreach ($cards as $card){
-            $price = $this->calculatePrice($card);
-            $card->setPrice($price);
-        }
-
-        return  $cards;
-    }
 
     public function calculatePrice(Car $card){
 
