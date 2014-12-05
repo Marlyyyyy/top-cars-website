@@ -15,16 +15,33 @@
             <div class="game_header">
                 <button id="main-menu-button" class="menu-button button-blue">Main Menu</button>
                 <button id="settings-button" class="menu-button button-blue">Settings</button>
-                <div>
 
-                    {% if is_classic_unlocked %}
-                        <p>Your selected cars</p>
-                        {% set img_path = asset('bundles/martontopcars/images/card_game/') %}
+
+                {% if is_classic_unlocked %}
+                <div class="user-deck-container">
+                    <p>Your current cars</p>
+                    {% set img_path = asset('bundles/martontopcars/images/card_game/') %}
+                    <div id="user-deck">
+                        {% set i = 1 %}
                         {% for car in selected_cars %}
-                            <img class="mini-image" width="60px" src="{{ img_path ~ car.image }}"/>
+                            <div class="mini-image-div">
+                                <div class="mini-image-counter">{{ i }}</div>
+                                <img class="mini-image" width="60px" height="40px" src="{{ img_path ~ car.image }}"/>
+                            </div>
+                        {% set i = i + 1 %}
                         {% endfor %}
-                    {% endif %}
+                    </div>
+                </div>
+                {% endif %}
 
+
+                <div class="user-progress">
+                    <div class="block">
+                        <p class="progress-title">Level</p><p class="progress-value" id="user-level">{{ progress.level }}</p>
+                    </div>
+                    <div class="block">
+                        <p class="progress-title">Gold</p><p class="progress-value" id="user-gold">{{ progress.gold }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -91,6 +108,30 @@
                 <button type="button" class="button-save" id="settings-save">Save</button>
 
             </div>
+
+            <div id="winning-screen-block" class="popup-body">
+
+                <div>Congratulations, you have won the game!</div>
+                <div>+ Cr. 50</div>
+
+                <button type="button" class="quit-game-button button-save">OK</button>
+
+            </div>
+
+            <div id="losing-screen-block" class="popup-body">
+
+                <div>Sorry, you lost :(</div>
+
+                <button type="button" class="quit-game-button button-save">OK</button>
+
+            </div>
+
+            <div id="level-up-block" class="popup-body">
+                <div><p>Level up!</p></div>
+                <div><span>+ Cr.</span><span id="level-gold"></span></div>
+                <button type="button" class="button-save popup-exit">OK</button>
+            </div>
+
         </div>
     </div>
 
@@ -105,8 +146,9 @@
         var AJAX_POST_SCORE_PATH = "{{ path('marton_topcars_post_score') }}";
         var AJAX_FREE_FOR_ALL = "{{ path('marton_topcars_free_for_all') }}";
         var AJAX_CLASSIC = "{{ path('marton_topcars_classic') }}";
+        var AJAX_WIN_CLASSIC = "{{ path('marton_topcars_win_classic') }}";
 
-        GameModule.init(AJAX_POST_SCORE_PATH, AJAX_FREE_FOR_ALL, AJAX_CLASSIC, IMG_PREFIX);
+        GameModule.init(AJAX_POST_SCORE_PATH, AJAX_FREE_FOR_ALL, AJAX_CLASSIC, AJAX_WIN_CLASSIC, IMG_PREFIX);
 
     </script>
 

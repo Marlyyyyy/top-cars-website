@@ -67,9 +67,6 @@ class GameController extends Controller{
         /* @var $progress UserProgress */
         $progress->setScore($score);
 
-        $old_level = $progress->getLevel();
-        $progress->setLevel($new_score_info["level"]);
-
         // Streak
         $streak = $progress->getStreak();
         $new_streak = (int) $request->request->get('streak');
@@ -103,13 +100,21 @@ class GameController extends Controller{
 
         // Gold
         $gold = $progress->getGold();
+        $old_level = $progress->getLevel();
+        $progress->setLevel($new_score_info["level"]);
 
         if ($old_level<$new_score_info["level"]){
 
-            $level_change = "up";
-            $extra_gold = $achievementCalculator->calculateGold($progress->getLevel());
+            $extra_gold = 0;
+            $level_ups = $new_score_info["level"] - $old_level;
+            // TODO: consider leveling up more times
+            for ($i=1; $i<$level_ups+1; $i++){
+                $extra_gold += $achievementCalculator->calculateGold($old_level + $i);
+            }
+
             $gold += $extra_gold;
             $progress->setGold($gold);
+            $level_change = "up";
 
         }else if($old_level===$new_score_info["level"]){
 
@@ -210,6 +215,42 @@ class GameController extends Controller{
                 "error" => array("You do not have enough cars selected to play this game mode")
             )));
         }
+
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+
+    // Ajax call when the user wins a classic game
+    public function winClassicAction(Request $request){
+
+        // Get entity manager
+        $em = $this->getDoctrine()->getManager();
+
+        $round_result = $request->request->get('round_result');
+
+        $error = array();
+
+        if ($round_result !== "win"){
+
+            array_push($error, "You tried to cheat. Now look at yourself :(");
+
+        }else{
+
+            // Get user entity
+            /* @var $user User */
+            $user= $this->get('security.context')->getToken()->getUser();
+
+            // Simply give 50 gold to the user
+            /* @var $user_progress UserProgress */
+            $user_progress = $user->getProgress();
+            $user_progress->setGold($user_progress->getGold()+50);
+
+            $em->flush();
+        }
+
+        $response = new Response(json_encode(array(
+            "error" => $error
+        )));
 
         $response->headers->set('Content-Type', 'application/json');
         return $response;

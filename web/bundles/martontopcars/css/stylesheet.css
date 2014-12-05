@@ -22,6 +22,10 @@ body{
     text-align: center !important;
 }
 
+.block{
+    display: block !important;
+}
+
 a{
     color:#333;
     text-decoration: none;
@@ -76,6 +80,12 @@ input{
 
 .input_active{
     color:black !important;
+}
+
+.placeholder-text{
+    font-size: 18px;
+    font-weight: bold;
+    color: grey;
 }
 
 /* Buttons */
@@ -163,6 +173,7 @@ input{
 .button-delete:hover{
     background-color: rgb(200, 55, 55);
 }
+
 /* Forms */
 
 .form-error{
@@ -202,11 +213,12 @@ input{
     text-align: center;
     line-height:50px;
     height:50px;
-    font-size:20px;
 }
 
 .top_header a{
     color: white !important;
+    text-transform: uppercase;
+    font-size: 20px;
 }
 
 .top_header ul li{
@@ -368,20 +380,52 @@ input{
 
 
 /* Loading Circle */
-
-.loading_container{
+#image-loading-container{
+    display:none;
     position: fixed;
-    z-index: -1;
-    width: 108px;
-    height: 100px;
-    margin-left:-108px;
-    margin-top:-100px;
-    top: 50%;
+    z-index: 1;
+    width: 50px;
+    height: 50px;
+    top: 0;
     left: 50%;
-    background:url(../images/src/loading.gif);
+    margin-left: -50px;
+    background: url(../images/src/loading.gif);
+    background-size: contain;
 }
 
-.progress_p{
+#image-progress-p{
+    line-height: 50px;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: grey;
+}
+
+#loading-container{
+    display:none;
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    height: 100px;
+    top: 0;
+    left: 0;
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(229,229,229,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(229,229,229,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(229,229,229,0) 100%); /* W3C */
+}
+
+#loading-progress-container{
+    background: url(../images/src/loading.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 100px;
+}
+
+#progress-p{
     line-height: 100px;
     text-align: center;
     font-weight: bold;
@@ -417,6 +461,7 @@ input{
 
 .container{
     background: #f4f4f4;
+    min-height: 600px;
 }
 
 .small_container{
@@ -572,7 +617,6 @@ input{
 .game_header div{
     display: inline-block;
     text-align: center;
-    width: 75%;
 }
 
 .game_header p{
@@ -599,6 +643,47 @@ input{
     margin: 10px auto 10px auto;
     padding: 5px 0 5px 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#user-deck{
+    overflow: hidden;
+    width: 650px;
+    white-space: nowrap;
+    font-size: 0;
+    border: 1px solid rgb(60, 60, 60);
+    text-align: left;
+}
+.mini-image-div{
+    position: relative;
+    display:inline-block;
+}
+.mini-image-counter{
+    position: absolute;
+    z-index: 1;
+    color: white;
+    text-shadow: 0 0 15px black;
+    font-size: 14px !important;
+    font-weight: bold;
+    top: 0;
+    right: 0;
+}
+.user-progress{
+    display:inline-block;
+    vertical-align: top;
+    margin: 10px;
+}
+.user-progress p{
+    display:inline-block;
+    text-align: left;
+}
+
+.user-progress .progress-title{
+    width: 40px;
+}
+
+.user-progress .progress-value{
+    width: 50px;
+    color: rgb(234, 160, 0);
 }
 
 .player-option{
@@ -900,6 +985,24 @@ input{
     box-shadow: 0px 1px 5px rgba(165, 165, 165, 0.31);
 }
 
+#winning-screen-block{
+    background: rgba(24, 94, 0, 0.71);
+    color: white;
+    padding: 20px;
+    font-weight: bold;
+    text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgb(111, 111, 111);
+}
+
+#losing-screen-block{
+    background: rgba(152, 1, 1, 0.71);
+    color: white;
+    padding: 20px;
+    font-weight: bold;
+    text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgb(111, 111, 111);
+}
+
 /* Leaderboard Page*/
 
 .search-form{
@@ -973,7 +1076,7 @@ input{
 }
 
 .leaderboard th.active{
-    background: rgba(0, 136, 250, 0.05);
+    background: rgba(230, 237, 244, 1);
 }
 
 .leaderboard td{
@@ -984,7 +1087,7 @@ input{
 }
 
 .leaderboard td.active{
-    background: rgba(0, 136, 250, 0.05);
+    background: rgba(230, 237, 244, 1);
 }
 
 /* User Page */
@@ -1074,38 +1177,42 @@ input{
 .stats_general{
     display:inline-block;
     vertical-align: top;
-    width: 49%;
+    width: 25%;
+}
+.stats_general table tr > td{
+    margin-bottom: 5px;
 }
 .stats_general table p{
     color: rgba(0, 0, 0, 0.8);
-    margin-bottom: 5px;
 }
 .stats_general table h4{
     color: rgba(0, 0, 0, 1) !important;
     margin-left: 35px;
-}
-.stats_general table td{
-    margin-bottom: 5px;
+    margin-bottom: 0 !important;
 }
 .stats_right{
     display:inline-block;
     vertical-align:top;
-    width: 49%;
+    width: 72%;
 }
 .stats_right .stat_box{
     width: 100px;
     display:inline-block;
     vertical-align: top;
+    margin-left: 15px;
 }
 .stat_box p{
     text-align:center;
-    font-size:12px;
     color:grey;
 }
 .stat_val_big{
-    font-size: 30px !important;
-    font-weight: bold !important;
+    font-size: 30px;
+    font-weight: bold;
 }
+.stat_val_small{
+    font-size: 12px;
+}
+
 .stats_graphics{
     display: table;
     width: 100%;
@@ -1148,6 +1255,16 @@ input{
 }
 
 /* Cars Page */
+.cars-header{
+    line-height: 100px;
+    text-align: left;
+    margin: auto 20px auto 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 20px black;
+    font-weight: bold;
+    font-size: 20px;
+}
+
 .header_content{
     position: relative;
 }
@@ -1198,12 +1315,6 @@ input{
 .submenu{
     border-bottom: 1px solid rgb(230, 230, 230);
     line-height: 35px;
-}
-
-.info_dialog{
-    color: rgba(0, 0, 0, 0.38);
-    font-weight: bold;
-    font-size: 150%;
 }
 
 .user_footer{
