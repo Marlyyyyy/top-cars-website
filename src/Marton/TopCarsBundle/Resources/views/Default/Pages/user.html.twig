@@ -84,14 +84,19 @@
                                     <td><h4>{{ user.statistics.draw }}</h4></td>
                                 </tr>
                                 <tr>
-                                    <td><p>Garage value:</p></td>
-                                    <td><h4>Cr. {{ cars_value }}</h4></td>
+                                    <td><p>Skill:</p></td>
+                                    <td><h4>{{ user.progress.skill }}</h4></td>
                                 </tr>
 
                             </table>
 
                         </div>
                         <div class="stats_right">
+
+                            <div class="stats_rank stat_box">
+                                <h4>Global Rank</h4>
+                                <p class="stat_val_big">{{ rank }}</p>
+                            </div>
 
                             <div class="stats_spr stat_box">
                                 <h4>Best Streak</h4>
@@ -106,7 +111,7 @@
                                         <div class="stats_lever" style="margin-left:{{ user.statistics.wLRatioPercentage }}%"></div>
                                     </div>
                                 </div>
-                                <p>{{ user.statistics.wLRatio }}</p>
+                                <p class="stat_val_small">{{ user.statistics.wLRatio }}</p>
                             </div>
 
                             <div class="stats_spr stat_box">
@@ -117,7 +122,7 @@
                                         <div class="stats_lever" style="margin-left:{{ user.statistics.scorePerRoundPercentage }}%"></div>
                                     </div>
                                 </div>
-                                <p>{{ user.statistics.scorePerRound }}</p>
+                                <p class="stat_val_small">{{ user.statistics.scorePerRound }}</p>
                             </div>
 
                         </div>

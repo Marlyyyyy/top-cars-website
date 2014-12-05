@@ -64,10 +64,14 @@ class UserController extends Controller{
             $cars_value += $car->getPrice();
         }
 
+        $all_users_ordered = $repository->findAllIdsOrderedBySkill();
+        $rank = array_search($user_details->getId(), $all_users_ordered) +1;
+
         return $this->render('MartonTopCarsBundle:Default:Pages/user.html.twig', array(
             'user' => $user_details,
             'cars' => $cars,
-            'cars_value' => $cars_value
+            'cars_value' => $cars_value,
+            'rank' => $rank
         ));
     }
 } 

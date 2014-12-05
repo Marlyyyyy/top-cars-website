@@ -57,7 +57,7 @@ marton_topcars_leaderboard:
     path: /leaderboard/{sort}/{username}
     defaults: { _controller: MartonTopCarsBundle:User:leaderboard, sort: "score", username: "" }
     requirements:
-           sort:  score|level|roundWin|streak
+           sort:  score|level|roundWin|roundLose|streak|skill
 
 marton_topcars_user_search:
     path: /search/user

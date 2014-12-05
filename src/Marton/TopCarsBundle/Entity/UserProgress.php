@@ -60,6 +60,11 @@ class UserProgress {
     protected $roundLose = 0;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $skill = 0;
+
+    /**
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $user;
@@ -137,6 +142,16 @@ class UserProgress {
     public function getStreak()
     {
         return $this->streak;
+    }
+
+    public function setSkill($skill)
+    {
+        $this->skill = $skill;
+    }
+
+    public function getSkill()
+    {
+        return $this->skill;
     }
 
     public function setUser($user)

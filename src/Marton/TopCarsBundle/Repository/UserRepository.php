@@ -58,4 +58,26 @@ class UserRepository extends EntityRepository{
 
         return $result;
     }
+
+    public function findAllIdsOrderedBySkill(){
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb ->select('partial u.{id}')
+            ->from('MartonTopCarsBundle:User', 'u')
+            ->innerJoin('u.progress', 'uprog')
+            ->orderBy('uprog.score', 'DESC');
+
+        $query = $qb->getQuery();
+        $result = $query->getArrayResult();
+
+        $id_array = array();
+
+        foreach($result as $row){
+            array_push($id_array, $row["id"]);
+        }
+
+        return $id_array;
+    }
 } 

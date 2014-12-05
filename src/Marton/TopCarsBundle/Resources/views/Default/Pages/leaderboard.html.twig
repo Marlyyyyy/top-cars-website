@@ -11,19 +11,21 @@
     <div class="content shadow">
         <div class="container leaderboard-container" id="card_game">
 
-            <div class="tool-bar">
-                <form class="search-form" action="{{ path('marton_topcars_user_search') }}" method="post">
-                    <input type="text" id="username" name="username" value="{{ username }}"/>
 
-                    <button class="button-save" type="submit" id="button-search">Search</button>
-                </form>
-            </div>
+            <form class="search-form" action="{{ path('marton_topcars_user_search') }}" method="post">
+                <input type="text" id="username" name="username" value="{{ username }}" placeholder="Player"/>
+
+                <button class="button-save" type="submit" id="button-search">Search</button>
+            </form>
+
 
             <div class="tool-bar">
                 <a href="{{ path('marton_topcars_leaderboard', {'sort':'level', 'username': username}) }}"><button class="button-blue {{ sort == 'level' ? ' active' : '' }}">Level</button></a>
                 <a href="{{ path('marton_topcars_leaderboard', {'sort':'score', 'username': username}) }}"><button class="button-blue {{ sort == 'score' ? ' active' : '' }}">Score</button></a>
-                <a href="{{ path('marton_topcars_leaderboard', {'sort':'roundWin', 'username': username}) }}"><button class="button-blue {{ sort == 'roundWin' ? ' active' : '' }}">RoundWin</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'roundWin', 'username': username}) }}"><button class="button-blue {{ sort == 'roundWin' ? ' active' : '' }}">Rounds Won</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'roundLose', 'username': username}) }}"><button class="button-blue {{ sort == 'roundLose' ? ' active' : '' }}">Rounds Lost</button></a>
                 <a href="{{ path('marton_topcars_leaderboard', {'sort':'streak', 'username': username}) }}"><button class="button-blue {{ sort == 'streak' ? ' active' : '' }}">Streak</button></a>
+                <a href="{{ path('marton_topcars_leaderboard', {'sort':'skill', 'username': username}) }}"><button class="button-blue {{ sort == 'skill' ? ' active' : '' }}">Skill</button></a>
             </div>
 
             <table class="leaderboard">
@@ -32,8 +34,10 @@
                     <th class="{{ sort == 'level' ? 'active' : '' }}">Level</th>
                     <th class="{{ sort == 'score' ? 'active' : '' }}">Score</th>
                     <th class="{{ sort == 'roundWin' ? 'active' : '' }}">Win</th>
+                    <th class="{{ sort == 'roundLose' ? 'active' : '' }}">Lose</th>
                     <th>W/L ratio</th>
                     <th class="{{ sort == 'streak' ? 'active' : '' }}">Streak</th>
+                    <th class="{{ sort == 'skill' ? 'active' : '' }}">Skill</th>
                 </tr>
                 {% for user in users %}
 
@@ -50,8 +54,10 @@
                         <td class="{{ sort == 'level' ? 'active' : '' }}">{{ user.progress.level }}</td>
                         <td class="{{ sort == 'score' ? 'active' : '' }}">{{ user.progress.score }}</td>
                         <td class="{{ sort == 'roundWin' ? 'active' : '' }}">{{ user.progress.roundWin }}</td>
+                        <td class="{{ sort == 'roundLose' ? 'active' : '' }}">{{ user.progress.roundLose }}</td>
                         <td>{{ user.statistics.wLRatio }}</td>
                         <td class="{{ sort == 'streak' ? 'active' : '' }}">{{ user.progress.streak }}</td>
+                        <td class="{{ sort == 'skill' ? 'active' : '' }}">{{ user.progress.skill }}</td>
                     </tr>
 
 
