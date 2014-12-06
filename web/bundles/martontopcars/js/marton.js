@@ -2,70 +2,7 @@
  * Created by Marci on 27/10/14.
  */
 
-function preloadImages(array, el){
-
-    var newImages = [], loadedImages = 0, arrLength = array.length, loadingContainer, progressP;
-    var container = (typeof el === "undefined" ? document.body : el);
-
-    var postAction = function(){};
-
-    var arr = (typeof array != "object") ? [array] : array;
-
-    // Executes call-back function after preloading all images
-    function imageLoadPost(){
-
-        loadedImages++;
-        progressP.innerHTML = Math.round(100*(loadedImages/arrLength)) + "%";
-        if (loadedImages == arrLength){
-            onFinish();
-            postAction(newImages);
-        }
-    }
-
-    // Creates loading screen
-    function onCreate(){
-
-        loadingContainer = document.createElement("div");
-        loadingContainer.id  = "image-loading-container";
-
-        progressP = document.createElement("p");
-        progressP.id = "image-progress-p";
-        loadingContainer.appendChild(progressP);
-
-        container.appendChild(loadingContainer);
-
-        $(loadingContainer).fadeIn(150);
-    }
-
-    // Removes loading screen
-    function onFinish(){
-
-        $(loadingContainer).fadeOut(150, function(){
-            container.removeChild(loadingContainer);
-        });
-    }
-
-    onCreate();
-
-    for (var i=0; i<arrLength; i++){
-        newImages[i] = new Image();
-        newImages[i].src = arr[i];
-        newImages[i].onload = function(){
-            imageLoadPost();
-        };
-        newImages[i].onerror = function(){
-            imageLoadPost();
-        }
-    }
-
-    // Return blank object with done() method
-    return {
-        done:function(f){
-            postAction= f || postAction;
-        }
-    }
-}
-
+// Module responsible for smoothly displaying any number of background images
 var ImageRotator = (function(){
 
     var settings = {
@@ -73,27 +10,21 @@ var ImageRotator = (function(){
         "slide_duration"    : 5000
     };
 
-    var imageArr;                              // stores all the images
-    var imageArrLength;
-    var position = 0;                  // initially start from the beginning
-    var counter = true;                        // clock
-    var background1, background2, backgroundContainer;
-
-    var mainContainer;
-
-    var intervalID;
+    var imageArr, imageArrLength, background1, background2, backgroundContainer, mainContainer, intervalID;
+    var position = 0;
+    var clock = true;
 
     function init(images){
 
-        imageArr = images;
-        imageArrLength = images.length;
-        mainContainer = $(".mainContainer");
+        imageArr        = images;
+        imageArrLength  = images.length;
+        mainContainer   = $(".mainContainer");
         return this;
     }
 
     function create(){
 
-        backgroundContainer        = document.createElement('div');
+        backgroundContainer    = document.createElement('div');
         backgroundContainer.className  = "background_container";
 
         background1            = document.createElement('div');
@@ -120,11 +51,11 @@ var ImageRotator = (function(){
     // Change between backgrounds
     function move(){
 
-        if (counter){
-            // show top layer
+        if (clock){
+            // Show top layer
             changeBackground(background1, "url("+imageArr[position]+")", function(){$(background1).finish().fadeIn(settings.fade_speed)});
         }else{
-            // show bottom layer
+            // Show bottom layer
             changeBackground(background2, "url("+imageArr[position]+")", function(){$(background1).finish().fadeOut(settings.fade_speed)});
         }
 
@@ -133,7 +64,7 @@ var ImageRotator = (function(){
             callback();
         }
 
-        counter = !counter;
+        clock = !clock;
     }
 
     function start(){
@@ -208,21 +139,25 @@ var ImageRotator = (function(){
 
 })();
 
+// Module responsible for handling image preview before uploading the image
 var ImageInputModule = function(){
 
     var inputSource, targetElement, clickElement;
 
     function init(sourceId, targetId, clickId){
+    // Usually the target and click elements are the same
 
-        clickElement = document.getElementById(clickId);
-        inputSource = document.getElementById(sourceId);
-        targetElement = document.getElementById(targetId);
+        inputSource     = document.getElementById(sourceId); // Input field which selects the file
+        targetElement   = document.getElementById(targetId); // <img> where the image will be displayed
+        clickElement    = document.getElementById(clickId);  // Element that should trigger the file selector
+
         registerEventListeners();
     }
 
     function registerEventListeners(){
 
         $(document).ready(function(){
+
             $(inputSource).change(function(){
                 readURL(this);
             });
@@ -253,6 +188,265 @@ var ImageInputModule = function(){
 
 }();
 
+// Module responsible for creating reusable animations
+var AnimateModule = function(){
+
+    // Helper function to show a value increment/decrement
+    function animateIncrement(oldText, newText, el){
+
+        var PRINT_AMOUNT = 8;
+        var compare, modify;
+        var oldScore = oldText || el.innerHTML;
+        var newScore = newText;
+
+        var step = Math.ceil(Math.abs(oldScore-newScore)/PRINT_AMOUNT);
+
+        if (oldScore < newScore){
+            compare = function(s1,s2){
+                return s1 + step >= s2;
+            };
+            modify = function (){
+                oldScore += step;
+            };
+        }else{
+            compare = function(s1,s2){
+                return s1 - step <= s2;
+            };
+            modify = function (){
+                oldScore -= step;
+            };
+        }
+
+        var interval = setInterval(function() {
+            el.innerHTML = oldScore;
+            if (compare(oldScore, newScore)){
+                clearInterval(interval);
+                el.innerHTML = newScore;
+            }
+            modify();
+        }, Math.round(200/PRINT_AMOUNT));
+    }
+
+    // Helper function to show floating value animations
+    function createFloatingText(el, value, newClass){
+
+        var rowLabel = document.createElement("div");
+        rowLabel.className = "floating-text";
+        rowLabel.className += newClass;
+        el.appendChild(rowLabel);
+
+        var t = document.createTextNode(value);
+        rowLabel.appendChild(t);
+
+        $(rowLabel).fadeIn(150, function(){
+            $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
+                el.removeChild(rowLabel);
+            });
+        });
+
+        return rowLabel;
+    }
+
+    // Helper function to update a streak counter
+    function animateStreakCount(el, result, count){
+        switch (result){
+            case "win":
+                el.innerHTML = count;
+                $(el).css({"color":"rgba(0, 128, 0, 0.8)"});
+                $(el).animate({"font-size":"80px"}, 200, function(){
+                    $(this).animate({"font-size":"25px"}, 200);
+                });
+                break;
+            case "lose":
+                $(el).css({"color":"rgb(223, 79, 79)"});
+                break;
+            default:
+                $(el).css({"color":"grey"});
+                el.innerHTML = count;
+                break;
+        }
+    }
+
+    //Helper function to change the width of a bar
+    function animateFill (fillBar, oldScore, newScore, lowScoreLimit, highScoreLimit, callback){
+
+        callback = typeof callback !== undefined ? callback : function(){};
+
+        var oldWidth = Math.round(100*(oldScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
+        $(fillBar).css({"width":oldWidth+"%"});
+
+        var newWidth = Math.round(100*(newScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
+        if (newWidth>100) newWidth = 100;
+
+        $(fillBar).promise().done(function(){
+            $(this).animate({"width":newWidth+"%"}, 200, callback);
+        });
+    }
+
+    return{
+        createFloatingText : createFloatingText,
+        createStreakCount  : animateStreakCount,
+        animateIncrement   : animateIncrement,
+        animateFill        : animateFill
+    }
+}();
+
+// Module responsible for displaying errors
+var ErrorModule = (function(){
+
+    var container;
+
+    function registerContainer(newContainer){
+        container = newContainer;
+        return this;
+    }
+
+    function displayErrors(errors){
+
+        hideErrors();
+
+        for (key in errors){
+            if (errors.hasOwnProperty(key)){
+
+                if (typeof errors[key] === "object"){
+                    for (k in errors[key]){
+                        if (errors[key].hasOwnProperty(k)){
+
+                            appendError(errors[key][k]);
+                        }
+                    }
+                }else{
+                    appendError(errors[key]);
+                }
+            }
+        }
+    }
+
+    function appendError(errorText){
+
+        var p = document.createElement("p");
+        p.className = "error";
+        p.innerHTML = errorText;
+        p.addEventListener("click", hideError);
+        container.appendChild(p);
+    }
+
+    function hideError(){
+
+        $(this).fadeOut(150, function(){
+
+            container.removeChild(this);
+        });
+    }
+
+    function hideErrors(){
+
+        var children = container.childNodes;
+
+        for (var i=0;i<children.length; i++){
+
+            if (children[i].className === "error"){
+                container.removeChild(children[i]);
+            }
+        }
+    }
+
+    return {
+        init: registerContainer,
+        displayErrors: displayErrors,
+        hideErrors: hideErrors
+    }
+
+})();
+
+// Module responsible for handling the popup with its content
+var PopupModule = (function(){
+
+    var popup, popupHeader, popupBodies, onClose;
+
+    function registerEventListeners(){
+
+        $(popup).click(discardPopup);
+        $(".popup-content").click(function(event){
+            event.stopPropagation();
+        });
+        $(".popup-exit").click(discardPopup);
+    }
+
+    function init(onCloseCallback){
+        popupHeader = document.getElementById("popup-header");
+        popupBodies = document.getElementsByClassName("popup-body");
+        popup       = document.getElementById("popup");
+
+        registerEventListeners();
+
+        onClose = onCloseCallback || function(){};
+        return this;
+    }
+
+    function showPopup(element, header){
+
+        // Show popup with its given main container
+        $(element).show();
+        $(popup).fadeIn(150);
+        popup.style.overflowY = "scroll";
+        document.body.style.overflowY = "hidden";
+        document.body.style.marginRight = "17px";
+
+        popupHeader.innerHTML = header;
+    }
+
+    function discardPopup(){
+
+        onClose();
+        hidePopup();
+    }
+
+    function hidePopup(){
+
+        // Hide popup and all its main containers
+        $(popup).fadeOut(150, function(){
+            $(popupBodies).hide();
+            popup.style.overflowY = "hidden";
+            document.body.style.overflowY = "scroll";
+            document.body.style.marginRight = "0";
+        });
+    }
+
+    return {
+        init: init,
+        show: showPopup,
+        hide: hidePopup
+    }
+
+})();
+
+// Module responsible for displaying a simple loading circle (without any numbers)
+var LoadingModule = (function(){
+
+    var loadingContainer;
+
+    function showLoadingBar(){
+
+        loadingContainer = document.getElementById("loading-container");
+
+        $(loadingContainer).fadeIn(150);
+    }
+
+    function hideLoadingBar(){
+
+        $(loadingContainer).fadeOut(150);
+    }
+
+    return {
+
+        show: showLoadingBar,
+        hide: hideLoadingBar
+    }
+
+})();
+
+// Module responsible for managing transitions between the two types of games on the Game page
 var GameModule = (function(){
 
     var game, menu, gameContainer, userInfo, userDeck;
@@ -266,38 +460,34 @@ var GameModule = (function(){
         "ajaxWinClassic":"",
         "ajaxClassic":""
     };
+    // Temporary settings to keep unsaved data
     var settingTmp = Object.create(setting);
 
     var defaultField =  {
         speed:{
             label:"Speed:",
             unit:"km/h",
-            columnName:"speed",
-            goodValue: 400
+            columnName:"speed"
         },
         power:{
             label:"Power:",
             unit:"hp",
-            columnName:"power",
-            goodValue: 1000
+            columnName:"power"
         },
         torque:{
             label:"Torque:",
             unit:"Nm",
-            columnName:"torque",
-            goodValue: 1000
+            columnName:"torque"
         },
         acceleration:{
             label:"Acceleration:",
             unit:"s",
-            columnName:"acceleration",
-            goodValue: 2.5
+            columnName:"acceleration"
         },
         weight:{
             label:"Weight:",
             unit:"kg",
-            columnName:"weight",
-            goodValue: 700
+            columnName:"weight"
         }
     };
 
@@ -322,7 +512,7 @@ var GameModule = (function(){
             return this;
         };
 
-        // Deck of 10 belonging to the user
+        // Deck of 10 cards belonging to the user
         this.userCards = {};
         this.setUserCards = function(deck){
 
@@ -350,21 +540,20 @@ var GameModule = (function(){
 
             var self = this;
 
-            for (key in self.player.opponent){
+            var oppLength = self.player.opponent.length;
+            while (oppLength--){
 
-                if (self.player.opponent.hasOwnProperty(key)){
+                // Reset the deck because players can have the same cards but every card of one player must be unique
+                var deck = self.cards.deck;
 
-                    var deck = self.cards.deck;
+                for (var i=0; i<10; i++){
 
-                    for (var i=0; i<10; i++){
+                    var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
+                    var randomCard = deck[random];
 
-                        var random = Math.floor(Math.random() * (self.cards.deck.length - 0)) + 0;
-                        var randomCard = deck[random];
+                    self.player.opponent[oppLength].deck.push(randomCard);
 
-                        self.player.opponent[key].deck.push(randomCard);
-
-                        deck.slice(random, 1);
-                    }
+                    deck.slice(random, 1);
                 }
             }
         };
@@ -397,43 +586,41 @@ var GameModule = (function(){
         };
 
         // States of the game
-        this.hasRoundEnded   = false; // Normally changed after each select
-        this.hasGameEnded         = true; // Normally changed when losing or restarting
-        this.hostsTurn       = true; // Normally changed before and after the opponents selected.
+        this.hasRoundEnded = false; // Normally changed after each select
+        this.hasGameEnded  = true;  // Normally changed when losing or restarting
+        this.usersTurn     = true;
 
-        // To be overridden
+        // Methods that are meant to be overridden in different versions of the game
+
         this.loseRoundAction = function(){
+
             self.hasGameEnded = true;
             self.RoundControls.newGame();
         };
 
-        // To be overridden
         this.winRoundAction = function(){
+
             self.RoundControls.nextRound();
         };
 
-        // To be overridden
         this.start = function(){
 
             self.createUI();
 
-            self.isPaused      = false;
-            self.hasGameEnded       = false;
+            self.hasGameEnded  = false;
             self.hasRoundEnded = false;
 
+            // Host picks the first card
             self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
-
-            self.player.host.hasTurn = true;
 
             return this;
         };
 
-        // To be overridden
         this.restart = function(){
 
             if (self.hasGameEnded && self.hasRoundEnded){
 
-                self.hasGameEnded = false;
+                self.hasGameEnded  = false;
                 self.hasRoundEnded = false;
 
                 AnimateModule.createStreakCount(uiContainer.streakText, "new", "0");
@@ -442,7 +629,11 @@ var GameModule = (function(){
             }
         };
 
-        // To be overridden
+        this.beginningOfRoundAction = function(){
+
+            self.hasRoundEnded = true;
+        };
+
         this.endOfRoundAction = function(){
 
             // Data to post to the server
@@ -461,7 +652,6 @@ var GameModule = (function(){
             postToServer(setting.ajaxPostScore, data, success);
         };
 
-        // To be overridden
         this.nextRound = function(){
 
             if (self.hasRoundEnded){
@@ -472,11 +662,7 @@ var GameModule = (function(){
             }
         };
 
-        // To be overridden
         this.newRound = function(){
-
-            // In this game mode always the user selects first
-            self.player.user.hasTurn = true;
 
             // Hide Cards and Generate new card for host
             self.player.host.hideCard(function(){
@@ -487,6 +673,7 @@ var GameModule = (function(){
                 self.player.opponent[i].hideCard();
             }
 
+            // Set the row colours back to normal
             for (var i=0;i<self.previousActiveRows.length;i++){
                 self.previousActiveRows[i].className = "card_row";
             }
@@ -496,12 +683,14 @@ var GameModule = (function(){
             self.RoundControls.reset();
         };
 
-        // To be overridden
         this.reorganisePlayers = function(player){
             // No need to change the host in the default version of the game
         };
 
-        // To be overridden
+        this.reorganiseCards = function(){
+            // No need to mix the player's cards as they only have one at a time
+        };
+
         this.assignCardsToPlayers = function(){
 
             // Assign cards to all opponents
@@ -512,11 +701,10 @@ var GameModule = (function(){
 
         this.selectField = function(field){
 
-            if (!self.hasRoundEnded && self.player.host.hasTurn){
+            if (!self.hasRoundEnded && self.usersTurn){
 
                 // Prevent player from selecting multiple times in one round
-                self.hasRoundEnded = true;
-                self.player.host.hasTurn = false;
+                self.beginningOfRoundAction();
 
                 // Detect clicked property
                 var property = field.getAttribute("name");
@@ -525,13 +713,12 @@ var GameModule = (function(){
                 self.assignCardsToPlayers();
 
                 var playerQueue = Object.create(self.player.opponent);
-
                 playerQueue.push(self.player.host);
 
                 // Make a copy of the players array
                 var newPlayerQueue = playerQueue.slice();
 
-                // Compare each player with everyone once
+                // Compare each player with everyone exactly once and record their scores
                 for (var i=0;i<playerQueue.length;i++){
 
                     var currentPlayer = newPlayerQueue.shift();
@@ -549,10 +736,11 @@ var GameModule = (function(){
                 // Sort players in terms of score
                 playerQueue.sort(compare);
 
-                // Count draws on the first place
+                // Count draws on the first place. If there is a draw between two players, '2' will be stored.
                 var drawCounter = 0;
 
                 for (var i=0;i<playerQueue.length;i++){
+
                     if (typeof playerQueue[i+1] !== 'undefined'){
                         if (playerQueue[i].roundScore === playerQueue[i+1].roundScore){
                             drawCounter++;
@@ -568,12 +756,14 @@ var GameModule = (function(){
 
                 var foundWinner = false;
 
-                // Add the round score to the players' overall score and find the winner (if there's any)
+                // Add the round score to the players' overall score and find the winner unless there's a draw
                 for (var i=0;i<playerQueue.length;i++){
 
                     // Avoid negative score
                     if (playerQueue[i].roundScore > 0) playerQueue[i].score += playerQueue[i].roundScore;
+
                     var newClass = (playerQueue[i].roundScore > 0 ? " score_green" : " score_red");
+
                     AnimateModule.createFloatingText(playerQueue[i].viewHolder[property], playerQueue[i].roundScore, newClass);
                     self.previousActiveRows.push(playerQueue[i].viewHolder[property]);
 
@@ -593,8 +783,10 @@ var GameModule = (function(){
                             // If the user was the host before the draw, let him be the host again. Otherwise let one of the players.
                             if (self.player.user.roundResult === "draw"){
                                 self.reorganisePlayers(self.player.user);
+                                self.reorganiseCards();
                             }else{
                                 self.reorganisePlayers(playerQueue[i]);
+                                self.reorganiseCards();
                             }
                         }
                     }else{
@@ -604,13 +796,15 @@ var GameModule = (function(){
                         foundWinner = true;
                         playerQueue[i].streak += setting.players-1;
 
-                        // Make sure we know which player won the round
+                        // Make sure that roles and cards are assigned according to who won the round.
                         self.reorganisePlayers(playerQueue[i]);
+                        self.reorganiseCards();
                     }
 
                     playerQueue[i].roundScore = 0;
                 }
 
+                // Update the user's streak counter
                 AnimateModule.createStreakCount(uiContainer.streakText, self.player.user.roundResult, self.player.user.streak);
 
                 // Deciding game state: WIN/DRAW or LOSE and acting accordingly
@@ -626,7 +820,7 @@ var GameModule = (function(){
             }
         };
 
-        // Helper function to calculate the score of players
+        // Helper function to calculate the score of players after one round
         var calculateSubscore = function(property, p1val, p2val){
 
             var subscore = 0;
@@ -647,8 +841,9 @@ var GameModule = (function(){
             return subscore;
         };
 
-        // Helper function to sort player objects
+        // Helper function to sort players
         var compare = function(p1,p2){
+
             if (p1.roundScore < p2.roundScore)
                 return 1;
             if (p1.roundScore > p2.roundScore)
@@ -709,10 +904,7 @@ var GameModule = (function(){
         // Module responsible for re-appearing buttons after each round.
         this.RoundControls = (function(){
 
-            var container;
-            var streakContainer;
-            var streakText;
-            var buttonContainer;
+            var container, streakContainer, streakText, buttonContainer;
 
             var init = function(view){
                 container = makeContainer(view);
@@ -729,7 +921,7 @@ var GameModule = (function(){
                 streakContainer = document.createElement("div");
                 streakContainer.className = "streak_container";
                 streakText = document.createElement("p");
-                streakText.innerText  = "0";
+                streakText.innerHTML  = "0";
                 streakContainer.appendChild(streakText);
                 controlPanel.appendChild(streakContainer);
 
@@ -805,6 +997,7 @@ var GameModule = (function(){
 
                 }else{
 
+
                     for (var i=0; i<noOfCards; i++){
 
                         drawMiniCard(box, i+1);
@@ -815,7 +1008,7 @@ var GameModule = (function(){
             function drawMiniCard(box, number){
 
                 var miniCard = document.createElement("span");
-                miniCard.innerText = number;
+                miniCard.innerHTML = number;
                 box.appendChild(miniCard);
             }
 
@@ -838,7 +1031,7 @@ var GameModule = (function(){
 
                         miniImageCounter = document.createElement("div");
                         miniImageCounter.className = "mini-image-counter";
-                        miniImageCounter.innerText = count;
+                        miniImageCounter.innerHTML = count;
                         miniImageDiv.appendChild(miniImageCounter);
 
                         miniImg = document.createElement("img");
@@ -899,14 +1092,14 @@ var GameModule = (function(){
                         AnimateModule.animateFill(fillBar, previousScore, attribute.highScoreLimit, attribute.lowScoreLimit, attribute.highScoreLimit, function(){
 
                             // TODO: level up graphics
-                            popupGoldText.innerText = gold-attribute.gold;
+                            popupGoldText.innerHTML = gold-attribute.gold;
                             AnimateModule.animateIncrement(undefined, gold, goldText);
                             setAttributes(userLevelInfo, gold);
 
                             var callback = function(){
 
                                 setUI();
-                                levelText.innerText = userLevelInfo.level;
+                                levelText.innerHTML = userLevelInfo.level;
 
                                 // Animation till new score
                                 AnimateModule.animateIncrement(attribute.lowScoreLimit, attribute.score, scoreText);
@@ -951,7 +1144,7 @@ var GameModule = (function(){
                 return this;
             }
 
-            // This is meant to print the limits of the current level
+            // This method is meant to print the limits of the current level
             function setUI(){
 
                 //ui.lowScoreLimit.innerHTML = attribute.score - attribute.lowScoreLimit;
@@ -960,11 +1153,11 @@ var GameModule = (function(){
 
             function setAttributes(userLevelInfo, gold){
 
-                attribute.lowScoreLimit   = userLevelInfo.low_score_limit;
-                attribute.score             = userLevelInfo.score;
-                attribute.highScoreLimit  = userLevelInfo.high_score_limit;
-                attribute.level = userLevelInfo.level;
-                attribute.gold = gold;
+                attribute.lowScoreLimit  = userLevelInfo.low_score_limit;
+                attribute.score          = userLevelInfo.score;
+                attribute.highScoreLimit = userLevelInfo.high_score_limit;
+                attribute.level          = userLevelInfo.level;
+                attribute.gold           = gold;
             }
 
             return{
@@ -973,13 +1166,6 @@ var GameModule = (function(){
             }
 
         })();
-
-        this.test = function(){
-
-            self.start();
-            self.TopPanelModule.update("default", userInfo, userInfo.gold);
-            self.player.host.score += userInfo.score;
-        };
 
         // Classes
 
@@ -1092,8 +1278,6 @@ var GameModule = (function(){
             this.score = 0;
 
             this.streak = 0;
-
-            this.hasTurn = false;
         }
 
         Player.prototype = {
@@ -1151,7 +1335,7 @@ var GameModule = (function(){
         }
     }
 
-    // Classic Game
+    // Extended Game (Classic Game)
     function ClassicGame(){}
 
     ClassicGame.prototype = new Game();
@@ -1198,10 +1382,6 @@ var GameModule = (function(){
         self.giveCardsToUser(self.userCards);
         self.giveCardsToOpponents();
 
-        self.player.host.hasTurn = true;
-
-        console.log(self.player.opponent);
-
         // Create and Fill up additional mini-card progress indicators
         self.player.host.viewHolder.indicator =
             self.ProgressModule.createCardIndicator(self.player.host.viewHolder.fragment);
@@ -1218,9 +1398,9 @@ var GameModule = (function(){
         self.updateAllPlayersCardIndicators();
         self.updatePlayerDeckIndicator(self.player.user);
 
-        self.isPaused      = false;
-        self.hasGameEnded       = false;
-        self.hasRoundEnded = false;
+        self.hasGameEnded  = false;
+        ClassicGame.prototype.usersTurn     = true;
+        ClassicGame.prototype.hasRoundEnded = false;
 
         self.player.host.setCard(self.player.host.deck[0]).showCard();
 
@@ -1232,8 +1412,6 @@ var GameModule = (function(){
 
         var self = this;
 
-        //TODO: fix that only the host must be able to pick a new field
-
         // First make the winner the new host
         self.player.opponent.push(self.player.host);
         self.player.host = player;
@@ -1243,8 +1421,11 @@ var GameModule = (function(){
         if (index > -1){
             self.player.opponent.splice(index, 1);
         }
+    };
 
+    ClassicGame.prototype.reorganiseCards = function(){
 
+        var self = this;
 
         // Reorganise cards
         var winningDeck = [];
@@ -1267,13 +1448,8 @@ var GameModule = (function(){
             }
         }
 
-        console.log("host's deck: " + self.player.host.deck.length);
-        console.log("opponent's deck: " + self.player.opponent[0].deck.length);
-
         self.updateAllPlayersCardIndicators();
         self.updatePlayerDeckIndicator(self.player.user);
-
-        self.player.host.hasTurn = true;
     };
 
     ClassicGame.prototype.assignCardsToPlayers = function(){
@@ -1329,7 +1505,8 @@ var GameModule = (function(){
                     self.player.host.setCard(self.player.host.deck[0]).showCard(function(){
 
                         // Let the computer pick a field
-                        var chosenProperty = randomProperty(defaultField);
+                        var chosenProperty = getRandomProperty(defaultField);
+                        self.usersTurn = true;
                         self.selectField(self.player.host.viewHolder[chosenProperty.columnName]);
                     });
                 })
@@ -1342,7 +1519,10 @@ var GameModule = (function(){
     };
 
     ClassicGame.prototype.loseRoundAction = function(){
-        // Override the original with an empty function
+
+        var self = this;
+
+        self.usersTurn = false;
     };
 
     ClassicGame.prototype.winGameAction = function(){
@@ -1358,6 +1538,7 @@ var GameModule = (function(){
                 ErrorModule.displayErrors(response.error);
             }else{
 
+                PopupModule.hide();
                 PopupModule.show(document.getElementById("winning-screen-block"), "WIN");
             }
 
@@ -1366,10 +1547,18 @@ var GameModule = (function(){
 
         postToServer(setting.ajaxWinClassic, data, success);
     };
-    
+
     ClassicGame.prototype.loseGameAction = function(){
 
+        PopupModule.hide();
         PopupModule.show(document.getElementById("losing-screen-block"), "LOSE");
+    };
+
+    ClassicGame.prototype.beginningOfRoundAction = function(){
+
+        var self = this;
+
+        self.hasRoundEnded = true;
     };
 
     ClassicGame.prototype.endOfRoundAction = function(){
@@ -1391,23 +1580,18 @@ var GameModule = (function(){
         // Ajax call
         postToServer(setting.ajaxPostScore, data, success);
 
-        // Check if any players apart from the user have lost. If yes, remove them.
-        for (key in self.player.opponent){
-            if (self.player.opponent.hasOwnProperty(key)){
+        // Check if any players have lost. If yes, remove them.
+        var oppLength = self.player.opponent.length;
+        while (oppLength--){
 
-                var player = self.player.opponent[key];
+            var player = self.player.opponent[oppLength];
 
-                if(player.deck.length === 0){
-                    self.player.opponent.splice(key, 1);
-                    player.hideCard();
-                }
+            if(player.deck.length === 0){
+                self.player.opponent.splice(oppLength, 1);
+                player.hideCard();
             }
         }
 
-        console.log("Checking opponent array length before winning");
-        console.log(self.player.opponent);
-
-        // TODO: Check for winning or losing
         // Check if the user has lost or won
         if (self.player.user.deck.length === 0){
 
@@ -1423,17 +1607,17 @@ var GameModule = (function(){
 
     function init(ajaxPostScore, ajaxFreeForAll, ajaxClassic, ajaxWinClassic, imgFolder){
 
-        setting.ajaxPostScore = ajaxPostScore;
-        setting.ajaxFreeForAll = ajaxFreeForAll;
-        setting.ajaxClassic = ajaxClassic;
-        setting.ajaxWinClassic = ajaxWinClassic;
-        setting.imgFolder = imgFolder;
+        setting.ajaxPostScore   = ajaxPostScore;
+        setting.ajaxFreeForAll  = ajaxFreeForAll;
+        setting.ajaxClassic     = ajaxClassic;
+        setting.ajaxWinClassic  = ajaxWinClassic;
+        setting.imgFolder       = imgFolder;
 
         registerEventListeners();
 
-        menu = document.getElementById("main-menu");
+        menu          = document.getElementById("main-menu");
         gameContainer = document.getElementById("battlefield");
-        userDeck = document.getElementById("user-deck");
+        userDeck      = document.getElementById("user-deck");
 
         PopupModule.init(discardSettings);
     }
@@ -1443,15 +1627,15 @@ var GameModule = (function(){
         var freeForAllButton = document.getElementById("free-for-all");
         freeForAllButton.addEventListener("click", startFreeForAll);
 
-        var classicButton = document.getElementById("classic");
+        var classicButton    = document.getElementById("classic");
         classicButton.addEventListener("click", startClassic);
 
-        var mainMenuButton = document.getElementById("main-menu-button");
+        var mainMenuButton   = document.getElementById("main-menu-button");
         mainMenuButton.addEventListener("click", showMenu);
 
         $(".quit-game-button").click(quitGame);
 
-        var settingsButton = document.getElementById("settings-button");
+        var settingsButton   = document.getElementById("settings-button");
         settingsButton.addEventListener("click", openSettings);
 
         $(".player-option").click(changeNumberOfPlayers);
@@ -1465,17 +1649,21 @@ var GameModule = (function(){
         hideMenu(function(){
 
             LoadingModule.show();
+
             var data = {};
 
             var success = function(response){
+
+                LoadingModule.hide();
 
                 game = new Game();
                 game.setCards(JSON.parse(response.deck));
                 userInfo = JSON.parse(response.user_level_info);
 
-                LoadingModule.hide();
                 game.preloadImages(function(){
-                    game.test();
+                    game.start();
+                    game.TopPanelModule.update("default", userInfo, userInfo.gold);
+                    game.player.host.score += userInfo.score;
                 });
 
             };
@@ -1486,11 +1674,15 @@ var GameModule = (function(){
 
     function startClassic(){
 
+        LoadingModule.show();
+
         var data = {};
 
         var success = function(response){
 
             if (response.error.length === 0){
+
+                LoadingModule.hide();
 
                 hideMenu(function(){
 
@@ -1498,11 +1690,13 @@ var GameModule = (function(){
                     game.setCards(JSON.parse(response.deck));
                     userInfo = JSON.parse(response.user_level_info);
 
-                    console.log(userInfo);
-
                     game.setUserCards(JSON.parse(response.selected_cars));
 
-                    game.test();
+                    game.preloadImages(function(){
+                        game.start();
+                        game.TopPanelModule.update("default", userInfo, userInfo.gold);
+                        game.player.host.score += userInfo.score;
+                    });
                 });
             }else{
 
@@ -1515,7 +1709,8 @@ var GameModule = (function(){
 
     function hideMenu(callback){
 
-        $(menu).fadeOut(150, callback);
+        var callbackFunction = callback || function(){};
+        $(menu).fadeOut(150, callbackFunction);
     }
 
     function showMenu(){
@@ -1555,7 +1750,6 @@ var GameModule = (function(){
         for (key in settingTmp){
             if (settingTmp.hasOwnProperty(key)){
                 setting[key] = settingTmp[key];
-                console.log(settingTmp[key]);
             }
         }
 
@@ -1565,6 +1759,7 @@ var GameModule = (function(){
     // Remove temporarily changed styles
     function discardSettings(){
 
+        // Number of players setting
         $(".player-option").removeClass("active");
         $("#player-option-"+setting.players).addClass("active");
     }
@@ -1575,156 +1770,7 @@ var GameModule = (function(){
 
 })();
 
-var AnimateModule = function(){
-
-    // Helper function to show a value increment/decrement
-    function animateIncrement(oldText, newText, el){
-
-        var PRINT_AMOUNT = 8;
-        var compare, modify;
-        var oldScore = oldText || el.innerHTML;
-        var newScore = newText;
-
-        var step = Math.ceil(Math.abs(oldScore-newScore)/8);
-
-        if (oldScore < newScore){
-            compare = function(s1,s2){
-                return s1 + step >= s2;
-            };
-            modify = function (){
-                oldScore += step;
-            };
-        }else{
-            compare = function(s1,s2){
-                return s1 - step <= s2;
-            };
-            modify = function (){
-                oldScore -= step;
-            };
-        }
-
-        var interval = setInterval(function() {
-            el.innerHTML = oldScore;
-            if (compare(oldScore, newScore)){
-                clearInterval(interval);
-                el.innerHTML = newScore;
-            }
-            modify();
-        }, Math.round(200/PRINT_AMOUNT));
-    }
-
-    // Helper function to show floating value animations
-    function createFloatingText(el, value, newClass){
-
-        var rowLabel = document.createElement("div");
-        rowLabel.className = "card_row_subscore";
-        rowLabel.className += newClass;
-        el.appendChild(rowLabel);
-
-        var t = document.createTextNode(value);
-        rowLabel.appendChild(t);
-
-        $(rowLabel).fadeIn(150, function(){
-            $(this).animate({"margin-top":"-150px","opacity":"0"},1000, function(){
-                el.removeChild(rowLabel);
-            });
-        });
-
-        return rowLabel;
-    }
-
-    // Helper function to update Streak counter
-    function animateStreakCount(el, result, count){
-        switch (result){
-            case "win":
-                el.innerText = count;
-                $(el).css({"color":"rgba(0, 128, 0, 0.8)"});
-                $(el).animate({"font-size":"80px"}, 200, function(){
-                    $(this).animate({"font-size":"25px"}, 200);
-                });
-                break;
-            case "lose":
-                $(el).css({"color":"rgb(223, 79, 79)"});
-                break;
-            default:
-                $(el).css({"color":"grey"});
-                el.innerText = count;
-                break;
-        }
-    }
-
-    //Helper function to change the width of a bar
-    function animateFill (fillBar, oldScore, newScore, lowScoreLimit, highScoreLimit, callback){
-
-        callback = typeof callback !== 'undefined' ? callback : function(){};
-
-        var oldWidth = Math.round(100*(oldScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
-        $(fillBar).css({"width":oldWidth+"%"});
-
-        var newWidth = Math.round(100*(newScore-lowScoreLimit)/(highScoreLimit - lowScoreLimit));
-        if (newWidth>100) newWidth = 100;
-
-        $(fillBar).promise().done(function(){
-            $(this).animate({"width":newWidth+"%"}, 200, callback);
-        });
-    }
-
-    return{
-        createFloatingText : createFloatingText,
-        createStreakCount  : animateStreakCount,
-        animateIncrement   : animateIncrement,
-        animateFill        : animateFill
-    }
-}();
-
-function postToServer(url, data, success){
-
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: data,
-        success: success,
-
-        error: function(XMLHttpRequest, textStatus, errorThrown)
-        {
-            console.log('Error : ' + errorThrown);
-        }
-    });
-}
-
-function postFilesToServer(url, data, success){
-
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: data,
-        success: success,
-        cache: false,
-        contentType: false,
-        processData: false,
-        error: function(XMLHttpRequest, textStatus, errorThrown)
-        {
-            console.log('Error : ' + errorThrown);
-        }
-    });
-}
-
-$(document).ready(function(){
-
-    var defaultInputPlaceholder;
-    // Control appearance of default values within input fields.
-    $(":input").focus(function(){
-
-        defaultInputPlaceholder = this.placeholder;
-        this.placeholder = "";
-        $(this).addClass("input_active");
-
-    }).blur(function(){
-        this.placeholder = defaultInputPlaceholder;
-        $(this).removeClass("input_active");
-    });
-});
-
+// Module responsible for actions on the Garage page
 var GarageModule = function(){
 
     var selectAjaxPath, unselectAllAjaxPath, counterText;
@@ -1732,7 +1778,7 @@ var GarageModule = function(){
     function init(selectAjax, unselectAllAjax){
 
         selectAjaxPath = selectAjax;
-        unselectAllAjaxPath = unselectAllAjax
+        unselectAllAjaxPath = unselectAllAjax;
         registerEventListeners();
         counterText = document.getElementsByClassName("selected-car-counter");
     }
@@ -1780,7 +1826,7 @@ var GarageModule = function(){
 
                 for (key in counterText){
                     if (counterText.hasOwnProperty(key)){
-                        counterText[key].innerText = response.no_of_cars;
+                        counterText[key].innerHTML = response.no_of_cars;
                     }
                 }
 
@@ -1792,15 +1838,19 @@ var GarageModule = function(){
 
     function unselectAll(){
 
+        LoadingModule.show();
+
         var  data = {};
 
         var success = function(){
+
+            LoadingModule.hide();
 
             $(".card_frame").removeClass("selected-card");
 
             for (key in counterText){
                 if (counterText.hasOwnProperty(key)){
-                    counterText[key].innerText = 0;
+                    counterText[key].innerHTML = 0;
                 }
             }
         };
@@ -1813,13 +1863,10 @@ var GarageModule = function(){
     }
 }();
 
+// Module responsible for actions on the Dealership page
 var Market = function(){
 
-    var ajaxPath;
-
-    var userGold;
-
-    var previousElement;
+    var ajaxPath, userGold, previousElement;
 
     function init(path, gold){
 
@@ -1838,7 +1885,7 @@ var Market = function(){
 
     function purchase(){
 
-        if (typeof previousElement !== "undefined") slideFrame(previousElement, "0");
+        if (typeof previousElement !== undefined) slideFrame(previousElement, "0");
 
         previousElement = this;
 
@@ -1850,24 +1897,30 @@ var Market = function(){
         var item  = this.dataset.car;
         var price = this.dataset.price;
 
+        LoadingModule.show();
+
         if (userGold >= price){
+
             var data = {
                 "item":item
             };
             postToServer(ajaxPath, data, success);
+
         }else{
+
             var errors = ["You don't have enough money to purchase this car :("];
             ErrorModule.init(document.getElementById("global-error")).displayErrors(errors);
         }
 
-        function success(response){
+        function success(){
 
-            var frameContent   = $(previousElement).closest(".frame_content");
+            var frameContent    = $(previousElement).closest(".frame_content");
             var image           = $(frameContent).find(".frame_image");
             var el              = document.getElementById("p_gold");
 
             var newGold   = userGold - price;
             AnimateModule.animateIncrement(userGold, newGold, el);
+            LoadingModule.hide();
 
             userGold = newGold;
 
@@ -1910,17 +1963,16 @@ var Market = function(){
     }
 }();
 
+// Module responsible for actions on the Pending page
 var PendingCarModule = (function(){
 
     var ajaxPath = {upvote:"", accept:"", delete:"", editOrCreate:"", query:""};
-    var imgPath;
+    var imgPath, selectedCar;
 
     var UPVOTE_BUTTON_CLASS = "upvote";
 
     var popupElements = {
     };
-
-    var selectedCar;
 
     function registerElements(){
 
@@ -2125,7 +2177,6 @@ var PendingCarModule = (function(){
         var formData = new FormData(form[0]);
         formData.append("car_id", this.dataset.car);
 
-        console.log(this.dataset.car);
         var success = function(response){
             if (response.error.length !== 0){
                 LoadingModule.hide();
@@ -2153,6 +2204,7 @@ var PendingCarModule = (function(){
     }
 })();
 
+// Module responsible for actions on the Account page
 var AccountModule = (function(){
 
     var ajaxDeletePath;
@@ -2191,167 +2243,119 @@ var AccountModule = (function(){
     }
 })();
 
-var ErrorModule = (function(){
+// Helper functions
 
-    var container;
+// Choose random property of an object
+var getRandomProperty = function (obj) {
+    var keys = Object.keys(obj);
+    return obj[keys[ keys.length * Math.random() << 0]];
+};
 
-    function registerContainer(newContainer){
-        container = newContainer;
-        return this;
-    }
+// Preload an array of images
+function preloadImages(array, el){
 
-    function displayErrors(errors){
+    var newImages = [], loadedImages = 0, arrLength = array.length, loadingContainer, progressP;
+    var container = (typeof el === "undefined" ? document.body : el);
 
-        hideErrors();
+    var postAction = function(){};
 
-        for (key in errors){
-            if (errors.hasOwnProperty(key)){
+    var arr = (typeof array != "object") ? [array] : array;
 
-                if (typeof errors[key] === "object"){
-                    for (k in errors[key]){
-                        if (errors[key].hasOwnProperty(k)){
+    // Executes call-back function after preloading all images
+    function imageLoadPost(){
 
-                            appendError(errors[key][k]);
-                        }
-                    }
-                }else{
-                    appendError(errors[key]);
-                }
-            }
+        loadedImages++;
+        progressP.innerHTML = Math.round(100*(loadedImages/arrLength)) + "%";
+        if (loadedImages == arrLength){
+            onFinish();
+            postAction(newImages);
         }
     }
 
-    function appendError(errorText){
+    // Creates loading screen
+    function onCreate(){
 
-        var p = document.createElement("p");
-        p.className = "error";
-        p.innerText = errorText;
-        p.addEventListener("click", hideError);
-        container.appendChild(p);
-    }
+        loadingContainer = document.createElement("div");
+        loadingContainer.id  = "image-loading-container";
 
-    function hideError(){
+        progressP = document.createElement("p");
+        progressP.id = "image-progress-p";
+        loadingContainer.appendChild(progressP);
 
-        $(this).fadeOut(150, function(){
-
-            container.removeChild(this);
-        });
-    }
-
-    function hideErrors(){
-
-        var children = container.childNodes;
-
-        for (var i=0;i<children.length; i++){
-
-            if (children[i].className === "error"){
-                container.removeChild(children[i]);
-            }
-        }
-    }
-
-    return {
-        init: registerContainer,
-        displayErrors: displayErrors,
-        hideErrors: hideErrors
-    }
-
-})();
-
-var PopupModule = (function(){
-
-    var popup;
-    var popupHeader;
-    var popupBodies;
-    var onClose;
-
-    function registerEventListeners(){
-
-        $(popup).click(discardPopup);
-        $(".popup-content").click(function(event){
-            event.stopPropagation();
-        });
-        $(".popup-exit").click(discardPopup);
-    }
-
-    function init(onCloseCallback){
-        popupHeader = document.getElementById("popup-header");
-        popupBodies    = document.getElementsByClassName("popup-body");
-        popup         = document.getElementById("popup");
-
-        registerEventListeners();
-
-        onClose = onCloseCallback || function(){};
-        return this;
-    }
-
-    function showPopup(element, header){
-
-        // Show popup with its given main container
-        $(element).show();
-        $(popup).fadeIn(150);
-        popup.style.overflowY = "scroll";
-        document.body.style.overflowY = "hidden";
-        document.body.style.marginRight = "17px";
-
-        popupHeader.innerText = header;
-    }
-
-    function discardPopup(){
-
-        onClose();
-        hidePopup();
-    }
-
-    function hidePopup(){
-
-        // Hide popup and all its main containers
-        $(popup).fadeOut(150, function(){
-            $(popupBodies).hide();
-            popup.style.overflowY = "hidden";
-            document.body.style.overflowY = "scroll";
-            document.body.style.marginRight = "0";
-        });
-    }
-
-    return {
-        init: init,
-        show: showPopup,
-        hide: hidePopup
-    }
-
-})();
-
-var LoadingModule = (function(){
-
-    var loadingContainer;
-
-    function showLoadingBar(){
-
-        loadingContainer = document.getElementById("loading-container");
+        container.appendChild(loadingContainer);
 
         $(loadingContainer).fadeIn(150);
     }
 
-    function hideLoadingBar(){
+    // Removes loading screen
+    function onFinish(){
 
-        $(loadingContainer).fadeOut(150);
+        $(loadingContainer).fadeOut(150, function(){
+            container.removeChild(loadingContainer);
+        });
     }
 
+    onCreate();
+
+    for (var i=0; i<arrLength; i++){
+        newImages[i] = new Image();
+        newImages[i].src = arr[i];
+        newImages[i].onload = function(){
+            imageLoadPost();
+        };
+        newImages[i].onerror = function(){
+            imageLoadPost();
+        }
+    }
+
+    // Return blank object with done() method
     return {
-
-        show: showLoadingBar,
-        hide: hideLoadingBar
+        done:function(f){
+            postAction= f || postAction;
+        }
     }
+}
 
-})();
+// Regular Ajax call
+function postToServer(url, data, success){
 
-// To animate auto-property
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: success,
+
+        error: function(XMLHttpRequest, textStatus, errorThrown)
+        {
+            console.log('Error : ' + errorThrown);
+        }
+    });
+}
+
+// Ajax call for file uploads
+function postFilesToServer(url, data, success){
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: success,
+        cache: false,
+        contentType: false,
+        processData: false,
+        error: function(XMLHttpRequest, textStatus, errorThrown)
+        {
+            console.log('Error : ' + errorThrown);
+        }
+    });
+}
+
+// Animate height:auto
 $.fn.animateAuto = function(prop, speed, callback){
 
     var elem, height;
 
-    // Iterate through each element, in case selector returned multiple elements
+    // Iterate through each element the selector returned
     return this.each(function(i, el){
         el = $(el);
         elem = el.clone().css({"height":"auto"}).appendTo("body");
@@ -2362,8 +2366,19 @@ $.fn.animateAuto = function(prop, speed, callback){
     });
 };
 
-// Choose random property of an object
-var randomProperty = function (obj) {
-    var keys = Object.keys(obj);
-    return obj[keys[ keys.length * Math.random() << 0]];
-};
+// Make placeholder of an input field disappear on focus
+$(document).ready(function(){
+
+    var defaultInputPlaceholder;
+
+    $(":input").focus(function(){
+
+        defaultInputPlaceholder = this.placeholder;
+        this.placeholder = "";
+        $(this).addClass("input_active");
+
+    }).blur(function(){
+        this.placeholder = defaultInputPlaceholder;
+        $(this).removeClass("input_active");
+    });
+});
