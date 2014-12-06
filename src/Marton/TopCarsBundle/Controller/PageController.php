@@ -8,16 +8,7 @@
 
 namespace Marton\TopCarsBundle\Controller;
 
-use Marton\TopCarsBundle\Classes\AchievementCalculator;
-use Marton\TopCarsBundle\Classes\PriceCalculator;
-use Marton\TopCarsBundle\Classes\StatisticsCalculator;
-use Marton\TopCarsBundle\Entity\SuggestedCar;
-use Marton\TopCarsBundle\Entity\User;
-use Marton\TopCarsBundle\Entity\UserProgress;
-use Marton\TopCarsBundle\Form\Type\SuggestedCarType;
-use Marton\TopCarsBundle\Repository\CarRepository;
-use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
-use Marton\TopCarsBundle\Repository\UserProgressRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,5 +24,16 @@ class PageController extends Controller {
     public function aboutAction(){
 
         return $this->render('MartonTopCarsBundle:Default:Pages/about.html.twig');
+    }
+
+    // Redirect requests with a slash at the end of their URLs
+    public function removeTrailingSlashAction(Request $request)
+    {
+        $pathInfo = $request->getPathInfo();
+        $requestUri = $request->getRequestUri();
+
+        $url = str_replace($pathInfo, rtrim($pathInfo, ' /'), $requestUri);
+
+        return $this->redirect($url, 301);
     }
 } 
