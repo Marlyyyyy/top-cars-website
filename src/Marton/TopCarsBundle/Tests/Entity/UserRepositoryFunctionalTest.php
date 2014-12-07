@@ -10,6 +10,8 @@ namespace Marton\TopCarsBundle\Tests\Entity;
 
 
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Entity\UserDetails;
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class UserProgressRepositoryFunctionalTest extends KernelTestCase{
@@ -20,6 +22,11 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
     private $em;
 
     /**
+     * @var User
+     */
+    private $user;
+
+    /**
      * {@inheritDoc}
      */
     public function setUp()
@@ -27,8 +34,16 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         self::bootKernel();
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
-            ->getManager()
-        ;
+            ->getManager();
+
+        $this->user = new User();
+        $this->user->setUsername("Test");
+        $this->user->setEmail("test@test.hu");
+        $this->user->setPassword("testpw");
+        $this->user->setDetails(new UserDetails());
+        $this->user->setProgress(new UserProgress());
+        $this->em->persist($this->user);
+        $this->em->flush();
     }
 
     // Testing queries
@@ -60,7 +75,7 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:User');
         $user_details = $user_progress_repository->findDetailsOfUser($test_user->getUsername());
 
-        $this->assertEquals($test_user->getUsername(), $user_details[0]->getUsername());
+        $this->assertEquals($test_user->getUsername(), $user_details->getUsername());
     }
     /**
      * {@inheritDoc}
@@ -68,6 +83,8 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
     protected function tearDown()
     {
         parent::tearDown();
+        $this->em->remove($this->user);
+        $this->em->flush();
         $this->em->close();
     }
 

@@ -22,6 +22,11 @@ class SuggestedCarRepositoryFunctionalTest extends KernelTestCase{
     private $em;
 
     /**
+     * @var SuggestedCar
+     */
+    private $suggestedCar;
+
+    /**
      * {@inheritDoc}
      */
     public function setUp()
@@ -29,8 +34,12 @@ class SuggestedCarRepositoryFunctionalTest extends KernelTestCase{
         self::bootKernel();
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
-            ->getManager()
-        ;
+            ->getManager();
+
+        $this->suggestedCar = new SuggestedCar();
+        $this->suggestedCar->setModel("Test");
+        $this->em->persist($this->suggestedCar);
+        $this->em->flush();
     }
 
     // Testing queries
@@ -104,6 +113,8 @@ class SuggestedCarRepositoryFunctionalTest extends KernelTestCase{
     protected function tearDown()
     {
         parent::tearDown();
+        $this->em->remove($this->suggestedCar);
+        $this->em->flush();
         $this->em->close();
     }
 

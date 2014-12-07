@@ -46,10 +46,9 @@ class AccountControllerTest extends WebTestCase{
         $client = $this->registerClient();
 
         // Check if the user has been created
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
-        $this->assertCount(1,$user);
+        $this->assertEquals(1,count($user));
 
         // Logout (after registration's automatic login)
         $crawler = $client->request('GET', '/logout');
@@ -88,10 +87,9 @@ class AccountControllerTest extends WebTestCase{
         $client->submit($form);
 
         // Check if the user's details have been updated
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
-        $this->assertEquals("Austria", $user[0]->getDetails()->getCountry());
+        $this->assertEquals("Austria", $user->getDetails()->getCountry());
     }
 
     // Test authorisation and deleting an account
@@ -107,10 +105,9 @@ class AccountControllerTest extends WebTestCase{
         // Now delete the user
         $this->deleteClient($client);
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         // Check if the user has been deleted
-        $this->assertCount(0,$user);
+        $this->assertEquals(0,count($user));
     }
 } 

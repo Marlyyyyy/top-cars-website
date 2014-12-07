@@ -19,7 +19,7 @@ class SuggestedCarControllerTest extends WebTestCase{
         $this->registerClient();
         $client = $this->loginClient();
 
-        $crawler = $client->request('GET', '/pending');
+        $crawler = $client->request('GET', '/prototypes');
 
         $this->assertGreaterThan(
             0,
@@ -32,15 +32,14 @@ class SuggestedCarControllerTest extends WebTestCase{
 
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $suggested_car = new SuggestedCar();
         $suggested_car->setModel("Test");
         $user->addSuggestedCar($suggested_car);
 
-        $em->flush();
+        $this->em->flush();
 
-        $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
+        $suggested_car = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
 
         $parameters = array("car_id" => $suggested_car[0]->getId());
 
@@ -57,7 +56,7 @@ class SuggestedCarControllerTest extends WebTestCase{
         );
 
 
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $voted_suggested_cars = $user->getVotedSuggestedCars();
 
         $this->assertEquals(1, count($voted_suggested_cars));
@@ -68,15 +67,14 @@ class SuggestedCarControllerTest extends WebTestCase{
 
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $suggested_car = new SuggestedCar();
         $suggested_car->setModel("Test");
         $user->addSuggestedCar($suggested_car);
 
-        $em->flush();
+        $this->em->flush();
 
-        $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
+        $suggested_car = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
 
         $parameters = array("car_id" => $suggested_car[0]->getId());
 
@@ -110,13 +108,12 @@ class SuggestedCarControllerTest extends WebTestCase{
         $this->registerClient();
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
         $suggested_car = new SuggestedCar();
         $suggested_car->setModel("Test");
         $user->addSuggestedCar($suggested_car);
 
-        $em->flush();
+        $this->em->flush();
 
         $suggested_cars = $user->getSuggestedCars();
 
@@ -148,14 +145,13 @@ class SuggestedCarControllerTest extends WebTestCase{
 
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
 
         $suggested_car = new SuggestedCar();
         $suggested_car->setModel("Test");
         $user->addSuggestedCar($suggested_car);
 
-        $em->flush();
+        $this->em->flush();
 
         $suggested_cars = $user->getSuggestedCars();
 

@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Tests\Entity;
 
 
+use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -20,6 +21,12 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
     private $em;
 
     /**
+     * @var Car
+     */
+    private $car;
+
+
+    /**
      * {@inheritDoc}
      */
     public function setUp()
@@ -27,8 +34,19 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
         self::bootKernel();
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
-            ->getManager()
-        ;
+            ->getManager();
+
+        $this->car = new Car();
+        $this->car->setModel("Test");
+        $this->car->setImage("test.jpg");
+        $this->car->setSpeed(300);
+        $this->car->setPower(300);
+        $this->car->setTorque(300);
+        $this->car->setAcceleration(4.5);
+        $this->car->setWeight(1300);
+        $this->car->setPrice(400);
+        $this->em->persist($this->car);
+        $this->em->flush();
     }
 
     // Testing Queries
@@ -62,7 +80,7 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
         $this->assertEquals(0, count($not_user_cars));
 
         // Simulate that the user has purchased only one car
-        $car = $car_repository->findOneById('5');
+        $car = $car_repository->findOneById('1');
 
         $not_user_cars = $car_repository->findAllNotUserCars(array($car));
 
@@ -86,7 +104,7 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
         $this->assertEquals(0, count($not_user_cars));
 
         // Simulate that the user has purchased only one car
-        $car = $car_repository->findOneById('5');
+        $car = $car_repository->findOneById('1');
 
         $not_user_cars = $car_repository->findAllNotUserCarsWherePriceLessThan(5000, array($car));
 
@@ -104,6 +122,8 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
     protected function tearDown()
     {
         parent::tearDown();
+        $this->em->remove($this->car);
+        $this->em->flush();
         $this->em->close();
     }
 } 

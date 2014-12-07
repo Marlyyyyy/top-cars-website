@@ -54,13 +54,12 @@ class CarControllerTest extends WebTestCase{
         $client = $this->loginClient();
 
         // Give the user some gold
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         $user_progress = $user->getProgress();
         $user_progress->setGold(10000);
 
-        $em->flush();
+        $this->em->flush();
 
         // Purchase a car
         $parameters = array("item" => 5);
@@ -100,8 +99,7 @@ class CarControllerTest extends WebTestCase{
             )
         );
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $selected_cars = $user->getSelectedCars();
 
         $this->assertEquals(1, count($selected_cars));
@@ -126,8 +124,7 @@ class CarControllerTest extends WebTestCase{
             )
         );
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $selected_cars = $user->getSelectedCars();
 
         $this->assertEquals(0, count($selected_cars));

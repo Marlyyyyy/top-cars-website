@@ -31,8 +31,7 @@ class GameControllerTest extends WebTestCase{
 
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         // Post a round result
         $parameters = array("score" => 50000, "streak" => 10, "roundResult" => "win");
@@ -60,8 +59,7 @@ class GameControllerTest extends WebTestCase{
 
         $client = $this->loginClient();
 
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         $client->request(
             'POST',
@@ -90,15 +88,14 @@ class GameControllerTest extends WebTestCase{
         $client = $this->loginClient();
 
         // Give the user 10 cars
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-        $car_repository = $em->getRepository('MartonTopCarsBundle:Car');
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $car_repository = $this->em->getRepository('MartonTopCarsBundle:Car');
 
         for ($i=0;$i<10;$i++){
             $user->addSelectedCars($car_repository->findOneById($i+1));
         }
 
-        $em->flush();
+        $this->em->flush();
 
         $client->request(
             'POST',
