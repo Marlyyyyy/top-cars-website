@@ -13,13 +13,21 @@ use Marton\TopCarsBundle\Test\WebTestCase;
 
 class CarControllerTest extends WebTestCase{
 
+    private $client;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setUp()
+    {
+        $this->registerClient();
+        $this->client = $this->loginClient();
+    }
+
     // Test the Garage page
     public function testGarageAction(){
 
-        $this->registerClient();
-        $client = $this->loginClient();
-
-        $crawler = $client->request('GET', '/dealership');
+        $crawler = $this->client->request('GET', '/dealership');
 
         $this->assertGreaterThan(
             0,
@@ -30,16 +38,14 @@ class CarControllerTest extends WebTestCase{
     // Test both of the dealership pages
     public function testDealershipAction(){
 
-        $client = $this->loginClient();
-
-        $crawler = $client->request('GET', '/dealership');
+        $crawler =  $this->client->request('GET', '/dealership');
 
         $this->assertGreaterThan(
             0,
             $crawler->filter('html:contains("nothing to buy :(")')->count()
         );
 
-        $crawler = $client->request('GET', '/dealership/all');
+        $crawler =  $this->client->request('GET', '/dealership/all');
 
         $this->assertGreaterThan(
             0,
@@ -51,8 +57,6 @@ class CarControllerTest extends WebTestCase{
     // Test purchasing a car
     public function testPurchaseAction(){
 
-        $client = $this->loginClient();
-
         // Give the user some gold
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
@@ -63,7 +67,7 @@ class CarControllerTest extends WebTestCase{
 
         // Purchase a car
         $parameters = array("item" => 5);
-        $client->request(
+        $this->client->request(
             'POST',
             '/car/purchase',
             $parameters,
@@ -83,11 +87,9 @@ class CarControllerTest extends WebTestCase{
     // Test selecting a car
     public function testSelectAction(){
 
-        $client = $this->loginClient();
-
         // Select a car
         $parameters = array("item" => 5);
-        $client->request(
+        $this->client->request(
             'POST',
             '/car/select',
             $parameters,
@@ -108,11 +110,9 @@ class CarControllerTest extends WebTestCase{
     // Test unselecting all cars
     public function testUnselectAllAction(){
 
-        $client = $this->loginClient();
-
         // Unselect all
         $parameters = array("item" => 5);
-        $client->request(
+        $this->client->request(
             'POST',
             '/car/unselect_all',
             $parameters,
@@ -128,7 +128,13 @@ class CarControllerTest extends WebTestCase{
         $selected_cars = $user->getSelectedCars();
 
         $this->assertEquals(0, count($selected_cars));
+    }
 
-        $this->deleteClient($client);
+    /**
+     * {@inheritDoc}
+     */
+    protected function tearDown()
+    {
+        $this->deleteClient($this->client);
     }
 } 

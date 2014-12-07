@@ -12,13 +12,21 @@ use Marton\TopCarsBundle\Test\WebTestCase;
 
 class GameControllerTest extends WebTestCase{
 
+    private $client;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setUp()
+    {
+        $this->registerClient();
+        $this->client = $this->loginClient();
+    }
+
     // Test rendering the Game page
     public function testGameAction(){
 
-        $this->registerClient();
-        $client = $this->loginClient();
-
-        $crawler = $client->request('GET', '/game');
+        $crawler = $this->client->request('GET', '/game');
 
         $this->assertGreaterThan(
             0,
@@ -29,13 +37,11 @@ class GameControllerTest extends WebTestCase{
     // Test updating the user's score
     public function testPostUserScoreAction(){
 
-        $client = $this->loginClient();
-
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         // Post a round result
         $parameters = array("score" => 50000, "streak" => 10, "roundResult" => "win");
-        $client->request(
+        $this->client->request(
             'POST',
             '/game/post_score',
             $parameters,
@@ -47,7 +53,7 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
 
         $response_content = json_decode($response->getContent(), true);
 
@@ -57,11 +63,9 @@ class GameControllerTest extends WebTestCase{
     // Test checking for Free For All
     public function testCheckFreeForAllAction(){
 
-        $client = $this->loginClient();
-
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/game/check/free_for_all',
             array(),
@@ -73,7 +77,7 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
 
         // Check the number of cards returned
         $response_content = json_decode($response->getContent(), true);
@@ -85,8 +89,6 @@ class GameControllerTest extends WebTestCase{
     // Test checking for Classic
     public function testCheckClassicAction(){
 
-        $client = $this->loginClient();
-
         // Give the user 10 cars
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
         $car_repository = $this->em->getRepository('MartonTopCarsBundle:Car');
@@ -97,7 +99,7 @@ class GameControllerTest extends WebTestCase{
 
         $this->em->flush();
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/game/check/classic',
             array(),
@@ -109,14 +111,20 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
 
         // Check the number of cards returned
         $response_content = json_decode($response->getContent(), true);
         $selected_cars = json_decode($response_content["selected_cars"]);
 
         $this->assertEquals(10, count($selected_cars));
+    }
 
-        $this->deleteClient($client);
+    /**
+     * {@inheritDoc}
+     */
+    protected function tearDown()
+    {
+        $this->deleteClient($this->client);
     }
 } 
