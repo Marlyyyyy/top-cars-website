@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SuggestedCarController extends Controller{
 
@@ -104,11 +105,7 @@ class SuggestedCarController extends Controller{
 
         $em->flush();
 
-        $response = new Response(json_encode(array(
-            'result' => $action)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('result' => $action));
     }
 
     // Handle Ajax POST request to accept
@@ -120,11 +117,7 @@ class SuggestedCarController extends Controller{
         if (!$this->get('security.context')->isGranted('ROLE_ADMIN')) {
 
             array_push($error, array("Only administrators can accept pending cars!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         // Get the car to be accepted
@@ -137,11 +130,7 @@ class SuggestedCarController extends Controller{
         if(sizeof($suggestedCar) == 0){
 
             array_push($error, array("Such car does not exist!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         // Move image to the final directory
@@ -155,11 +144,7 @@ class SuggestedCarController extends Controller{
         }else{
 
             array_push($error, array("This car doesn't have its own image! Please add one :)"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         // Create a new car entity as a copy of the suggested car
@@ -191,11 +176,7 @@ class SuggestedCarController extends Controller{
             array_push($error, "Persisting to the database failed :(");
         }
 
-        $response = new Response(json_encode(array(
-            'error' => $error)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('error' => $error));
     }
 
     // Handle Ajax POST request to delete
@@ -213,11 +194,7 @@ class SuggestedCarController extends Controller{
         if(sizeof($suggestedCar) == 0){
 
             array_push($error, array("Such car does not exist!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         /* @var $user User */
@@ -227,11 +204,7 @@ class SuggestedCarController extends Controller{
         if ( (!$this->get('security.context')->isGranted('ROLE_ADMIN')) and ($user !== $suggestedCar->getUser())){
 
             array_push($error, array("You must be the owner of the car in order to delete that!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         // Remove image as long as it's not the default one
@@ -248,11 +221,7 @@ class SuggestedCarController extends Controller{
         $em->remove($suggestedCar);
         $em->flush();
 
-        $response = new Response(json_encode(array(
-            'error' => $error)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('error' => $error));
     }
 
     // Handle Ajax POST request to edit
@@ -284,23 +253,15 @@ class SuggestedCarController extends Controller{
             // Check if there exists a car with the given id
             if(sizeof($suggestedCar) == 0){
 
-                array_push($error, array("Such car does not exist!" .  $carId));
-                $response = new Response(json_encode(array(
-                    'error' => $error)));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
+                array_push($error, array("Such car does not exist!"));
+                return new JsonResponse(array('error' => $error));
             }
 
             // Check if the car to be edited is indeed the user's car OR that the user is an admin
             if (!in_array($suggestedCar,$user->getSuggestedCars()) and (!$this->get('security.context')->isGranted('ROLE_ADMIN'))){
 
                 array_push($error, array("You must be the owner of the car in order to edit that!"));
-                $response = new Response(json_encode(array(
-                    'error' => $error)));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
+                return new JsonResponse(array('error' => $error));
             }
 
             // Save the car's previous picture's path
@@ -326,10 +287,11 @@ class SuggestedCarController extends Controller{
                 // Remove previous image unless it's the default one
                 if ($suggestedCarDefaultImage !== 'default.png'){
 
-                    $oldPath = $imageDirPath.$suggestedCarDefaultImage;
+                    $oldPath = $imageDirPath . $suggestedCarDefaultImage;
                     $fileHelper->removeFile($oldPath);
                 }
 
+                // Move the new image with a new unique filename to the correct directory
                 $file_name = $fileHelper->makeUniqueName($user->getId(), $imageFile->getClientOriginalName());
                 $imageFile->move($imageDirPath, $file_name);
                 $suggestedCar->setImage($file_name);
@@ -357,18 +319,10 @@ class SuggestedCarController extends Controller{
             foreach ($form_errors as $form_error){
                 array_push($error, $form_error);
             }
-            $response = new Response(json_encode(array(
-                'error' => $form_errors)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $form_errors));
         }
 
-        $response = new Response(json_encode(array(
-            'error' => $error)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('error' => $error));
     }
 
     // Handle Ajax POST request to details of a pending suggested car
@@ -380,11 +334,7 @@ class SuggestedCarController extends Controller{
         $em = $this->getDoctrine()->getManager();
         $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
-        $response = new Response(json_encode(array(
-            'car' => $suggestedCar)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('car' => $suggestedCar));
     }
 
     // Helper method to return all error messages within a submitted form

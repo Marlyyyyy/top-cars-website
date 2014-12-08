@@ -15,6 +15,7 @@ use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -99,11 +100,7 @@ class CarController extends Controller{
         if(sizeof($car) == 0){
 
             array_push($error, array("Such car does not exist!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         /* @var $user User */
@@ -113,11 +110,7 @@ class CarController extends Controller{
         if (in_array($car, $user->getCars())){
 
             array_push($error, array("You already own this car!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         /* @var $userProgress UserProgress */
@@ -135,18 +128,10 @@ class CarController extends Controller{
         }else{
 
             array_push($error, array("You cannot afford this car!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
-        $response = new Response(json_encode(array(
-            'error' => $error)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array('error' => $error));
     }
 
     // Handle Ajax POST request to select car
@@ -166,11 +151,7 @@ class CarController extends Controller{
         if(sizeof($car) == 0){
 
             array_push($error, array("Such car does not exist!"));
-            $response = new Response(json_encode(array(
-                'error' => $error)));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            return new JsonResponse(array('error' => $error));
         }
 
         /* @var $user User */
@@ -211,14 +192,12 @@ class CarController extends Controller{
             }
         }
 
-        $response = new Response(json_encode(array(
+        return new JsonResponse(array(
             'error' => $error,
             'change' => $change,
             'no_of_cars' => $selectedCarsCount,
-            'is_full' => $isFull)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+            'is_full' => $isFull
+        ));
     }
 
     // Handle Ajax POST request to unselect all cars
@@ -237,9 +216,6 @@ class CarController extends Controller{
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        $response = new Response(json_encode(array()));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array());
     }
 } 

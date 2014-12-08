@@ -14,8 +14,8 @@ use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Marton\TopCarsBundle\Services\AchievementCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class GameController extends Controller{
 
@@ -119,13 +119,11 @@ class GameController extends Controller{
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        $response = new Response(json_encode(array(
+        return new JsonResponse(array(
             'levelChange' => $levelChange,
             'userLevelInfo' => $newScoreInfo,
-            'gold' => $gold)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+            'gold' => $gold
+        ));
     }
 
     // Handle Ajax POST request to return details needed to initialise the Free For All game
@@ -149,12 +147,10 @@ class GameController extends Controller{
         $userLevelInfo["score"] = $userScore;
         $userLevelInfo["gold"] = $progress->getGold();
 
-        $response = new Response(json_encode(array(
+        return new JsonResponse(array(
             "deck" => json_encode($cars),
-            "user_level_info" => json_encode($userLevelInfo),)));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+            "user_level_info" => json_encode($userLevelInfo)
+        ));
     }
 
     // Handle Ajax POST request to return details needed to initialise Classic game
@@ -186,20 +182,18 @@ class GameController extends Controller{
             $userLevelInfo["score"] = $userScore;
             $userLevelInfo["gold"] = $progress->getGold();
 
-            $response = new Response(json_encode(array(
+            return new JsonResponse(array(
                 "error" => array(),
                 "deck" => json_encode($cars),
                 "selected_cars" => json_encode($selectedCars),
-                "user_level_info" => json_encode($userLevelInfo))));
+                "user_level_info" => json_encode($userLevelInfo)
+            ));
         }else{
 
-            $response = new Response(json_encode(array(
-                "error" => array("You do not have enough cars selected to play this game mode")
-            )));
+            $error = array();
+            array_push($error, array("You do not have enough cars selected to play this game mode"));
+            return new JsonResponse(array('error' => $error));
         }
-
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
     }
 
     // Handle Ajax POST request sent when the user wins a classic game
@@ -227,11 +221,6 @@ class GameController extends Controller{
             $em->flush();
         }
 
-        $response = new Response(json_encode(array(
-            "error" => $error
-        )));
-
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return new JsonResponse(array('error' => $error));
     }
 } 

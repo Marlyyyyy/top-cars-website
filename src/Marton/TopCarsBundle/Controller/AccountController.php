@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AccountController extends Controller{
 
@@ -119,7 +120,7 @@ class AccountController extends Controller{
         );
     }
 
-    // Handle the Ajax POST request to permanently delete an account
+    // Handle Ajax POST request to permanently delete an account
     public function deleteAccountAction(Request $request){
 
         /* @var $user User */
@@ -157,11 +158,7 @@ class AccountController extends Controller{
         $em->remove($user);
         $em->flush();
 
-        $response = new Response(json_encode(array(
-            'error' => '')));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new JsonResponse(array());
     }
 
     // Renders the Account page
