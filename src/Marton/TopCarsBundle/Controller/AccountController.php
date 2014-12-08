@@ -23,8 +23,9 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class AccountController extends Controller{
 
-    // Render Registration page
+    // Render the Registration page
     public function registerAction(){
+
         $registration = new Registration();
         $form = $this->createForm(new RegistrationType(), $registration, array(
             'action' => $this->generateUrl('marton_topcars_create_account'),
@@ -36,71 +37,69 @@ class AccountController extends Controller{
         );
     }
 
-    // Create an account
+    // Handles the submitted form to create an account
     public function createAction(Request $request){
 
-        $em = $this->getDoctrine()->getManager();
-
         $form = $this->createForm(new RegistrationType(), new Registration());
-
         $form->handleRequest($request);
 
         if ($form->isValid()) {
 
-            $role = $em->getRepository('MartonTopCarsBundle:Role')->findOneBy(array('role' => 'ROLE_USER'));
-            $user_progress = new UserProgress();
-            $user_details = new UserDetails();
-
             $registration = $form->getData();
 
+            /* @var $user User */
             $user = $registration->getUser();
+
+            $userProgress = new UserProgress();
+            $user->setProgress($userProgress);
+            $userDetails  = new UserDetails();
+            $user->setDetails($userDetails);
 
             // Encode the password of the user
             $plainPassword = $user->getPassword();
-
             $encoderFactory = $this->container->get('security.encoder_factory');
             $encoder = $encoderFactory->getEncoder($user);
-
             $encodedPassword = $encoder->encodePassword($plainPassword, $user->getSalt());
             $user->setPassword($encodedPassword);
 
-            $user->addRole($role);
-            $user->setProgress($user_progress);
-            $user->setDetails($user_details);
+            $em = $this->getDoctrine()->getManager();
 
-            $em->persist($user_progress);
+            // Assign the "Registered User" role to a new user
+            $role = $em->getRepository('MartonTopCarsBundle:Role')->findOneBy(array('role' => 'ROLE_USER'));
+            $user->addRole($role);
+
             $em->persist($user);
             $em->flush();
 
-            // Automatically log in the user after successful registration
+            // Automatically log in the user after a successful registration
             $token = new UsernamePasswordToken($user, null, 'secured_area', $user->getRoles());
             $this->get('security.context')->setToken($token);
             $this->get('session')->set('_security_main',serialize($token));
 
+            // Set flash message that will appear only once
             $this->get('session')->getFlashBag()->add(
                 'notice',
                 'Welcome, now let the fun begin! :)'
             );
 
-            return $this->redirect($this->generateUrl('marton_topcars_default'));
+            return $this->redirect($this->generateUrl('marton_topcars_account'));
         }
 
+        // If the validation failed, render the form again, this time with errors visible
         return $this->render(
             'MartonTopCarsBundle:Default:Pages/registration.html.twig',
             array('form' => $form->createView())
         );
     }
 
-    // Render Login page (even after unsuccessful login attemp)
+    // Render the Login page
     public function loginAction(Request $request){
 
         $session = $request->getSession();
 
-        // get the login error if there is one
+        // Get the login error if there is one
         if ($request->attributes->has(SecurityContextInterface::AUTHENTICATION_ERROR)) {
-            $error = $request->attributes->get(
-                SecurityContextInterface::AUTHENTICATION_ERROR
-            );
+            $error = $request->attributes->get(SecurityContextInterface::AUTHENTICATION_ERROR);
         } elseif (null !== $session && $session->has(SecurityContextInterface::AUTHENTICATION_ERROR)) {
             $error = $session->get(SecurityContextInterface::AUTHENTICATION_ERROR);
             $session->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
@@ -120,24 +119,21 @@ class AccountController extends Controller{
         );
     }
 
-    // Ajax request to delete an account permanently
+    // Handle the Ajax POST request to permanently delete an account
     public function deleteAccountAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
-        $file_helper = $this->get('file_helper');
+        $fileHelper = $this->get('file_helper');
 
         // Delete the user's profile picture
         if ($user->getDetails()->getProfilePicturePath() !== 'default.jpg'){
 
-            $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/'.$user->getDetails()->getProfilePicturePath();
+            $userProfilePicturePath = $user->getDetails()->getProfilePicturePath();
+            $imagePath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/' . $userProfilePicturePath;
 
-            $file_helper->removeFile($image_path);
+            $fileHelper->removeFile($imagePath);
         }
 
         $suggested_cars = $user->getSuggestedCars();
@@ -147,9 +143,8 @@ class AccountController extends Controller{
 
             if (($car->getImage() !== 'default.jpg') and ($car->getImage() !== 'default.png')){
 
-                $image_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$car->getImage();
-
-                $file_helper->removeFile($image_path);
+                $imagePath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$car->getImage();
+                $fileHelper->removeFile($imagePath);
             }
         }
 
@@ -158,6 +153,7 @@ class AccountController extends Controller{
         $this->get('request')->getSession()->invalidate();
 
         // Remove the user from the database
+        $em = $this->getDoctrine()->getManager();
         $em->remove($user);
         $em->flush();
 
@@ -168,85 +164,76 @@ class AccountController extends Controller{
         return $response;
     }
 
-    // Renders Account page
+    // Renders the Account page
     public function accountAction(){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        // Get details of the user
-        /* @var $user_details UserDetails */
-        $user_details = $user->getDetails();
+        /* @var $userDetails UserDetails */
+        $userDetails = $user->getDetails();
 
         // Create Form for editing user details
-        $edit_form = $this->createForm(new UserDetailsType(), $user_details, array(
+        $editForm = $this->createForm(new UserDetailsType(), $userDetails, array(
             'action' => $this->generateUrl('marton_topcars_account_update'),
         ));
 
         return $this->render('MartonTopCarsBundle:Default:Pages/account.html.twig', array(
-            'details_form' => $edit_form->createView(),
+            'details_form' => $editForm->createView(),
             'user' => $user,
-            'user_details' => $user_details
+            'user_details' => $userDetails
         ));
     }
 
     // Handles the submitted form to update user details
-    public function updateAccountAction(Request $request){
+    public function updateAccountAction(Request $request){      
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
-        // Get details of the user
-        /* @var $user_details UserDetails */
-        $user_details = $user->getDetails();
+        /* @var $userDetails UserDetails */
+        $userDetails = $user->getDetails();
 
-        $edit_form = $this->createForm(new UserDetailsType(), $user_details);
+        $editForm = $this->createForm(new UserDetailsType(), $userDetails);
+        $editForm->handleRequest($request);
 
-        $edit_form->handleRequest($request);
+        if ($editForm->isValid()) {
 
-        if ($edit_form->isValid()) {
+            $newUserDetails = $editForm->getData();
 
-            $new_user_details = $edit_form->getData();
-
-            $image_file = $new_user_details->getImageFile();
+            $imageFile = $newUserDetails->getImageFile();
 
             // Check if the user has actually uploaded an image
-            if($image_file != null){
+            if($imageFile != null){
 
-                $file_helper = $this->get('file_helper');
+                $fileHelper = $this->get('file_helper');
+                
+                $avatarDirPath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/';
 
-                $avatar_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/avatar/';
+                // Remove the user's previous profile picture
+                if ($userDetails->getProfilePicturePath() !== 'default.jpg'){
 
-                // Remove previous image
-                if ($user_details->getProfilePicturePath() !== 'default.jpg'){
-
-                    $old_path = $avatar_dir_path.$user_details->getProfilePicturePath();
-                    $file_helper->removeFile($old_path);
+                    $oldPath = $avatarDirPath . $userDetails->getProfilePicturePath();
+                    $fileHelper->removeFile($oldPath);
                 }
 
-                // Renaming the image to avoid user clash
-                $new_file_name = $file_helper->makeUniqueName($user->getId(), $image_file->getClientOriginalName());
-                $new_user_details->setProfilePicturePath($new_file_name);
+                // Renaming the image to avoid clash between this and other images
+                $newFileName = $fileHelper->makeUniqueName($user->getId(), $imageFile->getClientOriginalName());
+                $newUserDetails->setProfilePicturePath($newFileName);
 
                 // Moving the image to the "avatar" directory
-                $image_file->move($avatar_dir_path, $new_file_name);
+                $imageFile->move($avatarDirPath, $newFileName);
             }
 
-            $image_file = null;
+            $imageFile = null;
 
-            $user->setDetails($new_user_details);
+            $user->setDetails($newUserDetails);
+
+            $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
 
-            // Set flash message
+            // Set flash message that will appear only once
             $this->get('session')->getFlashBag()->add(
                 'notice',
                 'Your changes have been successfully saved! :)'
@@ -254,9 +241,9 @@ class AccountController extends Controller{
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/account.html.twig', array(
-            'details_form' => $edit_form->createView(),
+            'details_form' => $editForm->createView(),
             'user' => $user,
-            'user_details' => $user_details
+            'user_details' => $userDetails
         ));
     }
-} 
+}

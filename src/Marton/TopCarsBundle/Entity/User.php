@@ -10,7 +10,6 @@ namespace Marton\TopCarsBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-//use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -61,7 +60,7 @@ class User implements UserInterface, \Serializable{
     private $username;
 
     /**
-     * @ORM\OneToOne(targetEntity="UserProgress", cascade={"remove"})
+     * @ORM\OneToOne(targetEntity="UserProgress", cascade={"remove", "persist"})
      */
     private $progress;
 
@@ -115,19 +114,6 @@ class User implements UserInterface, \Serializable{
      *
      */
     private $selectedCars;
-
-    // Array to store calculated statistics
-    private $statistics;
-
-    public function setStatistics($statistics)
-    {
-        $this->statistics = $statistics;
-    }
-
-    public function getStatistics()
-    {
-        return $this->statistics;
-    }
 
     public function __construct()
     {

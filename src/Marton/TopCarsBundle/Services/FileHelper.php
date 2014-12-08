@@ -13,32 +13,33 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class FileHelper {
 
-    public function guessExtension($file_name){
+    public function guessExtension($fileName){
 
-        $arr = (explode(".", $file_name));
+        $arr = (explode(".", $fileName));
         $ext = end($arr);
         return $ext;
     }
 
-    public function makeUniqueName($key, $file_name){
+    public function makeUniqueName($key, $fileName){
 
         $now = getDate();
-        $ext = $this->guessExtension($file_name);
-        $unique_name = $key.'_'.$now['year'].$now['mon'].$now['mday'].$now['hours'].$now['minutes'].$now['seconds'].'.'.$ext;
+        $ext = $this->guessExtension($fileName);
+        $uniqueName = $key.'_'.$now['year'].$now['mon'].$now['mday'].$now['hours'].$now['minutes'].$now['seconds'].'.'.$ext;
+        $uniqueName = uniqid() . $uniqueName;
 
-        return $unique_name;
+        return $uniqueName;
     }
 
     public function removeFile($path){
 
         if (file_exists($path)){
 
-            $image_file = new File($path);
+            $imageFile = new File($path);
 
-            if (is_writable($image_file)){
+            if (is_writable($imageFile)){
 
-                unlink($image_file);
+                unlink($imageFile);
             }
         }
     }
-} 
+}

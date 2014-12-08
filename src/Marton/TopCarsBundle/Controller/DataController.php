@@ -11,6 +11,7 @@ namespace Marton\TopCarsBundle\Controller;
 
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Repository\CarRepository;
+use Marton\TopCarsBundle\Services\PriceCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class DataController extends Controller{
@@ -20,41 +21,43 @@ class DataController extends Controller{
         return $this->updateCarImageExtension();
     }
 
+    // Helper function to update all car prices
     private function updateCarPrices(){
-
-        $em = $this->getDoctrine()->getManager();
 
         /* @var $repository CarRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
         $cars = $repository-> findAllCars();
 
-        $priceCalculator = $this->get('price_calculator');;
+        /* @var $priceCalculator PriceCalculator */
+        $priceCalculator = $this->get('price_calculator');
 
+        /* @var $car Car */
         foreach($cars as $car){
 
-            /* @var $car Car */
             $car->setPrice($priceCalculator->calculatePrice($car));
         }
 
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
     }
 
+    // Helper function to update the extension of every car image within the Car table
     private function updateCarImageExtension(){
-
-        $em = $this->getDoctrine()->getManager();
 
         /* @var $repository CarRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
         $cars = $repository-> findAllCars();
 
+        /* @var $car Car */
         foreach($cars as $car){
 
-            /* @var $car Car */
-            $car->setImage($car->getImage().".png");
+            $carImage = $car->getImage();
+            $car->setImage($carImage . ".png");
         }
 
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');

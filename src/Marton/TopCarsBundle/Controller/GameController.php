@@ -12,71 +12,66 @@ namespace Marton\TopCarsBundle\Controller;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
+use Marton\TopCarsBundle\Services\AchievementCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class GameController extends Controller{
 
-    // Renders Game page
+    // Renders the Game page
     public function gameAction(){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        // Get the progress
-        /* @var $user_progress UserProgress */
-        $user_progress = $user->getProgress();
+        /* @var $userProgress UserProgress */
+        $userProgress = $user->getProgress();
 
         // Get cars owned and selected by the user
-        $selected_cars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
-        if (count($selected_cars) === 10){
-            $is_classic_unlocked = true;
+        $em = $this->getDoctrine()->getManager();
+        $selectedCars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
+        
+        if (count($selectedCars) === 10){
+            $isClassicUnlocked = true;
         }else{
-            $is_classic_unlocked = false;
+            $isClassicUnlocked = false;
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/game.html.twig', array(
-            "selected_cars" => $selected_cars,
-            "is_classic_unlocked" => $is_classic_unlocked,
-            "progress" => $user_progress
+            "selected_cars" => $selectedCars,
+            "is_classic_unlocked" => $isClassicUnlocked,
+            "progress" => $userProgress
         ));
     }
 
-    // Ajax call to update the user's score during a game
+    // Handle Ajax POST request to update the user's score during a game
     public function postUserScoreAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
+        /* @var $progress UserProgress */
         $progress = $user->getProgress();
 
-        // Score and Level
+        // Update Score and Level
         $score = (int) $request->request->get('score');
-
-        $achievementCalculator = $this->get('achievement_calculator');
-        $new_score_info = $achievementCalculator->calculateLevel($score);
-
-        /* @var $progress UserProgress */
         $progress->setScore($score);
 
-        // Streak
-        $streak = $progress->getStreak();
-        $new_streak = (int) $request->request->get('streak');
-        if ($new_streak > $streak){
+        /* @var $achievementCalculator AchievementCalculator */
+        $achievementCalculator = $this->get('achievement_calculator');
+        $newScoreInfo = $achievementCalculator->calculateLevel($score);
 
-            $progress->setStreak($new_streak);
-            $streak = $new_streak;
+        // Update Streak
+        $streak = $progress->getStreak();
+        $newStreak = (int) $request->request->get('streak');
+        
+        if ($newStreak > $streak){
+
+            $progress->setStreak($newStreak);
+            $streak = $newStreak;
         }
 
-        // Round Result
+        // Update Round Result
         $roundResult = $request->request->get('roundResult');
         $allRound = $progress->getAllRound() + 1;
         $progress->setAllRound($allRound);
@@ -94,121 +89,108 @@ class GameController extends Controller{
                 break;
         }
 
-        // Skill
+        // Update Skill
         $skill = $achievementCalculator->calculateSkill($score, $allRound, $roundWin, $streak);
         $progress->setSkill($skill);
 
-        // Gold
+        // Update Gold
         $gold = $progress->getGold();
-        $old_level = $progress->getLevel();
-        $progress->setLevel($new_score_info["level"]);
+        $oldLevel = $progress->getLevel();
+        $progress->setLevel($newScoreInfo["level"]);
 
-        if ($old_level<$new_score_info["level"]){
+        if ($oldLevel < $newScoreInfo["level"]){
 
-            $extra_gold = 0;
-            $level_ups = $new_score_info["level"] - $old_level;
-            // TODO: consider leveling up more times
-            for ($i=1; $i<$level_ups+1; $i++){
-                $extra_gold += $achievementCalculator->calculateGold($old_level + $i);
+            $extraGold = 0;
+            $levelUps = $newScoreInfo["level"] - $oldLevel;
+            for ($i = 1; $i < $levelUps + 1; $i++){
+                $extraGold += $achievementCalculator->calculateGold($oldLevel + $i);
             }
 
-            $gold += $extra_gold;
+            $gold += $extraGold;
             $progress->setGold($gold);
-            $level_change = "up";
+            $levelChange = "up";
 
-        }else if($old_level===$new_score_info["level"]){
-
-            $level_change = "stay";
-
+        }else if($oldLevel === $newScoreInfo["level"]){
+            $levelChange = "stay";
         }else{
-
-            $level_change = "down";
+            $levelChange = "down";
         }
 
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         $response = new Response(json_encode(array(
-            'levelChange' => $level_change,
-            'userLevelInfo' => $new_score_info,
+            'levelChange' => $levelChange,
+            'userLevelInfo' => $newScoreInfo,
             'gold' => $gold)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
-    // Ajax call to return details needed to initialise Free For All game
+    // Handle Ajax POST request to return details needed to initialise the Free For All game
     public function checkFreeForAllAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
-        // Get the progress
-        /* @var $user User */
         /* @var $progress UserProgress */
         $progress = $user->getProgress();
-        $user_score = $progress->getScore();
+        $userScore = $progress->getScore();
 
-        // Get all cars
-        /* @var $repository CarRepository */
-        $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
-        $cars = $repository-> findAllCarsAsArray();
+        /* @var $carRepository CarRepository */
+        $carRepository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+        $cars = $carRepository-> findAllCarsAsArray();
 
-        // To calculate score initially
+        // Calculate score initially
+        /* @var $achievementCalculator AchievementCalculator */
         $achievemetCalculator = $this->get('achievement_calculator');
-        $user_level_info = $achievemetCalculator->calculateLevel($user_score);
-        $user_level_info["score"] = $user_score;
-        $user_level_info["gold"] = $progress->getGold();
+        $userLevelInfo = $achievemetCalculator->calculateLevel($userScore);
+        $userLevelInfo["score"] = $userScore;
+        $userLevelInfo["gold"] = $progress->getGold();
 
         $response = new Response(json_encode(array(
             "deck" => json_encode($cars),
-            "user_level_info" => json_encode($user_level_info),)));
+            "user_level_info" => json_encode($userLevelInfo),)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
-    // Ajax call to return details needed to initialise Classic game
+    // Handle Ajax POST request to return details needed to initialise Classic game
     public function checkClassicAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
         // Get cars owned and selected by the user
-        $selected_cars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
+        $em = $this->getDoctrine()->getManager();
+        $selectedCars = $em->getRepository('MartonTopCarsBundle:Car')->findSelectedCarsOfUser($user->getId());
 
         // Check if the user has enough cars to play the game
-        if(count($selected_cars) === 10){
+        if(count($selectedCars) === 10){
 
-            // Get the progress
             /* @var $user User */
             /* @var $progress UserProgress */
             $progress = $user->getProgress();
-            $user_score = $progress->getScore();
+            $userScore = $progress->getScore();
 
-            // Get all cars
-            /* @var $repository CarRepository */
-            $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
-            $cars = $repository-> findAllCarsAsArray();
+            /* @var $carRepository CarRepository */
+            $carRepository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+            $cars = $carRepository-> findAllCarsAsArray();
 
-            // To calculate score initially
+            // Calculate score initially
+            /* @var $achievementCalculator AchievementCalculator */
             $achievemetCalculator = $this->get('achievement_calculator');
-            $user_level_info = $achievemetCalculator->calculateLevel($user_score);
-            $user_level_info["score"] = $user_score;
-            $user_level_info["gold"] = $progress->getGold();
+            $userLevelInfo = $achievemetCalculator->calculateLevel($userScore);
+            $userLevelInfo["score"] = $userScore;
+            $userLevelInfo["gold"] = $progress->getGold();
 
             $response = new Response(json_encode(array(
                 "error" => array(),
                 "deck" => json_encode($cars),
-                "selected_cars" => json_encode($selected_cars),
-                "user_level_info" => json_encode($user_level_info))));
+                "selected_cars" => json_encode($selectedCars),
+                "user_level_info" => json_encode($userLevelInfo))));
         }else{
 
             $response = new Response(json_encode(array(
@@ -220,31 +202,28 @@ class GameController extends Controller{
         return $response;
     }
 
-    // Ajax call when the user wins a classic game
+    // Handle Ajax POST request sent when the user wins a classic game
     public function winClassicAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        $round_result = $request->request->get('round_result');
+        $roundResult = $request->request->get('round_result');
 
         $error = array();
 
-        if ($round_result !== "win"){
+        if ($roundResult !== "win"){
 
             array_push($error, "You tried to cheat. Now look at yourself :(");
 
         }else{
 
-            // Get user entity
             /* @var $user User */
             $user= $this->get('security.context')->getToken()->getUser();
 
             // Simply give 50 gold to the user
-            /* @var $user_progress UserProgress */
-            $user_progress = $user->getProgress();
-            $user_progress->setGold($user_progress->getGold()+50);
+            /* @var $userProgress UserProgress */
+            $userProgress = $user->getProgress();
+            $userProgress->setGold($userProgress->getGold()+50);
 
+            $em = $this->getDoctrine()->getManager();
             $em->flush();
         }
 

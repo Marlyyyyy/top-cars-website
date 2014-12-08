@@ -12,6 +12,7 @@ namespace Marton\TopCarsBundle\Tests\Entity;
 use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserDetails;
 use Marton\TopCarsBundle\Entity\UserProgress;
+use Marton\TopCarsBundle\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class UserProgressRepositoryFunctionalTest extends KernelTestCase{
@@ -50,32 +51,34 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
     public function testFindHighscores(){
 
         // Get test user
-        /* @var $test_user User */
-        $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $test_user = $user_repository->findOneById(1);
+        /* @var $userRepository UserRepository */
+        $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        /* @var $testUser User */
+        $testUser = $userRepository->findOneById(1);
 
-        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $highscores = $user_progress_repository->findHighscores();
+        $userProgressRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        $highscores = $userProgressRepository->findHighscores();
 
-        $user_id_array = array();
+        $userIdArray = array();
         foreach($highscores as $highscore){
-            array_push($user_id_array, $highscore->getId());
+            array_push($userIdArray, $highscore->getId());
         }
 
-        $this->assertContains($test_user->getId(), $user_id_array);
+        $this->assertContains($testUser->getId(), $userIdArray);
     }
 
     public function testFindDetailsOfUser(){
 
         // Get test user
-        /* @var $test_user User */
-        $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $test_user = $user_repository->findOneById(1);
+        /* @var $userRepository UserRepository */
+        $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        /* @var $testUser User */
+        $testUser = $userRepository->findOneById(1);
 
-        $user_progress_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $user_details = $user_progress_repository->findDetailsOfUser($test_user->getUsername());
+        $userProgressRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        $user_details = $userProgressRepository->findDetailsOfUser($testUser->getUsername());
 
-        $this->assertEquals($test_user->getUsername(), $user_details->getUsername());
+        $this->assertEquals($testUser->getUsername(), $user_details->getUsername());
     }
     /**
      * {@inheritDoc}

@@ -8,7 +8,9 @@
 
 namespace Marton\TopCarsBundle\Tests\Controller;
 
+use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class GameControllerTest extends WebTestCase{
 
@@ -37,8 +39,6 @@ class GameControllerTest extends WebTestCase{
     // Test updating the user's score
     public function testPostUserScoreAction(){
 
-        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-
         // Post a round result
         $parameters = array("score" => 50000, "streak" => 10, "roundResult" => "win");
         $this->client->request(
@@ -53,17 +53,16 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
+        /* @var $response Response */
         $response = $this->client->getResponse();
 
-        $response_content = json_decode($response->getContent(), true);
+        $responseContent = json_decode($response->getContent(), true);
 
-        $this->assertEquals("up", $response_content["levelChange"]);
+        $this->assertEquals("up", $responseContent["levelChange"]);
     }
 
     // Test checking for Free For All
     public function testCheckFreeForAllAction(){
-
-        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
         $this->client->request(
             'POST',
@@ -77,11 +76,12 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
+        /* @var $response Response */
         $response = $this->client->getResponse();
 
         // Check the number of cards returned
-        $response_content = json_decode($response->getContent(), true);
-        $deck = json_decode($response_content["deck"]);
+        $responseContent = json_decode($response->getContent(), true);
+        $deck = json_decode($responseContent["deck"]);
 
         $this->assertGreaterThan(0, count($deck));
     }
@@ -90,11 +90,12 @@ class GameControllerTest extends WebTestCase{
     public function testCheckClassicAction(){
 
         // Give the user 10 cars
+        /* @var $user User */
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-        $car_repository = $this->em->getRepository('MartonTopCarsBundle:Car');
+        $carRepository = $this->em->getRepository('MartonTopCarsBundle:Car');
 
         for ($i=0;$i<10;$i++){
-            $user->addSelectedCars($car_repository->findOneById($i+1));
+            $user->addSelectedCars($carRepository->findOneById($i+1));
         }
 
         $this->em->flush();
@@ -111,13 +112,14 @@ class GameControllerTest extends WebTestCase{
             )
         );
 
+        /* @var $response Response */
         $response = $this->client->getResponse();
 
         // Check the number of cards returned
-        $response_content = json_decode($response->getContent(), true);
-        $selected_cars = json_decode($response_content["selected_cars"]);
+        $responseContent = json_decode($response->getContent(), true);
+        $selectedCars = json_decode($responseContent["selected_cars"]);
 
-        $this->assertEquals(10, count($selected_cars));
+        $this->assertEquals(10, count($selectedCars));
     }
 
     /**

@@ -12,6 +12,7 @@ namespace Marton\TopCarsBundle\Controller;
 use Doctrine\Common\Collections\ArrayCollection;
 use Marton\TopCarsBundle\Entity\Car;
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,20 +20,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CarController extends Controller{
 
-    // Render Dealership page
+    // Render the Dealership page
     public function dealershipAction($option){
 
-        // Get the user
         /* @var $user User */
         $user = $this->get('security.context')->getToken()->getUser();
 
-        // Get all cars
+        // Get a list of requested cars
         /* @var $repository CarRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car');
+        
         if ($option === "all"){
             $cars = $repository-> findAllNotUserCars($user->getCars());
         }else{
-            $cars = $repository-> findAllNotUserCarsWherePriceLessThan($user->getProgress()->getGold(), $user->getCars());
+            /* @var $userProgress UserProgress */
+            $userProgress = $user->getProgress();
+            $userGold = $userProgress->getGold();
+            $userCars = $user->getCars();
+            $cars = $repository-> findAllNotUserCarsWherePriceLessThan($userGold, $userCars);
         }
 
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/dealership.html.twig', array(
@@ -45,7 +50,7 @@ class CarController extends Controller{
         ));
     }
 
-    // Render Garage page
+    // Render the Garage page
     public function garageAction(){
 
         /* @var $user User */
@@ -53,20 +58,18 @@ class CarController extends Controller{
         $cars =  $user->getCars();
 
         // Get collection of already selected cars
-        /* @var $selected_cars ArrayCollection */
-        $selected_cars = $user->getSelectedCars();
-        $selected_cars_count = count($selected_cars);
+        /* @var $selectedCars ArrayCollection */
+        $selectedCars = $user->getSelectedCars();
+        $selectedCarsCount = count($selectedCars);
 
-        $all_cars_count = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car')->countAllCars();
+        $allCarsCount = $this->getDoctrine()->getRepository('MartonTopCarsBundle:Car')->countAllCars();
 
         // Tag cars that have already been selected
         foreach($cars as $car){
 
-            if($selected_cars->contains($car)){
-
+            if($selectedCars->contains($car)){
                 $car->selected = true;
             }else{
-
                 $car->selected = false;
             }
         }
@@ -74,25 +77,23 @@ class CarController extends Controller{
         return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/garage.html.twig', array(
             "cars" => $cars,
             "user" => $user,
-            "selected_cars_count" => $selected_cars_count,
-            "all_cars_count" => $all_cars_count
+            "selected_cars_count" => $selectedCarsCount,
+            "all_cars_count" => $allCarsCount
         ));
     }
 
-    // Ajax call to purchase a car
+    // Handle Ajax POST request to purchase a car
     public function purchaseAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        $error = array();
-
         // Get id of the car to be purchased
-        $car_id = (int) $request->request->get('item');
+        $carId = (int) $request->request->get('item');
 
         // Get car to be purchased
         /* @var $car Car*/
-        $car = $em->getRepository('MartonTopCarsBundle:Car')->findOneById(array($car_id));
+        $em = $this->getDoctrine()->getManager();
+        $car = $em->getRepository('MartonTopCarsBundle:Car')->findOneById(array($carId));
+
+        $error = array();
 
         // Check if there exists a car with the given ID
         if(sizeof($car) == 0){
@@ -105,10 +106,8 @@ class CarController extends Controller{
             return $response;
         }
 
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
         // Check if the user has already purchased this car
         if (in_array($car, $user->getCars())){
@@ -121,16 +120,18 @@ class CarController extends Controller{
             return $response;
         }
 
-        $user_gold = $user->getProgress()->getGold();
-        $car_price = $car->getPrice();
+        /* @var $userProgress UserProgress */
+        $userProgress = $user->getProgress();
+        $userGold = $userProgress->getGold();
+        $carPrice = $car->getPrice();
 
         // Check if the user can afford the car
-        if ($user_gold >= $car_price){
+        if ($userGold >= $carPrice){
 
             $user->addCar($car);
-            $user->getProgress()->setGold($user_gold - $car_price);
-            $em->persist($user);
+            $userProgress->setGold($userGold - $carPrice);
             $em->flush();
+
         }else{
 
             array_push($error, array("You cannot afford this car!"));
@@ -148,22 +149,19 @@ class CarController extends Controller{
         return $response;
     }
 
-    //Ajax call to select car
+    // Handle Ajax POST request to select car
     public function selectAction(Request $request){
-
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        $error = array();
-        $change = "";
-
+        
         // Get id of the car to be selected
-        $car_id = (int) $request->request->get('item');
+        $carId = (int) $request->request->get('item');
 
         // Get car to be selected
         /* @var $car Car*/
-        $car = $em->getRepository('MartonTopCarsBundle:Car')->findOneById(array($car_id));
+        $em = $this->getDoctrine()->getManager();
+        $car = $em->getRepository('MartonTopCarsBundle:Car')->findOneById(array($carId));
 
+        $error = array();
+        
         // Check if there exists a car with the given ID
         if(sizeof($car) == 0){
 
@@ -175,81 +173,71 @@ class CarController extends Controller{
             return $response;
         }
 
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        $selected_cars = $user->getSelectedCars();
-        $selected_cars_count = count($selected_cars);
-        $is_full = false;
+        $selectedCars = $user->getSelectedCars();
+        $selectedCarsCount = count($selectedCars);
+        $isFull = false;
 
+        $change = "";
+        
         // Check if the user has already selected this car
-        if ($selected_cars->contains($car)){
+        if ($selectedCars->contains($car)){
 
             $change = "remove";
 
             $user->removeSelectedCars($car);
-            $em->persist($user);
             $em->flush();
 
-            $selected_cars_count--;
+            $selectedCarsCount--;
         }else{
 
             // Check how many cars the user has already selected
-            if ($selected_cars_count < 10){
+            if ($selectedCarsCount < 10){
 
                 $change = "add";
 
                 $user->addSelectedCars($car);
-                $em->persist($user);
                 $em->flush();
 
-                $selected_cars_count++;
+                $selectedCarsCount++;
 
-                if ($selected_cars_count === 10){
-                    $is_full = true;
-                }
+                if ($selectedCarsCount === 10) $isFull = true;
             }else{
 
-                $is_full = true;
+                $isFull = true;
                 array_push($error, "You have already selected 10 cars!");
-                $response = new Response(json_encode(array(
-                    'error' => $error)));
-                $response->headers->set('Content-Type', 'application/json');
             }
         }
 
         $response = new Response(json_encode(array(
             'error' => $error,
             'change' => $change,
-            'no_of_cars' => $selected_cars_count,
-            'is_full' => $is_full)));
+            'no_of_cars' => $selectedCarsCount,
+            'is_full' => $isFull)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
-    // Ajax call to unselect all cars
+    // Handle Ajax POST request to unselect all cars
     public function unselectAllAction(Request $request){
 
-        // Get entity manager
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
 
-        $selected_cars = $user->getSelectedCars();
+        $selectedCars = $user->getSelectedCars();
 
-        foreach($selected_cars as $car){
+        foreach($selectedCars as $car){
 
             $user->removeSelectedCars($car);
         }
 
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        $response = new Response(json_encode(array(
-           )));
+        $response = new Response(json_encode(array()));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

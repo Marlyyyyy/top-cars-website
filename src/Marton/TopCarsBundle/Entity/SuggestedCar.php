@@ -30,6 +30,8 @@ class SuggestedCar implements JsonSerializable{
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(min="2", minMessage="The model name must be at least 2 characters long",
+     *                max="100", maxMessage="The model name must be at most 100 characters long")
      */
     protected $model;
 
@@ -49,7 +51,7 @@ class SuggestedCar implements JsonSerializable{
      *     mimeTypesMessage = "The format of your image has to be either JPEG or PNG"
      * )
      */
-    protected $image_file;
+    protected $imageFile;
 
     /**
      * @ORM\Column(type="integer")
@@ -93,6 +95,7 @@ class SuggestedCar implements JsonSerializable{
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(max="255", maxMessage="Your comment must be at most 255 characters long")
      */
     protected $comment = "Please add this car!";
 
@@ -158,14 +161,14 @@ class SuggestedCar implements JsonSerializable{
         return $this->image;
     }
 
-    public function setImageFile($image_file)
+    public function setImageFile($imageFile)
     {
-        $this->image_file = $image_file;
+        $this->imageFile = $imageFile;
     }
 
     public function getImageFile()
     {
-        return $this->image_file;
+        return $this->imageFile;
     }
 
     public function setModel($model)
@@ -247,7 +250,7 @@ class SuggestedCar implements JsonSerializable{
     {
 
         // Clean up the file property as we won't need it anymore
-        $this->image_file = null;
+        $this->imageFile = null;
     }
 
     public function getCreatedAt()
@@ -268,12 +271,12 @@ class SuggestedCar implements JsonSerializable{
     /**
      * Add users
      *
-     * @param \Marton\TopCarsBundle\Entity\User $users
+     * @param \Marton\TopCarsBundle\Entity\User $user
      * @return SuggestedCar
      */
-    public function addUpVotedUsers(\Marton\TopCarsBundle\Entity\User $users)
+    public function addUpVotedUsers(\Marton\TopCarsBundle\Entity\User $user)
     {
-        $this->upVotedUsers[] = $users;
+        $this->upVotedUsers[] = $user;
 
         return $this;
     }

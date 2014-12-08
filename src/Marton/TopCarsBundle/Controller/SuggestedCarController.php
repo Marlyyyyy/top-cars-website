@@ -23,35 +23,36 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SuggestedCarController extends Controller{
 
-    // Render page for displaying pending suggested cars
-    public function pendingAction(){
+    // Render the Prototypes page
+    public function prototypesAction(){
 
-        // Get all suggested cars
         /* @var $repository SuggestedCarRepository */
         $repository = $this->getDoctrine()->getRepository('MartonTopCarsBundle:SuggestedCar');
 
         // Get all pending suggested cars together with their likes and creators
-        $suggested_cars = $repository->selectAllSuggestedCars();
+        $suggestedCars = $repository->selectAllSuggestedCars();
 
-        // Get the user
         /* @var $user User */
         $user = $this->get('security.context')->getToken()->getUser();
 
-        // Load those pending cars' IDs which the logged in user has already voted up
-        $liked_suggested_cars = $repository->selectIdOfSuggestedCarsVotedByUserId($user->getId());
-        $id_of_liked_suggested_cars = array();
-        foreach ($liked_suggested_cars as $car){
-            array_push($id_of_liked_suggested_cars, $car['id']);
+        // Load those pending cars' IDs which the logged in user has already up-voted
+        $upVotedSuggestedCars = $repository->selectIdOfSuggestedCarsVotedByUserId($user->getId());
+        $idOfUpVotedSuggestedCars = array();
+        foreach ($upVotedSuggestedCars as $car){
+            array_push($idOfUpVotedSuggestedCars, $car['id']);
         }
 
-        // Tag suggested cars: has the user voted on it? does the car belong to the user?
-        foreach($suggested_cars as &$car){
-            if (in_array($car['id'], $id_of_liked_suggested_cars)){
+        // Tag suggested cars
+        foreach($suggestedCars as &$car){
+            
+            // If the user has already upvoted the car
+            if (in_array($car['id'], $idOfUpVotedSuggestedCars)){
                 $car['upvoted'] = true;
             }else{
                 $car['upvoted'] = false;
             }
 
+            // If the car belongs to the user
             if ((int)$car['userId'] === $user->getId()){
                 $car['belongs_to_user'] = true;
             }else{
@@ -61,65 +62,64 @@ class SuggestedCarController extends Controller{
 
         // Check for admin permission
         if ($this->get('security.context')->isGranted('ROLE_ADMIN')) {
-            $is_admin = true;
+            $isAdmin = true;
         }else{
-            $is_admin = false;
+            $isAdmin = false;
         }
 
         // Create Form for editing pending suggested cars
-        $suggested_car = new SuggestedCar();
-        $edit_form = $this->createForm(new SuggestedCarType(), $suggested_car);
+        $suggestedCar = new SuggestedCar();
+        $edit_form = $this->createForm(new SuggestedCarType(), $suggestedCar);
 
-        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/pending.html.twig', array(
-            'cars' => $suggested_cars,
+        return $this->render('MartonTopCarsBundle:Default:Pages/Subpages/prototypes.html.twig', array(
+            'cars' => $suggestedCars,
             'edit_form' => $edit_form->createView(),
-            'is_admin' => $is_admin
+            'is_admin' => $isAdmin
         ));
     }
 
-    // Ajax call for voting
+    // Handle Ajax POST request to vote
     public function voteAction(Request $request){
 
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
         $progress = $user->getProgress();
 
-        // Get car
-        $car_id = $request->request->get('car_id');
-        $car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+        // Get the car to be upvoted
+        $carId = $request->request->get('car_id');
+        $em = $this->getDoctrine()->getManager();
+        $car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
-        /* @var $user_voted_cars ArrayCollection */
-        $user_voted_cars = $user->getVotedSuggestedCars();
+        /* @var $carsUpVotedByUser ArrayCollection */
+        $carsUpVotedByUser = $user->getVotedSuggestedCars();
 
         // Check if user has already voted
-        if ($user_voted_cars->contains($car)){
+        if ($carsUpVotedByUser->contains($car)){
             $user->removeVotedSuggestedCars($car);
-            $response_msg = "removed";
+            $action = "removed";
         }else{
             $user->addVotedSuggestedCars($car);
-            $response_msg = "added";
+            $action = "added";
         }
 
         $em->flush();
 
         $response = new Response(json_encode(array(
-            'result' => $response_msg)));
+            'result' => $action)));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
 
-    // Ajax call for accepting
+    // Handle Ajax POST request to accept
     public function acceptAction(Request $request){
 
         $error = array();
 
-        // Check if the user is not an admin
+        // Check if the user is an admin
         if (!$this->get('security.context')->isGranted('ROLE_ADMIN')) {
-            array_push($error, array("Only administrators can accept pending cars"));
+
+            array_push($error, array("Only administrators can accept pending cars!"));
             $response = new Response(json_encode(array(
                 'error' => $error)));
             $response->headers->set('Content-Type', 'application/json');
@@ -127,12 +127,11 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-        $em = $this->getDoctrine()->getManager();
-
-        // Get car
-        $car_id = $request->request->get('car_id');
+        // Get the car to be accepted
+        $carId = $request->request->get('car_id');
         /* @var $suggestedCar SuggestedCar */
-        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+        $em = $this->getDoctrine()->getManager();
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
         // Check if there exists a car with the given id
         if(sizeof($suggestedCar) == 0){
@@ -148,12 +147,11 @@ class SuggestedCarController extends Controller{
         // Move image to the final directory
         if ($suggestedCar->getImage() !== "default.png"){
 
-            $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
-            $image_file = new File($old_path);
-            $new_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game';
-            $image_file->move($new_path, $suggestedCar->getImage());
-            $image_file = null;
-
+            $oldPath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
+            $imageFile = new File($oldPath);
+            $newPath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game';
+            $imageFile->move($newPath, $suggestedCar->getImage());
+            $imageFile = null;
         }else{
 
             array_push($error, array("This car doesn't have its own image! Please add one :)"));
@@ -164,8 +162,7 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-
-        // Create car entity as a copy of the suggested car
+        // Create a new car entity as a copy of the suggested car
         $car = new Car();
         $car->setModel($suggestedCar->getModel());
         $car->setImage($suggestedCar->getImage());
@@ -175,10 +172,11 @@ class SuggestedCarController extends Controller{
         $car->setAcceleration($suggestedCar->getAcceleration());
         $car->setWeight($suggestedCar->getWeight());
 
+        /* @var $priceCalculator PriceCalculator */
         $priceCalculator = $this->get('price_calculator');
         $car->setPrice($priceCalculator->calculatePrice($car));
 
-        // Give the car to its suggester as a present
+        // Give the car to its suggestor as a present
         /* @var $owner User */
         $owner = $suggestedCar->getUser();
         $owner->addCar($car);
@@ -200,17 +198,16 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
-    // Ajax call for deleting
+    // Handle Ajax POST request to delete
     public function deleteAction(Request $request){
-
-        $em = $this->getDoctrine()->getManager();
 
         $error = array();
 
         // Get car
-        $car_id = $request->request->get('car_id');
+        $carId = $request->request->get('car_id');
         /* @var $suggestedCar SuggestedCar */
-        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+        $em = $this->getDoctrine()->getManager();
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
         // Check if there exists a car with the given id
         if(sizeof($suggestedCar) == 0){
@@ -223,13 +220,13 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
         // Check if the user is an admin OR the owner of the car
         if ( (!$this->get('security.context')->isGranted('ROLE_ADMIN')) and ($user !== $suggestedCar->getUser())){
-            array_push($error, array("You must be the owner of the car in order to delete that"));
+
+            array_push($error, array("You must be the owner of the car in order to delete that!"));
             $response = new Response(json_encode(array(
                 'error' => $error)));
             $response->headers->set('Content-Type', 'application/json');
@@ -237,18 +234,16 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-
         // Remove image as long as it's not the default one
         if ($suggestedCar->getImage() !== "default.png"){
 
-            $old_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
+            $oldPath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/'.$suggestedCar->getImage();
 
-            $file_helper = $this->get('file_helper');
-            $file_helper->removeFile($old_path);
+            $fileHelper = $this->get('file_helper');
+            $fileHelper->removeFile($oldPath);
 
-            $image_file = null;
+            $imageFile = null;
         }
-
 
         $em->remove($suggestedCar);
         $em->flush();
@@ -260,42 +255,36 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
-    // Ajax call for editing
+    // Handle Ajax POST request to edit
     public function editOrCreateAction(Request $request){
 
-        $em = $this->getDoctrine()->getManager();
-
-        // Get user entity
         /* @var $user User */
-        $user= $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
-        // Get id of the car to be edited
-        $car_id = $request->request->get('car_id');
-
-        $car_id = (int) $car_id;
+        // Get the ID of the car to be edited
+        $carId = (int) $request->request->get('car_id');
 
         $error = array();
 
+        $em = $this->getDoctrine()->getManager();
+        
         // Check if it's a new car or existing car (-1 stands for new car)
-        if($car_id === -1){
+        if($carId === -1){
 
-            // Create new suggested car
-            $suggested_car = new SuggestedCar();
-
-            $user->addSuggestedCar($suggested_car);
-
-            $suggested_default_image = "default.png";
+            $suggestedCar = new SuggestedCar();
+            $user->addSuggestedCar($suggestedCar);
+            $suggestedCarDefaultImage = "default.png";
 
         }else{
 
             // Get suggested car to be edited
-            /* @var $suggested_car SuggestedCar*/
-            $suggested_car = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+            /* @var $suggestedCar SuggestedCar*/
+            $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
             // Check if there exists a car with the given id
-            if(sizeof($suggested_car) == 0){
+            if(sizeof($suggestedCar) == 0){
 
-                array_push($error, array("Such car does not exist!" .  $car_id));
+                array_push($error, array("Such car does not exist!" .  $carId));
                 $response = new Response(json_encode(array(
                     'error' => $error)));
                 $response->headers->set('Content-Type', 'application/json');
@@ -304,9 +293,9 @@ class SuggestedCarController extends Controller{
             }
 
             // Check if the car to be edited is indeed the user's car OR that the user is an admin
-            if (!in_array($suggested_car,$user->getSuggestedCars()) and (!$this->get('security.context')->isGranted('ROLE_ADMIN'))){
+            if (!in_array($suggestedCar,$user->getSuggestedCars()) and (!$this->get('security.context')->isGranted('ROLE_ADMIN'))){
 
-                array_push($error, array("This is not your suggested car!"));
+                array_push($error, array("You must be the owner of the car in order to edit that!"));
                 $response = new Response(json_encode(array(
                     'error' => $error)));
                 $response->headers->set('Content-Type', 'application/json');
@@ -315,50 +304,46 @@ class SuggestedCarController extends Controller{
             }
 
             // Save the car's previous picture's path
-            $suggested_default_image = $suggested_car->getImage();
-            $suggested_car->setImage(null);
+            $suggestedCarDefaultImage = $suggestedCar->getImage();
+            $suggestedCar->setImage(null);
         }
 
-        $form = $this->createForm(new SuggestedCarType(), $suggested_car);
-
+        $form = $this->createForm(new SuggestedCarType(), $suggestedCar);
         $form->submit($request);
-
-        $suggested_car = $form->getData();
+        $suggestedCar = $form->getData();
 
         if ($form->isValid()){
 
-            $file_helper = $this->get('file_helper');
+            $fileHelper = $this->get('file_helper');
 
-            $image_file = $suggested_car->getImageFile();
+            $imageFile = $suggestedCar->getImageFile();
 
             // Check if the user has uploaded any image
-            if($image_file != null){
+            if($imageFile != null){
 
-                $image_dir_path = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/';
+                $imageDirPath = $this->get('kernel')->getRootDir() . '/../web/bundles/martontopcars/images/card_game_suggest/';
 
                 // Remove previous image unless it's the default one
-                if ($suggested_default_image !== 'default.png'){
+                if ($suggestedCarDefaultImage !== 'default.png'){
 
-                    $old_path = $image_dir_path.$suggested_default_image;
-
-                    $file_helper->removeFile($old_path);
+                    $oldPath = $imageDirPath.$suggestedCarDefaultImage;
+                    $fileHelper->removeFile($oldPath);
                 }
 
-                $file_name = $file_helper->makeUniqueName($user->getId(), $image_file->getClientOriginalName());
-
-                $image_file->move($image_dir_path, $file_name);
-
-                $suggested_car->setImage($file_name);
+                $file_name = $fileHelper->makeUniqueName($user->getId(), $imageFile->getClientOriginalName());
+                $imageFile->move($imageDirPath, $file_name);
+                $suggestedCar->setImage($file_name);
 
             }else{
 
-                $suggested_car->setImage($suggested_default_image);
+                $suggestedCar->setImage($suggestedCarDefaultImage);
             }
 
-            $image_file = null;
+            $imageFile = null;
 
             $em->flush();
 
+            // Add flash notice
             $this->get('session')->getFlashBag()->add(
                 'notice',
                 'Your changes were saved!'
@@ -379,8 +364,6 @@ class SuggestedCarController extends Controller{
             return $response;
         }
 
-
-
         $response = new Response(json_encode(array(
             'error' => $error)));
         $response->headers->set('Content-Type', 'application/json');
@@ -388,15 +371,14 @@ class SuggestedCarController extends Controller{
         return $response;
     }
 
-    // Ajax call for returning details of a pending suggested car to be edited
+    // Handle Ajax POST request to details of a pending suggested car
     public function queryAction(Request $request){
 
-        $em = $this->getDoctrine()->getManager();
+        $carId = $request->request->get('car_id');
 
-        // Get car
-        $car_id = $request->request->get('car_id');
         /* @var $suggestedCar SuggestedCar */
-        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($car_id));
+        $em = $this->getDoctrine()->getManager();
+        $suggestedCar = $em->getRepository('MartonTopCarsBundle:SuggestedCar')->findOneById(array($carId));
 
         $response = new Response(json_encode(array(
             'car' => $suggestedCar)));
@@ -407,6 +389,7 @@ class SuggestedCarController extends Controller{
 
     // Helper method to return all error messages within a submitted form
     private function getErrorMessages(\Symfony\Component\Form\Form $form) {
+
         $errors = array();
 
         // Single error message

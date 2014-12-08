@@ -88,12 +88,12 @@ class Role implements RoleInterface {
     /**
      * Add users
      *
-     * @param \Marton\TopCarsBundle\Entity\User $users
+     * @param \Marton\TopCarsBundle\Entity\User $user
      * @return Role
      */
-    public function addUser(\Marton\TopCarsBundle\Entity\User $users)
+    public function addUser(\Marton\TopCarsBundle\Entity\User $user)
     {
-        $this->users[] = $users;
+        $this->users[] = $user;
 
         return $this;
     }

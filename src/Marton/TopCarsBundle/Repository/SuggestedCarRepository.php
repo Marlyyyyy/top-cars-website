@@ -31,14 +31,13 @@ class SuggestedCarRepository extends EntityRepository{
         return $result;
     }
 
+    // Returns all suggested cars along with their owners and a count of all upvotes on each car
     public function selectAllSuggestedCars(){
 
         $em = $this->getEntityManager();
 
-        $qb = $em->createQueryBuilder();
-
-        $user_table = $em->getClassMetadata('MartonTopCarsBundle:User')->getTableName();
-        $suggestedCar_table = $em->getClassMetadata('MartonTopCarsBundle:SuggestedCar')->getTableName();
+        $userTable = $em->getClassMetadata('MartonTopCarsBundle:User')->getTableName();
+        $suggestedCarTable = $em->getClassMetadata('MartonTopCarsBundle:SuggestedCar')->getTableName();
 
         $sql =
             'SELECT
@@ -56,8 +55,8 @@ class SuggestedCarRepository extends EntityRepository{
               u.username AS username,
               CASE WHEN sc_count.upvotes IS NULL THEN 0 ELSE sc_count.upvotes END AS upvotes
             FROM
-              '.$suggestedCar_table.' sc
-              INNER JOIN '.$user_table.' u ON sc.user_id = u.id
+              '.$suggestedCarTable.' sc
+              INNER JOIN '.$userTable.' u ON sc.user_id = u.id
               LEFT JOIN (  SELECT votes.suggestedCar_id, COUNT(votes.user_id) AS upvotes
                                                     FROM upvotedUser_suggestedCar votes
                                                     GROUP BY votes.suggestedCar_id

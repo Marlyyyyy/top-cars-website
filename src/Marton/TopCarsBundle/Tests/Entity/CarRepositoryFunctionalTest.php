@@ -70,50 +70,52 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
 
     public function testFindAllNotUserCars(){
 
-        $car_repository = $this->em->getRepository('MartonTopCarsBundle:Car');
+        /* @var $carRepository CarRepository */
+        $carRepository = $this->em->getRepository('MartonTopCarsBundle:Car');
 
         // Simulate that the user has already purchased every car
-        $cars = $car_repository->findAll();
+        $cars = $carRepository->findAll();
 
-        $not_user_cars = $car_repository->findAllNotUserCars($cars);
+        $notUserCars = $carRepository->findAllNotUserCars($cars);
 
-        $this->assertEquals(0, count($not_user_cars));
+        $this->assertEquals(0, count($notUserCars));
 
         // Simulate that the user has purchased only one car
-        $car = $car_repository->findOneById('1');
+        $car = $carRepository->findOneById('1');
 
-        $not_user_cars = $car_repository->findAllNotUserCars(array($car));
+        $notUserCars = $carRepository->findAllNotUserCars(array($car));
 
-        $this->assertEquals(count($cars)-1, count($not_user_cars));
+        $this->assertEquals(count($cars)-1, count($notUserCars));
 
         // Simulate that the user hasn't purchased any cars yet
-        $not_user_cars = $car_repository->findAllNotUserCars(array());
+        $notUserCars = $carRepository->findAllNotUserCars(array());
 
-        $this->assertEquals(count($cars), count($not_user_cars));
+        $this->assertEquals(count($cars), count($notUserCars));
     }
 
     public function testFindAllNotUserCarsWherePriceLessThan(){
 
-        $car_repository = $this->em->getRepository('MartonTopCarsBundle:Car');
+        /* @var $carRepository CarRepository */
+        $carRepository = $this->em->getRepository('MartonTopCarsBundle:Car');
 
         // Simulate that the user has already purchased every car
-        $cars = $car_repository->findAll();
+        $cars = $carRepository->findAll();
 
-        $not_user_cars = $car_repository->findAllNotUserCarsWherePriceLessThan(5000, $cars);
+        $notUserCars = $carRepository->findAllNotUserCarsWherePriceLessThan(5000, $cars);
 
-        $this->assertEquals(0, count($not_user_cars));
+        $this->assertEquals(0, count($notUserCars));
 
         // Simulate that the user has purchased only one car
-        $car = $car_repository->findOneById('1');
+        $car = $carRepository->findOneById('1');
 
-        $not_user_cars = $car_repository->findAllNotUserCarsWherePriceLessThan(5000, array($car));
+        $notUserCars = $carRepository->findAllNotUserCarsWherePriceLessThan(5000, array($car));
 
-        $this->assertGreaterThan(0, count($not_user_cars));
+        $this->assertGreaterThan(0, count($notUserCars));
 
         // Simulate that the user hasn't purchased any cars yet
-        $not_user_cars = $car_repository->findAllNotUserCarsWherePriceLessThan(5000, array());
+        $notUserCars = $carRepository->findAllNotUserCarsWherePriceLessThan(5000, array());
 
-        $this->assertEquals(count($cars), count($not_user_cars));
+        $this->assertEquals(count($cars), count($notUserCars));
     }
 
     /**

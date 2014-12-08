@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class RegistrationType extends AbstractType
 {
+    // Build the Registration form containg fields for a User entity as well as a Terms checkbox
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('user', new UserType(), array('label' => false));

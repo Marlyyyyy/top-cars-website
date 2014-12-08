@@ -18,23 +18,23 @@ class StatisticsCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
     public function testGetStatistics(){
 
         // Create new UserProgress
-        /* @var $test_user_progress UserProgress */
-        $test_user_progress = new UserProgress();
-        $test_user_progress->setAllRound(10);
-        $test_user_progress->setRoundWin(5);
-        $test_user_progress->setRoundLose(5);
-        $test_user_progress->setScore(1000);
-        $test_user_progress->setLevel(5);
-        $test_user_progress->setStreak(5);
+        /* @var $testUserProgress UserProgress */
+        $testUserProgress = new UserProgress();
+        $testUserProgress->setAllRound(10);
+        $testUserProgress->setRoundWin(5);
+        $testUserProgress->setRoundLose(5);
+        $testUserProgress->setScore(1000);
+        $testUserProgress->setLevel(5);
+        $testUserProgress->setStreak(5);
 
-        /* @var $test_user User */
-        $test_user = new User();
-        $test_user->setProgress($test_user_progress);
+        /* @var $testUser User */
+        $testUser = new User();
+        $testUser->setProgress($testUserProgress);
 
-        /* @var $statistics_calculator StatisticsCalculator */
-        $statistics_calculator = new StatisticsCalculator();
-        $statistics_calculator->init($test_user);
-        $statistics = $statistics_calculator->getStatistics();
+        /* @var $statisticsCalculator StatisticsCalculator */
+        $statisticsCalculator = new StatisticsCalculator();
+        $statisticsCalculator->init($testUser);
+        $statistics = $statisticsCalculator->getStatistics();
 
         $this->assertEquals(5, $statistics['level']);
         $this->assertEquals(5, $statistics['streak']);

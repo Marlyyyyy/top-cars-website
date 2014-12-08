@@ -14,40 +14,40 @@ class AchievementCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
 
     public function testCalculateLevelScore(){
 
-        $achievements_calculator = new AchievementCalculator();
+        $achievementCalculator = new AchievementCalculator();
 
-        $test_level_1 = 1;
-        $score_needed_1 = $achievements_calculator->calculateLevelScore($test_level_1);
-        $test_level_2 = 2;
-        $score_needed_2 = $achievements_calculator->calculateLevelScore($test_level_2);
+        $testLevel1 = 1;
+        $scoreNeeded1 = $achievementCalculator->calculateLevelScore($testLevel1);
+        $testLevel2 = 2;
+        $scoreNeeded2 = $achievementCalculator->calculateLevelScore($testLevel2);
 
         // First score has to be larger than 0 and lower than the second score
-        $this->assertGreaterThan(0, $score_needed_1);
-        $this->assertGreaterThan($score_needed_1, $score_needed_2);
+        $this->assertGreaterThan(0, $scoreNeeded1);
+        $this->assertGreaterThan($scoreNeeded1, $scoreNeeded2);
     }
 
     public function testCalculateLevel(){
 
-        $achievements_calculator = new AchievementCalculator();
+        $achievementCalculator = new AchievementCalculator();
 
-        $test_level = 1;
-        $score_needed = $achievements_calculator->calculateLevelScore($test_level);
+        $testLevel = 1;
+        $score_needed = $achievementCalculator->calculateLevelScore($testLevel);
 
-        $output_level = $achievements_calculator->calculateLevel($score_needed)['level'];
+        $outputLevel = $achievementCalculator->calculateLevel($score_needed)['level'];
 
-        $this->assertEquals($test_level, $output_level);
+        $this->assertEquals($testLevel, $outputLevel);
     }
 
     public function testCalculateGold(){
 
-        $achievements_calculator = new AchievementCalculator();
+        $achievementCalculator = new AchievementCalculator();
 
-        $test_level_1 = 1;
-        $gold_1 = $achievements_calculator->calculateGold($test_level_1);
+        $testLevel1 = 1;
+        $gold1 = $achievementCalculator->calculateGold($testLevel1);
 
-        $test_level_2 = 10;
-        $gold_2 =  $achievements_calculator->calculateGold($test_level_2);
+        $testLevel2 = 10;
+        $gold2 =  $achievementCalculator->calculateGold($testLevel2);
 
-        $this->assertGreaterThan($gold_1, $gold_2);
+        $this->assertGreaterThan($gold1, $gold2);
     }
 } 

@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Marton\TopCarsBundle\Entity\Car;
 
 class CarRepository extends EntityRepository {
 
@@ -47,6 +48,7 @@ class CarRepository extends EntityRepository {
             ->from('MartonTopCarsBundle:Car', 'c')
             ->orderBy('c.model');
 
+        /* @var $car Car */
         foreach ($cars as $car){
             $qb->andWhere('NOT c.id ='.$car->getId());
         }
@@ -67,6 +69,7 @@ class CarRepository extends EntityRepository {
             ->setParameter('price', $price)
             ->orderBy('c.price');
 
+        /* @var $car Car */
         foreach ($cars as $car){
             $qb->andWhere('NOT c.id ='.$car->getId());
         }
@@ -80,10 +83,9 @@ class CarRepository extends EntityRepository {
     public function findSelectedCarsOfUser($id){
 
         $em = $this->getEntityManager();
-        $qb = $em->createQueryBuilder();
 
-        $car_table = $em->getClassMetadata('MartonTopCarsBundle:Car')->getTableName();
-        $join_table = "user_selectedCar";
+        $carTable = $em->getClassMetadata('MartonTopCarsBundle:Car')->getTableName();
+        $joinTable = "user_selectedCar";
 
         $sql =
             'SELECT
@@ -96,8 +98,8 @@ class CarRepository extends EntityRepository {
               c.acceleration AS acceleration,
               c.weight AS weight
             FROM
-              '.$car_table.' c
-              INNER JOIN '.$join_table.' j ON c.id = j.car_id
+              '.$carTable.' c
+              INNER JOIN '.$joinTable.' j ON c.id = j.car_id
               WHERE j.user_id = '.$id;
 
         $stmt = $em->getConnection()->prepare($sql);

@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Tests\Controller;
 
 
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Test\WebTestCase;
 
 class CarControllerTest extends WebTestCase{
@@ -60,8 +61,9 @@ class CarControllerTest extends WebTestCase{
         // Give the user some gold
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
 
-        $user_progress = $user->getProgress();
-        $user_progress->setGold(10000);
+        /* @var $userProgress UserProgress */
+        $userProgress = $user->getProgress();
+        $userProgress->setGold(10000);
 
         $this->em->flush();
 

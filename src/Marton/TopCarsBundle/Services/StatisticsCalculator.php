@@ -14,9 +14,9 @@ use Marton\TopCarsBundle\Entity\UserProgress;
 
 class StatisticsCalculator {
 
-    // This class accepts a User entity, which makes it dependent on User. However, when it comes to changing
-    // what data this class should use, one would only have to change code in this class and within the template
-    // - instead of in this class, in the template and in each controller as well.
+    // This class accepts a User object, which makes it dependent on the User class. However, when it comes to changing
+    // what data this service should use to calculate the statistics, one would only have to change the code here
+    // - instead of here AND in each controller separately.
 
     /**
      * @var User
@@ -44,9 +44,9 @@ class StatisticsCalculator {
         }
     }
 
-    private function calculateWLRatioPercentage($WL_ratio){
+    private function calculateWLRatioPercentage($WlRatio){
 
-        return round(50 + ( 10 * (1 - pow(M_E, -(log(abs($WL_ratio), 10))))));
+        return round(50 + ( 10 * (1 - pow(M_E, -(log(abs($WlRatio), 10))))));
     }
 
     private function getDraws(){
@@ -76,8 +76,8 @@ class StatisticsCalculator {
 
     public function getStatistics(){
 
-        $WL_ratio = $this->calculateWLRatio();
-        $WL_ratio_percentage = $this->calculateWLRatioPercentage($WL_ratio);
+        $WlRatio = $this->calculateWLRatio();
+        $WlRatioPercentage = $this->calculateWLRatioPercentage($WlRatio);
 
         $scorePerRound = $this->calculateScorePerRound();
         $scorePerRoundPercentage = $this->calculateScorePerRoundPercentage($scorePerRound);
@@ -85,8 +85,8 @@ class StatisticsCalculator {
         return array(
             "level"     => $this->userProgress->getLevel(),
             "streak"    => $this->userProgress->getStreak(),
-            "wLRatio"   => $WL_ratio,
-            "wLRatioPercentage" => $WL_ratio_percentage,
+            "wLRatio"   => $WlRatio,
+            "wLRatioPercentage" => $WlRatioPercentage,
             "score"     => $this->userProgress->getScore(),
             "draw"      => $this->getDraws(),
             "scorePerRound" => $scorePerRound,

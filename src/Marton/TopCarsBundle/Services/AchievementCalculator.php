@@ -36,25 +36,25 @@ class AchievementCalculator {
     // Calculate the level from a given score. Returns an array describing the level.
     public function calculateLevel($score){
 
-        $found_level = false;
+        $foundLevel = false;
 
         $level = 1;
-        $low_score_limit = 0;
-        $high_score_limit = 0;
-        while (!$found_level){
-            $new_level_score = $this->calculateLevelScore($level);
-            if ($score >= $new_level_score){
-                $low_score_limit = $new_level_score;
+        $lowScoreLimit = 0;
+        $highScoreLimit = 0;
+        while (!$foundLevel){
+            $newLevelScore = $this->calculateLevelScore($level);
+            if ($score >= $newLevelScore){
+                $lowScoreLimit = $newLevelScore;
                 $level++;
             }else{
-                $high_score_limit = $new_level_score;
-                $found_level = true;
+                $highScoreLimit = $newLevelScore;
+                $foundLevel = true;
             }
         }
 
         return array(
-            "low_score_limit" => $low_score_limit,
-            "high_score_limit" => $high_score_limit,
+            "low_score_limit" => $lowScoreLimit,
+            "high_score_limit" => $highScoreLimit,
             "level" => $level-1,
             "score" => $score
         );
@@ -64,14 +64,14 @@ class AchievementCalculator {
     public function printLevel(){
 
         $TEST_SCORE = 28400;
-        $level_info = $this->calculateLevel($TEST_SCORE);
+        $levelInfo = $this->calculateLevel($TEST_SCORE);
         echo "I have " . $TEST_SCORE . " score";
         echo "<br>";
-        echo "Level: " . $level_info["level"];
+        echo "Level: " . $levelInfo["level"];
         echo "<br>";
-        echo "Low: " . $level_info["low_score_limit"];
+        echo "Low: " . $levelInfo["low_score_limit"];
         echo "<br>";
-        echo "High: " . $level_info["high_score_limit"];
+        echo "High: " . $levelInfo["high_score_limit"];
     }
 
     // Calculate the amount of gold received at a given new level.

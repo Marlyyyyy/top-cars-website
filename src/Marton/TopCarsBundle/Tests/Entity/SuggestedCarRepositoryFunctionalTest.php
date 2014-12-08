@@ -12,6 +12,7 @@ namespace Marton\TopCarsBundle\Tests\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Marton\TopCarsBundle\Entity\SuggestedCar;
 use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Repository\SuggestedCarRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SuggestedCarRepositoryFunctionalTest extends KernelTestCase{
@@ -46,64 +47,66 @@ class SuggestedCarRepositoryFunctionalTest extends KernelTestCase{
     public function testSelectIdOfSuggestedCarsVotedByUserId(){
 
         // Get test user
-        /* @var $test_user User */
-        $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $test_user = $user_repository->findOneById(1);
+        /* @var $testUser User */
+        $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        $testUser = $userRepository->findOneById(1);
 
         // Get test suggested car
-        /* @var $suggested_car SuggestedCar */
-        $suggested_car_repository = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar');
-        $suggested_car = $suggested_car_repository->findAll()[0];
+        /* @var $suggestedCarRepository SuggestedCarRepository */
+        $suggestedCarRepository = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar');
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = $suggestedCarRepository->findAll()[0];
 
         // Let the test user upvote the suggested car only if she hasn't upvoted it yet
-        /* @var $upvoted_cars ArrayCollection */
-        $upvoted_cars = $test_user->getVotedSuggestedCars();
-        if (!$upvoted_cars->contains($suggested_car)){
-            $test_user->addVotedSuggestedCars($suggested_car);
+        /* @var $upvotedCars ArrayCollection */
+        $upvotedCars = $testUser->getVotedSuggestedCars();
+        if (!$upvotedCars->contains($suggestedCar)){
+            $testUser->addVotedSuggestedCars($suggestedCar);
             $this->em->flush();
         }
 
-        $object_array = $suggested_car_repository->selectIdOfSuggestedCarsVotedByUserId($test_user->getId());
-        $id_array = array();
+        $objectArray = $suggestedCarRepository->selectIdOfSuggestedCarsVotedByUserId($testUser->getId());
+        $idArray = array();
 
-        foreach($object_array as $object){
-            array_push($id_array, $object['id']);
+        foreach($objectArray as $object){
+            array_push($idArray, $object['id']);
         }
 
-        $this->assertContains($suggested_car->getId(), $id_array);
+        $this->assertContains($suggestedCar->getId(), $idArray);
 
-        $test_user->removeVotedSuggestedCars($suggested_car);
+        $testUser->removeVotedSuggestedCars($suggestedCar);
         $this->em->flush();
     }
 
     public function testSelectAllSuggestedCars(){
 
         // Get test user
-        /* @var $test_user User */
-        $user_repository = $this->em->getRepository('MartonTopCarsBundle:User');
-        $test_user = $user_repository->findOneById(2);
+        /* @var $testUser User */
+        $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        $testUser = $userRepository->findOneById(2);
 
         // Create new suggested car
-        /* @var $suggested_car SuggestedCar */
-        $suggested_car = new SuggestedCar();
-        $suggested_car->setUser($test_user);
-        $suggested_car->setModel("TEST");
+        /* @var $suggestedCar SuggestedCar */
+        $suggestedCar = new SuggestedCar();
+        $suggestedCar->setUser($testUser);
+        $suggestedCar->setModel("TEST");
 
-        $this->em->persist($suggested_car);
+        $this->em->persist($suggestedCar);
         $this->em->flush();
 
-        $suggested_car_repository = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar');
-        $object_array = $suggested_car_repository->selectAllSuggestedCars();
+        /* @var $suggestedCarRepository SuggestedCarRepository */
+        $suggestedCarRepository = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar');
+        $objectArray = $suggestedCarRepository->selectAllSuggestedCars();
 
         $user_id_array = array();
 
-        foreach($object_array as $object){
+        foreach($objectArray as $object){
             array_push($user_id_array, $object['userId']);
         }
 
-        $this->assertContains($test_user->getId(), $user_id_array);
+        $this->assertContains($testUser->getId(), $user_id_array);
 
-        $this->em->remove($suggested_car);
+        $this->em->remove($suggestedCar);
         $this->em->flush();
     }
 

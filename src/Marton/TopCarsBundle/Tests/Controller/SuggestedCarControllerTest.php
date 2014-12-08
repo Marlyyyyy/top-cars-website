@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Tests\Controller;
 
 use Marton\TopCarsBundle\Entity\SuggestedCar;
+use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Test\WebTestCase;
 
 class SuggestedCarControllerTest extends WebTestCase{
@@ -38,16 +39,18 @@ class SuggestedCarControllerTest extends WebTestCase{
     // Test voting on a pending suggested car
     public function testVoteAction(){
 
+        /* @var $user User */
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-        $suggested_car = new SuggestedCar();
-        $suggested_car->setModel("Test");
-        $user->addSuggestedCar($suggested_car);
+        
+        $suggestedCar = new SuggestedCar();
+        $suggestedCar->setModel("Test");
+        $user->addSuggestedCar($suggestedCar);
 
         $this->em->flush();
 
-        $suggested_car = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
+        $suggestedCar = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
 
-        $parameters = array("car_id" => $suggested_car[0]->getId());
+        $parameters = array("car_id" => $suggestedCar[0]->getId());
 
         $this->client->request(
             'POST',
@@ -63,24 +66,25 @@ class SuggestedCarControllerTest extends WebTestCase{
 
 
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-        $voted_suggested_cars = $user->getVotedSuggestedCars();
+        $votedSuggestedCars = $user->getVotedSuggestedCars();
 
-        $this->assertEquals(1, count($voted_suggested_cars));
+        $this->assertEquals(1, count($votedSuggestedCars));
     }
 
     // Test accepting a pending suggested car
     public function testAcceptAction(){
 
+        /* @var $user User */
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
-        $suggested_car = new SuggestedCar();
-        $suggested_car->setModel("Test");
-        $user->addSuggestedCar($suggested_car);
+        $suggestedCar = new SuggestedCar();
+        $suggestedCar->setModel("Test");
+        $user->addSuggestedCar($suggestedCar);
 
         $this->em->flush();
 
-        $suggested_car = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
+        $suggestedCar = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
 
-        $parameters = array("car_id" => $suggested_car[0]->getId());
+        $parameters = array("car_id" => $suggestedCar[0]->getId());
 
         $this->client->request(
             'POST',
@@ -98,25 +102,26 @@ class SuggestedCarControllerTest extends WebTestCase{
         $response = $this->client->getResponse();
 
         // Check the error message
-        $response_content = json_decode($response->getContent(), true);
-        $error_messages = $response_content["error"];
+        $responseContent = json_decode($response->getContent(), true);
+        $errorMessages = $responseContent["error"];
 
-        $this->assertEquals("Only administrators can accept pending cars", $error_messages[0][0]);
+        $this->assertEquals("Only administrators can accept pending cars!", $errorMessages[0][0]);
     }
 
     // Test deleting a pending suggested car, Test if the user's suggested cars are deleted after the user is deleted
     public function testDeleteAction(){
 
+        /* @var $user User */
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
-        $suggested_car = new SuggestedCar();
-        $suggested_car->setModel("Test");
-        $user->addSuggestedCar($suggested_car);
+        $suggestedCar = new SuggestedCar();
+        $suggestedCar->setModel("Test");
+        $user->addSuggestedCar($suggestedCar);
 
         $this->em->flush();
 
-        $suggested_cars = $user->getSuggestedCars();
+        $suggestedCars = $user->getSuggestedCars();
 
-        $parameters = array("car_id" => $suggested_cars[0]->getId());
+        $parameters = array("car_id" => $suggestedCars[0]->getId());
 
         $this->client->request(
             'POST',
@@ -133,26 +138,27 @@ class SuggestedCarControllerTest extends WebTestCase{
         $response = $this->client->getResponse();
 
         // Check the error message
-        $response_content = json_decode($response->getContent(), true);
-        $error_messages = $response_content["error"];
+        $responseContent = json_decode($response->getContent(), true);
+        $errorMessages = $responseContent["error"];
 
-        $this->assertEquals(array(), $error_messages);
+        $this->assertEquals(array(), $errorMessages);
     }
 
     // Test querying a pending suggested car
     public function testQueryAction(){
 
+        /* @var $user User */
         $user = $this->em->getRepository('MartonTopCarsBundle:User')->findOneBy(array("username" => "TestUser"));
 
-        $suggested_car = new SuggestedCar();
-        $suggested_car->setModel("Test");
-        $user->addSuggestedCar($suggested_car);
+        $suggestedCar = new SuggestedCar();
+        $suggestedCar->setModel("Test");
+        $user->addSuggestedCar($suggestedCar);
 
         $this->em->flush();
 
-        $suggested_cars = $user->getSuggestedCars();
+        $suggestedCars = $user->getSuggestedCars();
 
-        $parameters = array("car_id" => $suggested_cars[0]->getId());
+        $parameters = array("car_id" => $suggestedCars[0]->getId());
 
         $this->client->request(
             'POST',
@@ -169,10 +175,10 @@ class SuggestedCarControllerTest extends WebTestCase{
         $response = $this->client->getResponse();
 
         // Check the model of the returned suggested car
-        $response_content = json_decode($response->getContent(), true);
-        $suggested_car = $response_content["car"];
+        $responseContent = json_decode($response->getContent(), true);
+        $suggestedCar = $responseContent["car"];
 
-        $this->assertEquals("Test", $suggested_car["model"]);
+        $this->assertEquals("Test", $suggestedCar["model"]);
     }
 
     /**
