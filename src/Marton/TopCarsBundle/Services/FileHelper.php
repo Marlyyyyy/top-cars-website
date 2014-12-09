@@ -13,6 +13,11 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class FileHelper {
 
+    /**
+     * Returns the most likely extension of a given file.
+     * @param string $fileName
+     * @return string
+     */
     public function guessExtension($fileName){
 
         $arr = (explode(".", $fileName));
@@ -20,6 +25,12 @@ class FileHelper {
         return $ext;
     }
 
+    /**
+     * Returns a uniquely generated name for a file.
+     * @param int $key
+     * @param string $fileName
+     * @return string
+     */
     public function makeUniqueName($key, $fileName){
 
         $now = getDate();
@@ -30,6 +41,11 @@ class FileHelper {
         return $uniqueName;
     }
 
+    /**
+     * Removes a file with the provided path.
+     * @param string $path
+     * @return void
+     */
     public function removeFile($path){
 
         if (file_exists($path)){

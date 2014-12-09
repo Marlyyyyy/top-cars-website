@@ -9,6 +9,7 @@
 namespace Marton\TopCarsBundle\Tests\Controller;
 
 
+use Marton\TopCarsBundle\Entity\User;
 use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Test\WebTestCase;
 
@@ -89,6 +90,12 @@ class CarControllerTest extends WebTestCase{
     // Test selecting a car
     public function testSelectAction(){
 
+        /* @var $user User */
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+        $car = $this->em->getRepository('MartonTopCarsBundle:Car')->findOneById(5);
+        $user->addCar($car);
+        $this->em->flush();
+
         // Select a car
         $parameters = array("item" => 5);
         $this->client->request(
@@ -103,7 +110,7 @@ class CarControllerTest extends WebTestCase{
             )
         );
 
-        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findDetailsOfUser("TestUser");
+
         $selected_cars = $user->getSelectedCars();
 
         $this->assertEquals(1, count($selected_cars));

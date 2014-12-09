@@ -17,7 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends Controller{
 
-    // Render the Leaderboard page
+    // Renders the Leaderboard page by passing all users with their additional statistics to the template. These users
+    // are filtered in terms of the parameters.
     public function leaderboardAction($sort, $username){
 
         /* @var $repository UserRepository */
@@ -38,7 +39,8 @@ class UserController extends Controller{
         ));
     }
 
-    // Handles submitted form when searching for users on the Leaderboard page
+    // Handles submitted form when searching for users on the Leaderboard page. It gets the POST parameters from the
+    // request and redirects that to the leaderboardAction which renders the page.
     public function searchAction(Request $request){
 
         $postData = $request->request->all();
@@ -51,7 +53,8 @@ class UserController extends Controller{
         )));
     }
 
-    // Renders the User profile page
+    // Renders the User profile page by getting all details (excluding confidential ones) and statistics about the
+    // requested user, as well as all the cars owned by that user. It also attaches the user's rank with the response.
     public function profileAction($user){
 
         /* @var $repository UserRepository */
@@ -71,7 +74,7 @@ class UserController extends Controller{
             $carsValue += $car->getPrice();
         }
 
-        $allUsersOrdered = $repository->findAllIdsOrderedBySkill();
+        $allUsersOrdered = $repository->findAllIdsOrderedByScore();
         $rank = array_search($userDetails->getId(), $allUsersOrdered) +1;
 
         return $this->render('MartonTopCarsBundle:Default:Pages/user.html.twig', array(

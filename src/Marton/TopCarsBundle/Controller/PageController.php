@@ -14,13 +14,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PageController extends Controller {
 
-    // Render the Home page
+    // Render the static Home page
     public function homeAction(){
 
         return $this->render('MartonTopCarsBundle:Default:Pages/home.html.twig');
     }
 
-    // Render the About page
+    // Render the static About page
     public function aboutAction(){
 
         return $this->render('MartonTopCarsBundle:Default:Pages/about.html.twig');

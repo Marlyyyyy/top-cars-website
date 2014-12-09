@@ -155,21 +155,25 @@ class User implements UserInterface, \Serializable{
         $this->progress = $progress;
     }
 
+    /**
+     * Returns the progress of the user.
+     *
+     * @return UserProgress
+     */
     public function getProgress()
     {
         return $this->progress;
     }
 
-    /**
-     * @param mixed $details
-     */
     public function setDetails($details)
     {
         $this->details = $details;
     }
 
     /**
-     * @return mixed
+     * Returns the details of the user.
+     *
+     * @return UserDetails
      */
     public function getDetails()
     {
@@ -178,6 +182,7 @@ class User implements UserInterface, \Serializable{
 
     /**
      * Returns the cars owned by the user.
+     *
      * @return Car[]
      */
     public function getCars()
@@ -200,6 +205,7 @@ class User implements UserInterface, \Serializable{
 
     /**
      * Returns cars suggested by the user.
+     *
      * @return SuggestedCar[]
      */
     public function getSuggestedCars()
@@ -256,6 +262,7 @@ class User implements UserInterface, \Serializable{
 
     /**
      * Returns cars owned and selected by the user.
+     *
      * @return Car[]
      */
     public function getSelectedCars()
@@ -264,7 +271,7 @@ class User implements UserInterface, \Serializable{
     }
 
     /**
-     * Add selected cars
+     * Add selected car
      *
      * @param \Marton\TopCarsBundle\Entity\Car $selectedCar
      * @return User
@@ -290,17 +297,6 @@ class User implements UserInterface, \Serializable{
 
     /**
      * Returns the roles granted to the user.
-
-     * <code>
-     * public function getRoles()
-     * {
-     *     return array('ROLE_USER');
-     * }
-     * </code>
-     *
-     * Alternatively, the roles might be stored on a ``roles`` property,
-     * and populated in any number of different ways when the user object
-     * is created.
      *
      * @return Role[] The user roles
      */
@@ -338,8 +334,6 @@ class User implements UserInterface, \Serializable{
     /**
      * Returns the salt that was originally used to encode the password.
      *
-     * This can return null if the password was not encoded using a salt.
-     *
      * @return string|null The salt
      */
     public function getSalt()
@@ -369,7 +363,7 @@ class User implements UserInterface, \Serializable{
 
     /**
      * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
+     * String representation of the object
      * @link http://php.net/manual/en/serializable.serialize.php
      * @return string the string representation of the object or null
      */
@@ -379,7 +373,6 @@ class User implements UserInterface, \Serializable{
             $this->id,
             $this->email,
             $this->password,
-            // see section on salt below
             $this->salt
         ));
     }
@@ -399,7 +392,6 @@ class User implements UserInterface, \Serializable{
             $this->id,
             $this->email,
             $this->password,
-            // see section on salt below
             $this->salt
             ) = unserialize($serialized);
     }

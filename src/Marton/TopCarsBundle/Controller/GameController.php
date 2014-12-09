@@ -16,10 +16,11 @@ use Marton\TopCarsBundle\Services\AchievementCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class GameController extends Controller{
 
-    // Renders the Game page
+    // Renders the Game page by first checking if the Classic game mode is unlocked for the player.
     public function gameAction(){
 
         /* @var $user User */
@@ -45,7 +46,9 @@ class GameController extends Controller{
         ));
     }
 
-    // Handle Ajax POST request to update the user's score during a game
+    // Handles Ajax POST request to update the user's UserProgress during a game. This includes: Score, Level, Streak,
+    // AllRound, RoundWin, RoundLose, Skill and Gold. It returns a response containing and indication whether the
+    // user has levelled up and information about her current level.
     public function postUserScoreAction(Request $request){
 
         /* @var $user User */
@@ -126,7 +129,8 @@ class GameController extends Controller{
         ));
     }
 
-    // Handle Ajax POST request to return details needed to initialise the Free For All game
+    // Handles Ajax POST request to return details needed to initialise the Free For All game. These details are:
+    // all cars and information about the user's current level.
     public function checkFreeForAllAction(Request $request){
 
         /* @var $user User */
@@ -153,7 +157,8 @@ class GameController extends Controller{
         ));
     }
 
-    // Handle Ajax POST request to return details needed to initialise Classic game
+    // Handles Ajax POST request to return details needed to initialise Classic game. These details are: all cars,
+    // 10 cars selected by the user and information about the user's current level.
     public function checkClassicAction(Request $request){
 
         /* @var $user User */
@@ -196,7 +201,7 @@ class GameController extends Controller{
         }
     }
 
-    // Handle Ajax POST request sent when the user wins a classic game
+    // Handles Ajax POST request that is sent when the user wins a classic game. It gives 50 gold to the user as reward.
     public function winClassicAction(Request $request){
 
         $roundResult = $request->request->get('round_result');

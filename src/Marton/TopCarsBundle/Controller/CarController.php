@@ -17,11 +17,11 @@ use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class CarController extends Controller{
 
-    // Render the Dealership page
+    // Renders the Dealership page to display either available or all cars according to the parameter. In both cases,
+    // only those cars are fetched from the database, which are not owned by the user yet.
     public function dealershipAction($option){
 
         /* @var $user User */
@@ -51,7 +51,8 @@ class CarController extends Controller{
         ));
     }
 
-    // Render the Garage page
+    // Renders the Garage page by fetching all cars owned by the user, tagging them if they were selected by the user,
+    // and passing them to the template.
     public function garageAction(){
 
         /* @var $user User */
@@ -83,7 +84,8 @@ class CarController extends Controller{
         ));
     }
 
-    // Handle Ajax POST request to purchase a car
+    // Handles Ajax POST request to purchase a car as long as: the car has a valid ID, the car hasn't been purchased by
+    // the user yet and if the user can afford the car.
     public function purchaseAction(Request $request){
 
         // Get id of the car to be purchased
@@ -134,7 +136,8 @@ class CarController extends Controller{
         return new JsonResponse(array('error' => $error));
     }
 
-    // Handle Ajax POST request to select car
+    // Handles Ajax POST request to select a car as long as: the car has a valid ID, the car is owned by the user and
+    // the car hasn't been selected yet.
     public function selectAction(Request $request){
         
         // Get id of the car to be selected
@@ -156,6 +159,13 @@ class CarController extends Controller{
 
         /* @var $user User */
         $user= $this->get('security.context')->getToken()->getUser();
+
+        // Check if the user owns this car
+        if(!in_array($car, $user->getCars())){
+
+            array_push($error, array("You haven't purchased this car yet!"));
+            return new JsonResponse(array('error' => $error));
+        }
 
         $selectedCars = $user->getSelectedCars();
         $selectedCarsCount = count($selectedCars);

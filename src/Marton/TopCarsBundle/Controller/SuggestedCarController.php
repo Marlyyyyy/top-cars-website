@@ -24,7 +24,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SuggestedCarController extends Controller{
 
-    // Render the Prototypes page
+    // Renders the Prototypes page by fetching all suggested cars, tagging them with information (number of upvotes and
+    // whether the user has the privilege to edit/delete/accept them) and rendering a form for editing.
     public function prototypesAction(){
 
         /* @var $repository SuggestedCarRepository */
@@ -79,7 +80,8 @@ class SuggestedCarController extends Controller{
         ));
     }
 
-    // Handle Ajax POST request to vote
+    // Handles Ajax POST request to up-vote a suggested car. It checkes whether the user has already up-voted the car,
+    // in which case it counts as removing her vote.
     public function voteAction(Request $request){
 
         /* @var $user User */
@@ -108,7 +110,9 @@ class SuggestedCarController extends Controller{
         return new JsonResponse(array('result' => $action));
     }
 
-    // Handle Ajax POST request to accept
+    // Handles Ajax POST request to accept a suggested car. Only the admins have the privilege to execute this action.
+    // A new car is created with the details of the accepted suggested car, then the suggested car gets removed. The
+    // newly created car is rewarded to the user who suggested it, and the car's image is moved to its final directory.
     public function acceptAction(Request $request){
 
         $error = array();
@@ -179,7 +183,8 @@ class SuggestedCarController extends Controller{
         return new JsonResponse(array('error' => $error));
     }
 
-    // Handle Ajax POST request to delete
+    // Handles Ajax POST request to delete a suggested car. Only the admins and the owner of the suggested car have the
+    // privilege to execute this action. The image of the car also gets removed.
     public function deleteAction(Request $request){
 
         $error = array();
@@ -224,7 +229,9 @@ class SuggestedCarController extends Controller{
         return new JsonResponse(array('error' => $error));
     }
 
-    // Handle Ajax POST request to edit
+    // Handles Ajax POST request to edit a suggested car as long as it belongs to the user or the user is an admin.
+    // When creating a new car, a default image is set in case the user hasn't uploaded one.
+    // When editing an existing car, a newly uploaded image overwrites the previous one unless it was the default one.
     public function editOrCreateAction(Request $request){
 
         /* @var $user User */
@@ -325,7 +332,7 @@ class SuggestedCarController extends Controller{
         return new JsonResponse(array('error' => $error));
     }
 
-    // Handle Ajax POST request to details of a pending suggested car
+    // Handles Ajax POST request to return the details of a suggested car that is about to be edited.
     public function queryAction(Request $request){
 
         $carId = $request->request->get('car_id');

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AccountController extends Controller{
 
-    // Render the Registration page
+    // Renders the Registration page by creating a form and passing that to the template
     public function registerAction(){
 
         $registration = new Registration();
@@ -38,7 +38,8 @@ class AccountController extends Controller{
         );
     }
 
-    // Handles the submitted form to create an account
+    // Handles the submitted form to create a new user along with her empty details and progress. Every new user is
+    // automatically assigned the "ROLE_USER" role. On successful registration the user gets automatically logged in.
     public function createAction(Request $request){
 
         $form = $this->createForm(new RegistrationType(), new Registration());
@@ -93,7 +94,8 @@ class AccountController extends Controller{
         );
     }
 
-    // Render the Login page
+    // Renders the Login page and passes all error messages along with the last tried username in case of an
+    // unsuccessful login attempt. The form is already within the template, so no need to generate that.
     public function loginAction(Request $request){
 
         $session = $request->getSession();
@@ -120,7 +122,8 @@ class AccountController extends Controller{
         );
     }
 
-    // Handle Ajax POST request to permanently delete an account
+    // Handles Ajax POST request to permanently delete the user's account. It removes the profile picture of the
+    // user, as well as all cars the user suggested. It also logs out the user automatically.
     public function deleteAccountAction(Request $request){
 
         /* @var $user User */
@@ -158,10 +161,11 @@ class AccountController extends Controller{
         $em->remove($user);
         $em->flush();
 
-        return new JsonResponse(array());
+        return new JsonResponse(array('error' => $error));
     }
 
-    // Renders the Account page
+    // Renders the Account page by creating a form and passing that to the template. All existing fields of the user's
+    // details get automatically attached with the form.
     public function accountAction(){
 
         /* @var $user User */
@@ -182,7 +186,8 @@ class AccountController extends Controller{
         ));
     }
 
-    // Handles the submitted form to update user details
+    // Handles the submitted form in order to update the user's details. It takes care of removing the user's previous
+    // profile picture in case there is a new one submitted.
     public function updateAccountAction(Request $request){      
 
         /* @var $user User */
@@ -197,7 +202,6 @@ class AccountController extends Controller{
         if ($editForm->isValid()) {
 
             $newUserDetails = $editForm->getData();
-
             $imageFile = $newUserDetails->getImageFile();
 
             // Check if the user has actually uploaded an image
@@ -214,11 +218,11 @@ class AccountController extends Controller{
                     $fileHelper->removeFile($oldPath);
                 }
 
-                // Renaming the image to avoid clash between this and other images
+                // Rename the image to avoid clash between this and other images
                 $newFileName = $fileHelper->makeUniqueName($user->getId(), $imageFile->getClientOriginalName());
                 $newUserDetails->setProfilePicturePath($newFileName);
 
-                // Moving the image to the "avatar" directory
+                // Move the image to the "avatar" directory
                 $imageFile->move($avatarDirPath, $newFileName);
             }
 

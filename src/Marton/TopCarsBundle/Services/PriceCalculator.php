@@ -13,6 +13,11 @@ use Marton\TopCarsBundle\Entity\Car;
 
 class PriceCalculator {
 
+    /**
+     * Returns the price of a car.
+     * @param Car $car
+     * @return int
+     */
     public function calculatePrice(Car $car){
 
         $price = 0;

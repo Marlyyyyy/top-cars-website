@@ -3,7 +3,7 @@
  */
 
 // Module responsible for smoothly displaying any number of background images
-var ImageRotator = (function(){
+var ImageRotatorModule = (function(){
 
     var settings = {
         "fade_speed"        : 500,
@@ -460,6 +460,7 @@ var GameModule = (function(){
         "ajaxWinClassic":"",
         "ajaxClassic":""
     };
+
     // Temporary settings to keep unsaved data
     var settingTmp = Object.create(setting);
 
@@ -496,7 +497,7 @@ var GameModule = (function(){
 
         var self = this;
 
-        // Whole deck of cards
+        // Main deck of cards
         this.cards = {};
         this.setCards = function (deck){
 
@@ -510,6 +511,13 @@ var GameModule = (function(){
             self.cards.len   = self.cards.deck.length;
 
             return this;
+        };
+
+        // Returns a random card from the main deck
+        this.getRandomCard = function(deck){
+
+            var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
+            return deck[random];
         };
 
         // Deck of 10 cards belonging to the user
@@ -558,13 +566,7 @@ var GameModule = (function(){
             }
         };
 
-        // Returns a random card from the main deck
-        this.getRandomCard = function(deck){
-
-            var random = Math.floor(Math.random() * (deck.length - 0)) + 0;
-            return deck[random];
-        };
-
+        // Preloads the main deck of cards with a given function executed when done
         this.preloadImages = function(callback){
 
             if (typeof callback === "undefined") callback = function(){};
@@ -575,10 +577,10 @@ var GameModule = (function(){
             preloadImages(arr).done(callback);
         };
 
-        var uiContainer = {};
-        this.previousActiveRows = [];
+        var uiContainer = {};         // Contains those DOM elements which might change during a game
+        this.previousActiveRows = []; // Contains those DOM divs whose colour has been affected in a round
 
-        // Containing agents of the game
+        // The host is always the previous winner in the Classic game
         this.player = {
             user:null,
             host:null,
@@ -588,21 +590,24 @@ var GameModule = (function(){
         // States of the game
         this.hasRoundEnded = false; // Normally changed after each select
         this.hasGameEnded  = true;  // Normally changed when losing or restarting
-        this.usersTurn     = true;
+        this.usersTurn     = true;  // Normally changed after determining if the user won/lost
 
         // Methods that are meant to be overridden in different versions of the game
 
+        // Determines what happens when the user has lost the round
         this.loseRoundAction = function(){
 
             self.hasGameEnded = true;
-            self.RoundControls.newGame();
+            self.RoundControls.newGame(); // Creates a New Game button
         };
 
+        // Determines what happens when the user has won the round
         this.winRoundAction = function(){
 
-            self.RoundControls.nextRound();
+            self.RoundControls.nextRound(); // Creates a Next button
         };
 
+        // Sets up the game ready for user interaction
         this.start = function(){
 
             self.createUI();
@@ -610,12 +615,13 @@ var GameModule = (function(){
             self.hasGameEnded  = false;
             self.hasRoundEnded = false;
 
-            // Host picks the first card
+            // Host already picks the first card
             self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
 
             return this;
         };
 
+        // Determines what happens when the user clicks the New Game Button
         this.restart = function(){
 
             if (self.hasGameEnded && self.hasRoundEnded){
@@ -629,11 +635,14 @@ var GameModule = (function(){
             }
         };
 
+        // Called at the beginning of each round
         this.beginningOfRoundAction = function(){
 
+            // This is only needed to prevent the players from accidentally selecting a field again
             self.hasRoundEnded = true;
         };
 
+        // Called at the end of each round
         this.endOfRoundAction = function(){
 
             // Data to post to the server
@@ -652,6 +661,7 @@ var GameModule = (function(){
             postToServer(setting.ajaxPostScore, data, success);
         };
 
+        // Determines what happens when the user clicks the Next button
         this.nextRound = function(){
 
             if (self.hasRoundEnded){
@@ -662,13 +672,15 @@ var GameModule = (function(){
             }
         };
 
+        // Prepares the UI for a new round ready for user interaction
         this.newRound = function(){
 
-            // Hide Cards and Generate new card for host
+            // Hide the host's card and Generate new card for host
             self.player.host.hideCard(function(){
                 self.player.host.setCard(self.getRandomCard(self.cards.deck)).showCard();
             });
 
+            // Hide cards of all players
             for (var i=0;i<self.player.opponent.length;i++){
                 self.player.opponent[i].hideCard();
             }
@@ -683,22 +695,26 @@ var GameModule = (function(){
             self.RoundControls.reset();
         };
 
+        // Reorganises the role references to player objects. Takes the winner as an argument. She'll become the host.
         this.reorganisePlayers = function(player){
             // No need to change the host in the default version of the game
+            // This function is called after determining which player won
         };
 
+        // Takes all cards from the losers and gives them to the winner.
         this.reorganiseCards = function(){
-            // No need to mix the player's cards as they only have one at a time
+            // No need to mix the player's cards as they only have one at a time in Classic
         };
 
-        this.assignCardsToPlayers = function(){
+        // Picks a random card for each opponent
+        this.assignCardsToOpponents = function(){
 
-            // Assign cards to all opponents
             for (var i=0;i<self.player.opponent.length;i++){
                 self.player.opponent[i].setCard(self.getRandomCard(self.cards.deck)).showCard();
             }
         };
 
+        // Long method called when the host picks a field.
         this.selectField = function(field){
 
             if (!self.hasRoundEnded && self.usersTurn){
@@ -709,8 +725,7 @@ var GameModule = (function(){
                 // Detect clicked property
                 var property = field.getAttribute("name");
 
-                // Assign cards to the opponents
-                self.assignCardsToPlayers();
+                self.assignCardsToOpponents();
 
                 var playerQueue = Object.create(self.player.opponent);
                 playerQueue.push(self.player.host);
@@ -738,7 +753,6 @@ var GameModule = (function(){
 
                 // Count draws on the first place. If there is a draw between two players, '2' will be stored.
                 var drawCounter = 0;
-
                 for (var i=0;i<playerQueue.length;i++){
 
                     if (typeof playerQueue[i+1] !== 'undefined'){
@@ -754,9 +768,8 @@ var GameModule = (function(){
                     }
                 }
 
-                var foundWinner = false;
-
                 // Add the round score to the players' overall score and find the winner unless there's a draw
+                var foundWinner = false;
                 for (var i=0;i<playerQueue.length;i++){
 
                     // Avoid negative score
@@ -851,6 +864,7 @@ var GameModule = (function(){
             return 0;
         };
 
+        // Creates the user interface as well as the player objects of the game
         this.createUI = function(){
 
             // Start by allocating the container of the game
@@ -873,8 +887,8 @@ var GameModule = (function(){
             self.RoundControls.init(uiContainer.battlefield);
             uiContainer.streakText = self.RoundControls.getStreakText();
 
-            host.viewField = elements.fieldHolder;
-            host.viewHolder = elements.viewHolder;
+            host.viewField   = elements.fieldHolder;
+            host.viewHolder  = elements.viewHolder;
             self.player.host = host;
             self.player.user = self.player.host;
 
@@ -894,6 +908,7 @@ var GameModule = (function(){
             return this;
         };
 
+        // Removes the user interface
         this.removeUI = function(){
 
             while (uiContainer.container.firstChild) {
@@ -1215,7 +1230,7 @@ var GameModule = (function(){
                 viewHolder.image = cardImage;
 
 
-                // Rest
+                // Rest of the card elements
                 var cardRow, rowLabel, t;
 
                 for(key in defaultField){
@@ -1335,12 +1350,14 @@ var GameModule = (function(){
         }
     }
 
-    // Extended Game (Classic Game)
+    // Extended version (Classic Game)
     function ClassicGame(){}
 
+    // Let the Classic Game inherit from the base game
     ClassicGame.prototype = new Game();
     ClassicGame.prototype.constructor = ClassicGame;
 
+    // Creates mini cards appearing above each player's card, indicating the number of cards each player has
     ClassicGame.prototype.updateAllPlayersCardIndicators = function(){
 
         var self = this;
@@ -1357,6 +1374,7 @@ var GameModule = (function(){
         self.updatePlayerDeckIndicator(self.player.user);
     };
 
+    // Prints the images inside the top panel, showing what cards the main player currently holds
     ClassicGame.prototype.updatePlayerDeckIndicator = function(player){
 
         var self = this;
@@ -1396,9 +1414,11 @@ var GameModule = (function(){
         }
 
         self.updateAllPlayersCardIndicators();
+
+        // Only display the user's current deck
         self.updatePlayerDeckIndicator(self.player.user);
 
-        self.hasGameEnded  = false;
+        self.hasGameEnded                   = false;
         ClassicGame.prototype.usersTurn     = true;
         ClassicGame.prototype.hasRoundEnded = false;
 
@@ -1452,7 +1472,7 @@ var GameModule = (function(){
         self.updatePlayerDeckIndicator(self.player.user);
     };
 
-    ClassicGame.prototype.assignCardsToPlayers = function(){
+    ClassicGame.prototype.assignCardsToOpponents = function(){
 
         var self = this;
 
@@ -1700,6 +1720,7 @@ var GameModule = (function(){
                 });
             }else{
 
+                LoadingModule.hide();
                 ErrorModule.init(document.getElementById("global-error")).displayErrors(response.error);
             }
         };
@@ -1756,7 +1777,7 @@ var GameModule = (function(){
         PopupModule.hide();
     }
 
-    // Remove temporarily changed styles
+    // Remove temporarily changed styles from the settings since we ignore all changed setting
     function discardSettings(){
 
         // Number of players setting
@@ -1864,7 +1885,7 @@ var GarageModule = function(){
 }();
 
 // Module responsible for actions on the Dealership page
-var Market = function(){
+var MarketModule = function(){
 
     var ajaxPath, userGold, previousElement;
 
@@ -1885,7 +1906,7 @@ var Market = function(){
 
     function purchase(){
 
-        if (typeof previousElement !== undefined) slideFrame(previousElement, "0");
+        if (typeof previousElement !== "undefined") slideFrame(previousElement, "0");
 
         previousElement = this;
 
@@ -1910,6 +1931,7 @@ var Market = function(){
 
             var errors = ["You don't have enough money to purchase this car :("];
             ErrorModule.init(document.getElementById("global-error")).displayErrors(errors);
+            LoadingModule.hide();
         }
 
         function success(){
@@ -2059,6 +2081,8 @@ var PendingCarModule = (function(){
         postToServer(ajaxPath.upvote, data, success);
     }
 
+    // Functions prefixed with "popup" only trigger the appropriate popup
+
     function popupAccept(){
 
         ErrorModule.hideErrors();
@@ -2137,12 +2161,15 @@ var PendingCarModule = (function(){
         var data = {
             car_id: carId
         };
+
+        // Fill in the form with the to be edited car's details
         var success = function(response){
 
             var car = response.car;
-            // Fetch all existing values into popup's form
+
             PopupModule.show(popupElements.editOrCreateBlock, "Edit");
 
+            // Fetch all existing values into the popup's form
             popupElements.form.dataset.car  = carId;
             popupElements.inputModel.value      = car.model;
             popupElements.imgImage.src          = imgPath + car.image;
@@ -2173,7 +2200,7 @@ var PendingCarModule = (function(){
             values[field.name] = field.value;
         });
 
-        // Sending the form to the server
+        // Send the form to the server
         var formData = new FormData(form[0]);
         formData.append("car_id", this.dataset.car);
 
@@ -2231,8 +2258,12 @@ var AccountModule = (function(){
 
     function confirmedDelete(){
 
+        LoadingModule.show();
+
         var data = {};
         var success = function(){
+
+            LoadingModule.hide();
             location.reload();
         };
         postToServer(ajaxDeletePath, data, success);
@@ -2246,10 +2277,10 @@ var AccountModule = (function(){
 // Helper functions
 
 // Choose random property of an object
-var getRandomProperty = function (obj) {
+function getRandomProperty(obj) {
     var keys = Object.keys(obj);
     return obj[keys[ keys.length * Math.random() << 0]];
-};
+}
 
 // Preload an array of images
 function preloadImages(array, el){

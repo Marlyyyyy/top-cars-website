@@ -18,7 +18,11 @@ class AchievementCalculator {
     private $GOLD_BASE      = 5;
     private $GOLD_DIVIDER   = 5;
 
-    // Calculate score needed to reach a given level.
+    /**
+     * Calculates score needed to reach a given level.
+     * @param int $level
+     * @return int
+     */
     public function calculateLevelScore($level){
 
         return round($this->SCORE_STEP * pow($this->SCORE_POW_BASE,(1 + log($level, $this->SCORE_LOG_BASE))));
@@ -33,7 +37,11 @@ class AchievementCalculator {
         }
     }
 
-    // Calculate the level from a given score. Returns an array describing the level.
+    /**
+     * Calculate the level from a given score. Returns an array describing the level.
+     * @param int $score
+     * @return array
+     */
     public function calculateLevel($score){
 
         $foundLevel = false;
@@ -74,7 +82,11 @@ class AchievementCalculator {
         echo "High: " . $levelInfo["high_score_limit"];
     }
 
-    // Calculate the amount of gold received at a given new level.
+    /**
+     * Calculate the amount of gold received at a given new level.
+     * @param int $level
+     * @return int
+     */
     public function calculateGold($level){
 
         return ceil($level / $this->GOLD_DIVIDER) * $this->GOLD_BASE;
@@ -91,7 +103,14 @@ class AchievementCalculator {
         }
     }
 
-    // Calculate and return new skill from parameters
+    /**
+     * Calculate and return new skill from parameters
+     * @param int $score
+     * @param int $allRound
+     * @param int $roundWin
+     * @param int $streak
+     * @return int
+     */
     public function calculateSkill($score, $allRound, $roundWin, $streak){
 
         if (($allRound-$roundWin) > 0){
