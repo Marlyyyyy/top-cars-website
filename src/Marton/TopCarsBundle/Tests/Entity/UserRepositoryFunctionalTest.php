@@ -47,10 +47,8 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $this->em->flush();
     }
 
-    // Testing queries
     public function testFindHighscores(){
 
-        // Get test user
         /* @var $userRepository UserRepository */
         $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
         /* @var $testUser User */
@@ -69,7 +67,6 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
 
     public function testFindDetailsOfUser(){
 
-        // Get test user
         /* @var $userRepository UserRepository */
         $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
         /* @var $testUser User */
@@ -79,6 +76,43 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $user_details = $userProgressRepository->findDetailsOfUser($testUser->getUsername());
 
         $this->assertEquals($testUser->getUsername(), $user_details->getUsername());
+    }
+
+    public function testFindAllIdsOrderedByScore(){
+
+        /* @var $userRepository UserRepository */
+        $userRepository = $this->em->getRepository('MartonTopCarsBundle:User');
+        /* @var $testUser User */
+        $testUser = $userRepository->findOneById(1);
+        $testUserProgress = $testUser->getProgress();
+        $testUserProgress->setScore(500);
+
+        $testUser2 = new User();
+        $testUser2->setUsername("Mister Panda");
+        $testUser2->setEmail("panda@panda.hu");
+        $testUser2->setPassword("pandapanda");
+
+        $progress = new UserProgress();
+        $progress->setScore(600);
+        $testUser2->setProgress($progress);
+
+        $this->em->persist($testUser2);
+        $this->em->flush();
+
+        $testUser1Id = 1;
+        $testUser2 = $userRepository->findOneBy(array("username" => "Mister Panda"));
+        $testUser2Id = $testUser2->getId();
+
+        $idArray = $userRepository->findAllIdsOrderedByScore();
+
+        $testUser1Pos = array_search($testUser1Id, $idArray);
+        $testUser2Pos = array_search($testUser2Id, $idArray);
+
+        echo implode(" ", $idArray);
+        $this->assertGreaterThan($testUser2Pos, $testUser1Pos, $testUser2Pos. " ".$testUser1Pos);
+
+        $this->em->remove($testUser2);
+        $this->em->flush();
     }
     /**
      * {@inheritDoc}

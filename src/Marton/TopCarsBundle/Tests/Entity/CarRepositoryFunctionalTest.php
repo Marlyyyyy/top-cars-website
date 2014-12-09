@@ -10,6 +10,9 @@ namespace Marton\TopCarsBundle\Tests\Entity;
 
 
 use Marton\TopCarsBundle\Entity\Car;
+use Marton\TopCarsBundle\Entity\User;
+use Marton\TopCarsBundle\Entity\UserDetails;
+use Marton\TopCarsBundle\Entity\UserProgress;
 use Marton\TopCarsBundle\Repository\CarRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -116,6 +119,50 @@ class CarRepositoryFunctionalTest extends KernelTestCase{
         $notUserCars = $carRepository->findAllNotUserCarsWherePriceLessThan(5000, array());
 
         $this->assertEquals(count($cars), count($notUserCars));
+    }
+
+    public function testFindSelectedCarsOfUser(){
+
+        /* @var $carRepository CarRepository */
+        $carRepository = $this->em->getRepository('MartonTopCarsBundle:Car');
+
+        $user = new User();
+        $user->setUsername("TestUser");
+        $user->setEmail("test@test.hu");
+        $user->setPassword("testpw");
+        $progress = new UserProgress();
+        $user->setProgress($progress);
+        $details = new UserDetails();
+        $user->setDetails($details);
+
+        $role = $this->em->getRepository('MartonTopCarsBundle:Role')->findOneBy(array('role' => 'ROLE_USER'));
+        $user->addRole($role);
+
+        $car = $carRepository->findOneById('1');
+        $user->addCar($car);
+        $user->addSelectedCars($car);
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        /* @var $user User */
+        $user = $this->em->getRepository('MartonTopCarsBundle:User')->findOneBy(array('username' => 'TestUser'));
+        $userId = $user->getId();
+        $selectedCars = $carRepository->findSelectedCarsOfUser($userId);
+
+        $this->assertEquals(1, $selectedCars[0]["id"]);
+
+        $this->em->remove($user);
+    }
+
+    public function testCountAllCars(){
+
+        /* @var $carRepository CarRepository */
+        $carRepository = $this->em->getRepository('MartonTopCarsBundle:Car');
+
+        $countCars = $carRepository->countAllCars();
+
+        $this->assertGreaterThan(0, $countCars);
     }
 
     /**
