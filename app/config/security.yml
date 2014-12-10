@@ -8,8 +8,8 @@ security:
         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     providers:
-        administrators:
-            entity: { class: MartonTopCarsBundle:User, property: email }
+        main:
+            entity: { class: MartonTopCarsBundle:User, property: username }
 
     firewalls:
         dev:
@@ -37,6 +37,7 @@ security:
             anonymous: ~
             form_login:
                 login_path: marton_topcars_login
+                csrf_provider: form.csrf_provider
                 check_path: marton_topcars_login_check
 
             logout:
@@ -44,17 +45,38 @@ security:
                 target: /
 
     access_control:
-        - { path: ^/game,         roles: ROLE_USER }
-        - { path: ^/account,      roles: ROLE_USER }
-        - { path: ^/garage,       roles: ROLE_USER }
-        - { path: ^/dealership,   roles: ROLE_USER }
-        - { path: ^/pending,        role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/suggest/create, role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/pending/vote,   role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/pending/accept, role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/pending/edit,   role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/pending/query,  role: IS_AUTHENTICATED_FULLY }
-        - { path: ^/login,          role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register,       role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/game,                     role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game/post_score,          role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game/check/free_for_all,  role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game/check/classic,       role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game/win/classic,         role: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/garage,                   role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/dealership,               role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/car/purchase,             role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/car/select,               role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/car/unselect_all,         role: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/leaderboard,              role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/search/user,              role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/user,                     role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/prototypes,               role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/suggest/create,           role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/pending/vote,             role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/pending/accept,           role: ROLE_ADMIN }
+        - { path: ^/pending/edit,             role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/pending/delete,           role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/pending/query,            role: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/home,                     role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/about,                    role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/login,                    role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register,                 role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account,                  role: IS_AUTHENTICATED_FULLY }
+        - { path: ^/account/update,           role: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/admin/execute,            role: ROLE_ADMIN }
 
     access_denied_url: /login
