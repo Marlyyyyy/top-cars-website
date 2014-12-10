@@ -68,11 +68,11 @@ marton_topcars_user:
 
 # SuggestedCar
 marton_topcars_prototypes:
-    path: /pending
+    path: /prototypes
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:prototypes }
 
 marton_topcars_create_suggestedCar:
-    path: /suggest/create
+    path: /pending/create
     defaults: {_controller: MartonTopCarsBundle:SuggestedCar:create }
     condition: "request.headers.get('X-Requested-With') == 'XMLHttpRequest'"
 

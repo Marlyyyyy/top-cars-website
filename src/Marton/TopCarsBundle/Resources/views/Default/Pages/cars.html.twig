@@ -1,5 +1,6 @@
-
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
+
+{% block title %}Top Cars | Cars{% endblock %}
 
 {% block active_tab_cars %} active{% endblock %}
 
@@ -15,7 +16,9 @@
             <div class="header_content cars_header">
 
                 <div class="header-image" style="background: url({{ asset('bundles/martontopcars/images/src/') }}{% block cars_image %}{% endblock %})">
-
+                    <!-- Header text on each page -->
+                    {% block pageheader %}
+                    {% endblock %}
                 </div>
 
                 <div class="car_lots">
@@ -27,8 +30,8 @@
                         <p>Dealership</p>
                     </a>
 
-                    <a {% block active_pending %}{% endblock %} href="{{ path('marton_topcars_pending') }}">
-                        <p>Pending</p>
+                    <a {% block active_pending %}{% endblock %} href="{{ path('marton_topcars_prototypes') }}">
+                        <p>Prototypes</p>
                     </a>
 
                 </div>
