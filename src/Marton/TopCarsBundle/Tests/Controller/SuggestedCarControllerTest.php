@@ -80,11 +80,13 @@ class SuggestedCarControllerTest extends WebTestCase{
         $suggestedCar->setModel("Test");
         $user->addSuggestedCar($suggestedCar);
 
+        // Make the user an admin
+        $role = $this->em->getRepository('MartonTopCarsBundle:Role')->findOneBy(array("role" => "ROLE_ADMIN"));
+        $user->addRole($role);
+
         $this->em->flush();
 
-        $suggestedCar = $this->em->getRepository('MartonTopCarsBundle:SuggestedCar')->findAll();
-
-        $parameters = array("car_id" => $suggestedCar[0]->getId());
+        $parameters = array("car_id" => "a");
 
         $this->client->request(
             'POST',
@@ -98,14 +100,13 @@ class SuggestedCarControllerTest extends WebTestCase{
             )
         );
 
-
         $response = $this->client->getResponse();
 
         // Check the error message
         $responseContent = json_decode($response->getContent(), true);
         $errorMessages = $responseContent["error"];
 
-        $this->assertEquals("Only administrators can accept pending cars!", $errorMessages[0][0]);
+        $this->assertEquals("Such car does not exist!", $errorMessages[0][0]);
     }
 
     // Test deleting a pending suggested car, Test if the user's suggested cars are deleted after the user is deleted

@@ -108,7 +108,6 @@ class UserProgressRepositoryFunctionalTest extends KernelTestCase{
         $testUser1Pos = array_search($testUser1Id, $idArray);
         $testUser2Pos = array_search($testUser2Id, $idArray);
 
-        echo implode(" ", $idArray);
         $this->assertGreaterThan($testUser2Pos, $testUser1Pos, $testUser2Pos. " ".$testUser1Pos);
 
         $this->em->remove($testUser2);

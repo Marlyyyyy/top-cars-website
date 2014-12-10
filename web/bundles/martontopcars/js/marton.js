@@ -986,7 +986,7 @@ var GameModule = (function(){
             }
         })();
 
-        // Creates mini cards indicating the stand of the game (Classic Game)
+        // Creates and Updates mini cards indicating the stand of the game (Classic Game)
         this.ProgressModule = function(){
 
             function createCardIndicator(container){
@@ -1664,6 +1664,7 @@ var GameModule = (function(){
         settingsSaveButton.addEventListener("click", saveSettings);
     }
 
+    // Requests data from the server in order to initialise the Free For All game mode
     function startFreeForAll(){
 
         hideMenu(function(){
@@ -1692,6 +1693,7 @@ var GameModule = (function(){
         });
     }
 
+    // Requests data from the server in order to initialise the Classic game mode
     function startClassic(){
 
         LoadingModule.show();
@@ -2276,13 +2278,13 @@ var AccountModule = (function(){
 
 // Helper functions
 
-// Choose random property of an object
+// Chooses random property of an object
 function getRandomProperty(obj) {
     var keys = Object.keys(obj);
     return obj[keys[ keys.length * Math.random() << 0]];
 }
 
-// Preload an array of images
+// Preloads an array of images. Returns an object with a "done" method that can be used to execute a callback function
 function preloadImages(array, el){
 
     var newImages = [], loadedImages = 0, arrLength = array.length, loadingContainer, progressP;
@@ -2381,7 +2383,7 @@ function postFilesToServer(url, data, success){
     });
 }
 
-// Animate height:auto
+// Animates height:auto
 $.fn.animateAuto = function(prop, speed, callback){
 
     var elem, height;
@@ -2397,7 +2399,7 @@ $.fn.animateAuto = function(prop, speed, callback){
     });
 };
 
-// Make placeholder of an input field disappear on focus
+// Makes placeholder of an input field disappear on focus
 $(document).ready(function(){
 
     var defaultInputPlaceholder;

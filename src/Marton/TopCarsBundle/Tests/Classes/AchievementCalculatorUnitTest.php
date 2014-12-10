@@ -21,7 +21,6 @@ class AchievementCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
         $testLevel2 = 2;
         $scoreNeeded2 = $achievementCalculator->calculateLevelScore($testLevel2);
 
-        // First score has to be larger than 0 and lower than the second score
         $this->assertGreaterThan(0, $scoreNeeded1);
         $this->assertGreaterThan($scoreNeeded1, $scoreNeeded2);
     }
@@ -49,5 +48,16 @@ class AchievementCalculatorUnitTest extends \PHPUnit_Framework_TestCase{
         $gold2 =  $achievementCalculator->calculateGold($testLevel2);
 
         $this->assertGreaterThan($gold1, $gold2);
+    }
+
+    public function testCalculateSkill(){
+
+        $achievementCalculator = new AchievementCalculator();
+
+        // If someone won more rounds with exactly the same statistics, the skill is expected to be higher
+        $skill1 = $achievementCalculator->calculateSkill(50000, 100, 10, 50);
+        $skill2 = $achievementCalculator->calculateSkill(50000, 100, 50, 50);
+
+        $this->assertGreaterThan($skill1, $skill2);
     }
 } 

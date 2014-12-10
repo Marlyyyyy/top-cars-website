@@ -121,6 +121,6 @@ class StatisticsCalculator {
      */
     private function calculateScorePerRoundPercentage($scorePerRound){
 
-        return round(50 + ( 10 * (1 - pow(M_E, -(log(abs($scorePerRound), 10))))));
+        return round(50 + ( 10 * (1 - pow(M_E, -(log(abs(ceil($scorePerRound/5)), 10))))));
     }
 } 

@@ -59,7 +59,7 @@ class UserRepository extends EntityRepository{
         return $result;
     }
 
-    public function findAllIdsOrderedBySkill(){
+    public function findAllIdsOrderedByScore(){
 
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();

@@ -161,7 +161,7 @@ class AccountController extends Controller{
         $em->remove($user);
         $em->flush();
 
-        return new JsonResponse(array('error' => $error));
+        return new JsonResponse(array());
     }
 
     // Renders the Account page by creating a form and passing that to the template. All existing fields of the user's
