@@ -15,7 +15,7 @@
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
 
                 <div class="user_info" >
-                    <p></p>
+                    <p>Logged in as {{  app.user.username }}</p>
                 </div>
 
                 <ul>
@@ -24,7 +24,7 @@
                             logout
                         </a>
                     </li><li>
-                        <a class="top_tabs{% block active_tab_account %}{% endblock %}" href="">
+                        <a class="top_tabs{% block active_tab_account %}{% endblock %}" href="{{ path("marton_topcars_account") }}">
                             account
                         </a>
                     </li>
@@ -66,7 +66,7 @@
                             cars
                         </a>
                     </li><li>
-                        <a class="dashboard_tabs{% block active_about %}{% endblock %}" href="" >
+                        <a class="dashboard_tabs{% block active_about %}{% endblock %}" href="{{ path('marton_topcars_about') }}" >
                             about
                         </a>
                     </li>
@@ -82,6 +82,8 @@
         <!-- Page Content -->
         {% block content %}{% endblock %}
 
+        <!-- Error Messages -->
+        <div id="global-error"></div>
 
         <div class="copyright noselect">
             <p>Copyright 2014 - Márton Széles</p>
@@ -89,13 +91,17 @@
 
     </div>
 
-    <!-- Optional Background -->
-    {% block background %}
+    <div id="loading-container">
+        <div id="loading-progress-container">
+        </div>
+    </div>
 
+    {% block background %}
+        <!-- Optional Background -->
         <script>
             var images = ["{{ asset('bundles/martontopcars/images/background/IMG_2763.jpg') }}"];
             preloadImages(images).done(function(){
-                ImageRotator.init(images).create().shade().start().pause();
+                ImageRotatorModule.init(images).create().shade().start().pause();
             });
         </script>
 

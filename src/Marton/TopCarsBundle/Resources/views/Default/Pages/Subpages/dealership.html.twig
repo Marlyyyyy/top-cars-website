@@ -1,7 +1,12 @@
-
 {% extends 'MartonTopCarsBundle:Default/Pages:cars.html.twig' %}
 
+{% block title %}Top Cars | Dealership{% endblock %}
+
 {% block cars_image %}dealership.jpg{% endblock %}
+
+{% block pageheader %}
+    <div class="cars-header">{{ cars | length }} available cars</div>
+{% endblock %}
 
 {% block active_dealership %}class="active"{% endblock %}
 
@@ -15,7 +20,7 @@
         </div>
 
         {% if empty %}
-            <div class="info_dialog">There's nothing to buy :(</div>
+            <p class="placeholder-text">There's nothing to buy :(</p>
         {% endif %}
 
         {% for car in cars %}
@@ -74,7 +79,7 @@
 
     <script>
 
-        Market.init('{{ path("marton_topcars_purchase_car") }}', {{ user.progress.gold }});
+        MarketModule.init('{{ path("marton_topcars_purchase_car") }}', {{ user.progress.gold }});
 
     </script>
 

@@ -1,5 +1,102 @@
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
+{% block title %}Top Cars | About{% endblock %}
+
 {% block active_about %} active{% endblock %}
 
-{% block content %}{% endblock %}
+{% block dash_line %}
+    <div class="dash_line"></div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="content shadow">
+        <div class="container" id="card_game">
+
+            <div class="about-intro">
+                <h1>Hello visitor!</h1>
+
+                <p>The purpose of this website is to bring back the good nostalgic Top Trumps card game spiced with some
+                    exciting competition.
+                    It's time to showcase your knowledge about cars and become part of a kind community!</p>
+
+                <br>
+
+                <h1>Free For All</h1>
+
+                <p>This game mode focuses on your winning streaks. Your goal is to win as many times as you can in a
+                    single row. Your cards are randomly generated, so you partly have to rely on fortune to
+                    get on the leaderboars.</p>
+
+                <br>
+
+                <img width="980" src="{{ asset('bundles/martontopcars/images/src/free_for_all_intro.png') }}">
+
+                <br>
+
+                <h1>Classic</h1>
+
+                <p>This game mode will remind every car enthusiast of their favourite childhood card games.
+                   Your goal is to beat the computer by winning all its cars. Watch out though, if you lose a round,
+                   the next choice will be made by the computer! In order to be the host of the game, you'll have to
+                   win at least one round after that.</p>
+                <p>No worries, it's not so difficult, since even draws will make you the host.</p>
+                <p>Be thorough when selecting your 10 cars for this game mode. Consider cheap but light cars as well
+                   as heavy but powerful cars.</p>
+
+                <br>
+
+                <img width="980" src="{{ asset('bundles/martontopcars/images/src/classic_intro.png') }}">
+
+                <br>
+
+                <br>
+
+                <hr>
+
+                <p>The following is an example of losing a round. When you click next, the next field will be
+                   chosen by the computer. </p>
+
+                <p> Are you prepared?</p>
+
+                <hr>
+
+                <img width="980" src="{{ asset('bundles/martontopcars/images/src/classic_loss.jpg') }}">
+
+                <br>
+
+                <br>
+
+                <hr>
+
+                <p>The following is an example of winning a round. When you click next, you will have to select a field.
+                </p>
+
+                <p>Note that this time your streak was incremented by 2. That's because you managed to beat both players!</p>
+
+                <hr>
+
+                <img width="980" src="{{ asset('bundles/martontopcars/images/src/classic_win.jpg') }}">
+
+                <br>
+
+                <h1>Tips</h1>
+
+                <p>Be thorough when selecting your 10 cars for the Classic game mode. Consider cheap but light cars as well
+                    as heavy but powerful cars.</p>
+
+                <br>
+
+                <p>Not challenging enough? Try to increase the number of opponents and aim to survive!</p>
+
+                <br>
+
+
+            </div>
+
+
+
+        </div>
+    </div>
+
+{% endblock %}

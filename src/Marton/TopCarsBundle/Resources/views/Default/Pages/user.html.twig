@@ -1,5 +1,7 @@
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
+{% block title %}Top Cars | {{ user.username }}{% endblock %}
+
 {% block dash_line %}
     <div class="dash_line"></div>
 {% endblock %}
@@ -19,11 +21,13 @@
                 <div class="user_column user_left">
                     <img id="profile-picture" width="160" height="160" src="{{ asset('bundles/martontopcars/images/avatar/' ~ user.details.profilePicturePath) }}"/>
                     <hr>
-                    <div class="user_roles">
-                        {% for role in user.roles %}
+
+                    {% for role in user.roles %}
+                        <div class="user_roles">
                             {{ role.name }}
-                        {% endfor %}
-                    </div>
+                        </div>
+                    {% endfor %}
+
                     <hr>
                     <h2>Achievements</h2>
 
@@ -135,7 +139,7 @@
 
                     <div class="stats_block">
                         {% for car in cars %}
-                            <img src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}"/>
+                            <img width="230" height="153" src="{{ asset('bundles/martontopcars/images/card_game/') ~ car.image }}"/>
                         {% endfor %}
                     </div>
 

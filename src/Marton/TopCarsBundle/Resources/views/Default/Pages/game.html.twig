@@ -1,6 +1,8 @@
 
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
+{% block title %}Top Cars | Game{% endblock %}
+
 {% block active_tab_game %} active{% endblock %}
 
 {% block dash_line %}
@@ -40,16 +42,17 @@
                         <p class="progress-title">Level</p><p class="progress-value" id="user-level">{{ progress.level }}</p>
                     </div>
                     <div class="block">
-                        <p class="progress-title">Gold</p><p class="progress-value" id="user-gold">{{ progress.gold }}</p>
+                        <p class="progress-title">Cr.</p><p class="progress-value" id="user-gold">{{ progress.gold }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Top Panel-->
             <div class="top_panel" id="top_panel">
+                <div class="level_score" id="s_score"></div>
                 <div class="level_bar">
 
-                    <div class="level_score" id="s_score"></div>
+
 
                     <div class="score_bar">
                         <div class="fill" id="s_fill"></div>
@@ -94,12 +97,16 @@
 
                 <div class="settings-row">
 
-                    <div class="player-option active" id="player-option-2" data-players="2">
+                    <div class="player-option active" id="player-option-1" data-players="2">
                         2 Players
                     </div>
 
                     <div class="player-option" id="player-option-2" data-players="3">
                         3 Players
+                    </div>
+
+                    <div class="player-option" id="player-option-3" data-players="10">
+                        10 Players
                     </div>
 
                 </div>
@@ -127,7 +134,6 @@
             </div>
 
             <div id="level-up-block" class="popup-body">
-                <div><p>Level up!</p></div>
                 <div><span>+ Cr.</span><span id="level-gold"></span></div>
                 <button type="button" class="button-save popup-exit">OK</button>
             </div>

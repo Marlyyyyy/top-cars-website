@@ -1,6 +1,8 @@
 
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
+{% block title %}Top Cars | Login{% endblock %}
+
 {% block active_tab_login %} top_header_active{% endblock %}
 
 {% block dash_line %}
@@ -42,7 +44,8 @@
                             <input type="hidden" name="_target_path" value="/account" />
                         #}
 
-                        <button type="submit">login</button>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <button type="submit" id="button-login">login</button>
                     </form>
 
                 {% endif %}

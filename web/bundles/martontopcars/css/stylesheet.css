@@ -44,7 +44,11 @@ h1{
     font-size: 25px;
     color: rgba(0, 0, 0, 0.65);
     border-bottom: 1px solid rgb(230, 230, 230);
+    border-top: 1px solid rgb(230, 230, 230);
     padding-left: 15px;
+    background: rgba(26, 0, 255, 0.02);
+    text-align: center;
+    margin-bottom: 20px;
 }
 h2{
     text-align: left;
@@ -381,16 +385,17 @@ input{
 
 /* Loading Circle */
 #image-loading-container{
-    display:none;
+    display: none;
     position: fixed;
     z-index: 1;
-    width: 50px;
+    width: 100%;
     height: 50px;
     top: 0;
-    left: 50%;
-    margin-left: -50px;
+    left: 0;
     background: url(../images/src/loading.gif);
-    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 50px;
 }
 
 #image-progress-p{
@@ -644,6 +649,11 @@ input{
     padding: 5px 0 5px 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
+#level-gold{
+    color: rgb(190, 116, 0);
+    font-weight: bold;
+    font-size: 20px;
+}
 
 #user-deck{
     overflow: hidden;
@@ -725,6 +735,9 @@ input{
     text-shadow: 1px 1px 20px rgba(0, 0, 0, 0.27);
     font-weight: bold;
     font-size: 30px;
+    left: 0;
+    margin-left: 362px;
+    width: 300px;
     position: absolute;
 }
 .text_left{
@@ -921,7 +934,7 @@ input{
     text-align: center;
 }
 
-.card_row_subscore{
+.floating-text{
     height: 16px;
     width: 40px;
     padding: 5px;
@@ -1358,6 +1371,7 @@ input{
 
 .selected-card{
     border: 3px solid rgba(0, 47, 147, 0.37) !important;
+    background: rgba(30, 46, 131, 0.2) !important;
 }
 
 .frame_content{
@@ -1523,7 +1537,7 @@ input{
 .user_level div{
     display: inline-block;
 }
-.user_level .card_row_subscore{
+.user_level .floating-text{
     font-size:18px;
     line-height: 18px;
     margin-right: -70px;
@@ -1628,6 +1642,11 @@ input{
 
 .author{
     margin-left: 10px;
+}
+
+.author a{
+    color: white;
+    font-size: 12px;
 }
 
 .vote p{
@@ -1769,8 +1788,7 @@ input{
     height:100%;
     top:0;
     left:0;
-    background: black;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.75);
     text-align:center;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -1808,6 +1826,15 @@ input{
     background: white;
     width: 35%;
     min-width: 500px;
+}
+
+/* About */
+
+.about-intro{
+    padding: 20px;
+    text-align: left;
+    color: rgba(0, 0, 0, 0.84);
+    font-size: 18px;
 }
 
 /* ImageRotator */

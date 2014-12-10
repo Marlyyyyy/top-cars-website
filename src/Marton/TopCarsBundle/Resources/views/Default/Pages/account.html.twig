@@ -1,5 +1,7 @@
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
+{% block title %}Top Cars | Account{% endblock %}
+
 {% block active_tab_account %} top_header_active{% endblock %}
 
 {% block dash_line %}
@@ -21,11 +23,13 @@
             <div class="user_column user_left">
                 <img id="profile-picture" width="160" height="160" src="{{ asset('bundles/martontopcars/images/avatar/' ~ user_details.profilePicturePath) }}"/>
                 <hr>
+
+                {% for role in user.roles %}
                 <div class="user_roles">
-                    {% for role in user.roles %}
-                        {{ role.name }}
-                    {% endfor %}
+                    {{ role.name }}
                 </div>
+                {% endfor %}
+
                 <hr>
             </div>
 

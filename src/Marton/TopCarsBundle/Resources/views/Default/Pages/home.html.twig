@@ -1,3 +1,18 @@
 {% extends 'MartonTopCarsBundle:Default:index.html.twig' %}
 
 {% block content %}{% endblock %}
+
+{% block background %}
+    <!-- Optional Background -->
+    <script>
+        var images = [
+            "{{ asset('bundles/martontopcars/images/background/IMG_0680.jpg') }}",
+            "{{ asset('bundles/martontopcars/images/background/IMG_1136.jpg') }}",
+            "{{ asset('bundles/martontopcars/images/background/IMG_1356.jpg') }}"
+        ];
+        preloadImages(images).done(function(){
+            ImageRotatorModule.init(images).create().start();
+        });
+    </script>
+
+{% endblock %}
