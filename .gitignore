@@ -26,6 +26,6 @@
 !/src/Marton/TopCarsBundle/Resources/views/Default/Pages/Subpages/*
 
 !/web/bundles/martontopcars/css/*
-!/web/bundles/martontopcars/js/*
+!/web/bundles/martontopcars/js/marton.js
 !/web/app.php
 !/web/app_dev.php
