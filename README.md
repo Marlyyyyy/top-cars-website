@@ -77,12 +77,12 @@ Symfony ([documentation](http://symfony.com/doc/current/index.html))
 # Progress #
 
 ### User Authentication and Authorisation ###
-*â€œFinding out who you are and what you should have access toâ€*
+*"Finding out who you are and what you should have access to"*
 
 I made good use of the Security component of Symfony. I set up a user provider, a firewall and access controls within ```security.yml``` in order to only allow registered users to access specific parts of my website.
-The firewall is used to determine if a user has to be authenticated when visiting a particular page. If the answer is yes and the user isnâ€™t authenticated yet, the firewall will automatically redirect the user to a login form. Once the user is logged in using this form, the original request is resent.
+The firewall is used to determine if a user has to be authenticated when visiting a particular page. If the answer is yes and the user isn't authenticated yet, the firewall will automatically redirect the user to a login form. Once the user is logged in using this form, the original request is resent.
 The access control layer allows to define URLs whose access should be limited to specific roles. If a user visiting such a URL does not have the required privileges, the firewall will redirect them to a login form. The firewall also allows to simply log out users by removing them from the session when visiting a specific URL such as ```/logout```.
-Since I store users in a database, the credentials of the to be authenticated visitor has to be matched against a large number of users within the database. Therefore my security user provider is a User class which implements the Security componentâ€™s UserInterface, and is used by the Doctrine ORM to fetch a pool of users from the database. On successful authentication, a serialised instance of this class is saved in the session, therefore I let my User class implement the Serializable interface as well.
+Since I store users in a database, the credentials of the to be authenticated visitor has to be matched against a large number of users within the database. Therefore my security user provider is a User class which implements the Security component's UserInterface, and is used by the Doctrine ORM to fetch a pool of users from the database. On successful authentication, a serialised instance of this class is saved in the session, therefore I let my User class implement the Serializable interface as well.
 I set up a Role table which had a many-to-many association with users. I only added two roles for demonstration purposes. Every newly registered user is assigned a "Registered User" role. One user can also have multiple roles at the same time. In fact every logged in user has the roles below their role in the hierarchy, such as ```IS_AUTHENTICATED_FULLY``` by default.
 The password of each user is combined with a set of random characters (salt) due to the fact that some users might use the same passwords, and then encrypted by a secured hash algorithm (SHA-512). This encrypted password is then stored in my User table.
 
@@ -90,23 +90,23 @@ The password of each user is combined with a set of random characters (salt) due
 ### Validation ###
 *"Never blindly trust any input"*
 
-I implemented client-side form validation using HTML5, as well as server-side validation using Symfonyâ€™s Validator component. For server-side validation I specified a set of constraints along with a set of error messages for each property within each model (i.e. User, UserDetails, SuggestedCar and Registration). 
+I implemented client-side form validation using HTML5, as well as server-side validation using Symfony's Validator component. For server-side validation I specified a set of constraints along with a set of error messages for each property within each model (i.e. User, UserDetails, SuggestedCar and Registration). 
 These models are used when getting data from a submitted form. This data is checked against the specified set of constraints by the Form component. In case of an invalid property the validation returns one or more error messages corresponding to that property. These error messages are either rendered together with the submitted form (e.g. at Registration), or returned as a JSON response in case of an Ajax request (e.g. when suggesting a car). In the latter case, my javascrpt ErrorModule took care of printing the error messages into a specified container.
 I also made sure that all my forms were protected against cross-site request forgery (CSRF) by including a hidden input containing a unique CSRF token in each form. After submitting a particular form, this token is compared against the one in the current session. In case of a mismatch, the form becomes invalid. This security check prevents people from submitting a form without them being the ones who requested that form.
 
 
 ### Testing ###
-*â€œNever do what the computer can do for youâ€*
+*"Never do what the computer can do for you"*
 
 I created both unit tests and functional tests to test the correctness of my application. I set up an SQLite test database and configured it in ```config_test.yml``` as the default one to use with my tests. In this way the original database could remain untouched.  
 
 * Unit Tests: I created a test for each method of each utility class. For example, I managed to test the correctness of the method which creates a unique filename, by calling the method twice one after the other with the same arguments, and comparing the two outputs against each other. 
 * Functional Tests: I created tests for both my repository classes to test my queries, and my controllers to test the handling of incoming requests.
     * My repository test classes inherited a ```setUp``` and ```tearDown``` method from the ```KernelTestCase```. These methods were called before and after each test respectively, which allowed me to first prepare then clear the database.
-    * My controller test classes had to extend Symfonyâ€™s WebTestCase class in order to have access to a createClient method which created an HTTP client similar to a browser. With this client I was able to send both POST and GET requests to any URLs within the application. Since these requests were handled by the methods of controllers, my functional tests allowed me to test from the visitorâ€™s point of view whether each controller method returned an expected response.
-However, since the client had to be authorised in order to make specific requests, I decided to create my own WebTestCase class which extended Symfonyâ€™s existing one. In my own WebTestCase, I created methods which register, log in and delete a particular client. These methods were then inherited by all of my controller-test classes.
+    * My controller test classes had to extend Symfony's WebTestCase class in order to have access to a createClient method which created an HTTP client similar to a browser. With this client I was able to send both POST and GET requests to any URLs within the application. Since these requests were handled by the methods of controllers, my functional tests allowed me to test from the visitor's point of view whether each controller method returned an expected response.
+However, since the client had to be authorised in order to make specific requests, I decided to create my own WebTestCase class which extended Symfony's existing one. In my own WebTestCase, I created methods which register, log in and delete a particular client. These methods were then inherited by all of my controller-test classes.
 My registerClient method accepted two optional parameters (username and email) in case I would like to quickly register multiple clients in any of my tests.
-Also, since each of my controller-test classes extended my WebTestCase class which extended Symfonyâ€™s WebTestCase class which extended Symfonyâ€™s KernelTestCase, I had access to override the ```setUp``` and ```tearDown``` methods inherited from Symfonyâ€™s KernelTestCase class. In ```setUp``` I registered and logged in the user, whereas in ```tearDown``` I deleted their account.
+Also, since each of my controller-test classes extended my WebTestCase class which extended Symfony's WebTestCase class which extended Symfony's KernelTestCase, I had access to override the ```setUp``` and ```tearDown``` methods inherited from Symfony's KernelTestCase class. In ```setUp``` I registered and logged in the user, whereas in ```tearDown``` I deleted their account.
 
 These refactorings helped me avoid a lot of repetitive coding within my tests.
 Most importantly, my tests helped me discover a few very important bugs in my application. Some of these bugs were related to wrong ORM annotations within my entity classes. For example, when a user was deleted, all the cars that the user owned also got deleted from the car table, even though only the link between the user and their cars should have been removed. Also, when deleting a user along with their images, even the default image within the same directory got deleted as I was checking for the wrong extension type. Finally, specific function calls have been fixed, that had to be surrounded by a try-catch statement in order to avoid the application crashing.
@@ -119,8 +119,8 @@ Thankfully, due to my refactored design, this change could be implemented by sim
 Symfony comes with a profiler that can be enabled in both development and production environment. This profiler gives useful information about each request that is made, as well as how that request is processed within the application. Out of these information, the one I most frequently used was the list of queries sent by the Doctrine ORM.
 Using the profiler, I am proud to have discovered the phenomena called lazy-loading even before reading about it online. I noticed that the number of executed queries kept linearly increasing with the number of users on the Leaderboard page. This is because I was trying to access the progress of each user in a for loop, forcing Doctrine to create a new query every time.
 The solution was quite straightforward in most cases, as I simply had to write a DQL query which joined the appropriate entities together before I used the same loop over them. However, in one particular case I had to write a raw SQL query as I reached the limitations of DQL.
-I noticed that the response to most of my requests took strangely long (up to 600ms) even in the production environment where the debugging mode was turned off. According to the timeline of Symfonyâ€™s profiler, the execution time of the Security componentâ€™s firewall was longest.
-I also enabled PHPâ€™s Xdebug extension to save profiling data, and I used Qcachegrind as a tool to visualise this data. According to this approach, Symfonyâ€™s ClassLoader proved to be the slowest.
+I noticed that the response to most of my requests took strangely long (up to 600ms) even in the production environment where the debugging mode was turned off. According to the timeline of Symfony's profiler, the execution time of the Security component's firewall was longest.
+I also enabled PHP's Xdebug extension to save profiling data, and I used Qcachegrind as a tool to visualise this data. According to this approach, Symfony's ClassLoader proved to be the slowest.
 However, on Dice computers the response times were generally 10 times shorter (anything up to 50ms). This increase in performance was possibly caused by an enabled PHP accelerator such as APC.
 
 ### Refactoring ###
@@ -143,19 +143,19 @@ Each of my modules return a public API that could be used anywhere within my app
 
 ### Game ###
 
-I aimed to engineer the core of the game in a way so that it remains scalable and easily extendable. One example for this attempt is that the game could handle any number of players, not only the predefined ones. As long as oneâ€™s computer can handle it, even a thousand players is possible. (However even the 10 players option destroys the point of the competition, since one can obtain many more points by only winning once. Any option above 3 players is for demonstration purposes only).
+I aimed to engineer the core of the game in a way so that it remains scalable and easily extendable. One example for this attempt is that the game could handle any number of players, not only the predefined ones. As long as one's computer can handle it, even a thousand players is possible. (However even the 10 players option destroys the point of the competition, since one can obtain many more points by only winning once. Any option above 3 players is for demonstration purposes only).
 Another example is that I was able to extend the base game and therefore create a behaviourally different game by overriding specific methods.
 The two versions of the game are wrapped inside the ```GameModule``` module which is responsible for managing user interactions within the game-page, such as launching one of the game types or changing the settings.
 
 The players and their cards are represented as instances of the ```Player``` and ```Card``` class. Other frequently changing UI elements are controlled by specific modules within the game.
-The scores are calculated for each player within each round in the following way. Each playerâ€™s card is compared to every other playerâ€™s card exactly once using a temporary array of user objects. In each comparison the difference between the selected property is added to the first playerâ€™s score, whereas the negative of this difference is added to the second playerâ€™s score. After comparing one player to every other player once, the player is removed from the array, preventing comparing the same players multiple times.
+The scores are calculated for each player within each round in the following way. Each player's card is compared to every other player's card exactly once using a temporary array of user objects. In each comparison the difference between the selected property is added to the first player's score, whereas the negative of this difference is added to the second player's score. After comparing one player to every other player once, the player is removed from the array, preventing comparing the same players multiple times.
 After the scores are calculated, draws are checked only for the first place, since any players, who are in draw for anything else other than the first place, count as losers.
 
 
-The Classic (2nd) version of the game has a feature of changing the host of the game to be the previous roundâ€™s winner by swapping the references of host and player objects. Moreover, the order of cards within each player's deck is maintained using queues, because this game mode allows winners to take the losers cards after every round.
+The Classic (2nd) version of the game has a feature of changing the host of the game to be the previous round's winner by swapping the references of host and player objects. Moreover, the order of cards within each player's deck is maintained using queues, because this game mode allows winners to take the losers cards after every round.
 
 * * *
 
 # Developer #
 
-M¡árton Széles
+Márton Széles
