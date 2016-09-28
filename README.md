@@ -19,7 +19,7 @@ Symfony ([documentation](http://symfony.com/doc/current/index.html))
 ### app directory ###
 *(Application configurations)*
 
-* ** app/config/ ** : *Configuration files* : ```config.yml``` holds information about the database and the services created by the developer. It also imports ```security.yml``` which contains all settings related to password encoding, user providers, user privileges, the firewall and protected areas with limited access. The main ```routing.yml``` file can also be found in this subdirectory, but it does not have to be edited until a new bundle is added to the application.
+* **app/config/** : *Configuration files* : ```config.yml``` holds information about the database and the services created by the developer. It also imports ```security.yml``` which contains all settings related to password encoding, user providers, user privileges, the firewall and protected areas with limited access. The main ```routing.yml``` file can also be found in this subdirectory, but it does not have to be edited until a new bundle is added to the application.
 
 * **app/Resources/views/base.html.twig** : Each template within the application inherits from this default base template.
 
@@ -28,23 +28,23 @@ Symfony ([documentation](http://symfony.com/doc/current/index.html))
 
 * **src/Marton/TopCarsBundle/Controller/** : Controllers manage the logic of generating a response. Brief description of what each controller handles:
 
-    * ```AccountController```: GET requests for rendering account related pages (Login, Registration and Account pages), and POST requests for creating, updating and deleting user accounts.
-* ```UserController```: GET requests for rendering user-details and user-progress related pages (Leaderboard and Profile pages), and POST requests for searching for users.
-* ```CarController```: GET requests for rendering car related pages (Garage and Dealership pages), and POST requests for purchasing and selecting cars for a particular user.
-* ```SuggestedCarController```: GET requests for rendering the only suggested car related page (Prototypes page), and POST requests for creating, editing, deleting, accepting and voting on suggested cars.
-* ```GameController```: GET requests for rendering the game page, and various POST requests sent by the game.
-* ```PageController```: GET requests for rendering regular pages such as the About and the Home page, and for redirecting on a trailing slash in the URL.    
+   * ```AccountController```: GET requests for rendering account related pages (Login, Registration and Account pages), and POST requests for creating, updating and deleting user accounts.
+   * ```UserController```: GET requests for rendering user-details and user-progress related pages (Leaderboard and Profile pages), and POST requests for searching for users.
+   * ```CarController```: GET requests for rendering car related pages (Garage and Dealership pages), and POST requests for purchasing and selecting cars for a particular user.
+   * ```SuggestedCarController```: GET requests for rendering the only suggested car related page (Prototypes page), and POST requests for creating, editing, deleting, accepting and voting on suggested cars.
+   * ```GameController```: GET requests for rendering the game page, and various POST requests sent by the game.
+   * ```PageController```: GET requests for rendering regular pages such as the About and the Home page, and for redirecting on a trailing slash in the URL.    
    
 * * *
 * **src/Marton/TopCarsBundle/Entity/** : Entities represent the data models of the application. The following associations were made between entities:
 
-    * one-to-one between User and UserDetails (to store profile information about each user).
-* one-to-one between User and UserProgress (to store the game progress for each user).
-* many-to-many between User and Role (to store the privileges of each user).
-* many-to-many between User and Car (to indicate cars purchased by a user).
-* many-to-many between User and Car (to indicate cars selected by a user).
-* one-to-many between User and SuggestedCar (to store cars suggested by a user).
-* many-to-many between User and SuggestedCar (indicating the up-votes made by users).
+   * one-to-one between User and UserDetails (to store profile information about each user).
+   * one-to-one between User and UserProgress (to store the game progress for each user).
+   * many-to-many between User and Role (to store the privileges of each user).
+   * many-to-many between User and Car (to indicate cars purchased by a user).
+   * many-to-many between User and Car (to indicate cars selected by a user).
+   * one-to-many between User and SuggestedCar (to store cars suggested by a user).
+   * many-to-many between User and SuggestedCar (indicating the up-votes made by users).
 
 * * *
 * **src/Marton/TopCarsBundle/Form/** : Forms are built using Types which may use additional Models stored here.
